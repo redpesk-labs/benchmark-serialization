@@ -12,11 +12,14 @@ void main(int argc, char **argv)
     dataUDP *data;
     data = malloc(sizeof(dataUDP));
 
-    SensorData *sensorData;
-    sensorData=(SensorData *)malloc(sizeof(SensorData));
-    SensorData *sensorDataTemp;
-    sensorDataTemp=(SensorData *)malloc(sizeof(SensorData));
+    SensorData sensorData;
+    SensorData *sensorData_ptr = &sensorData;
+
+    SensorData sensorDataTemp;
+    SensorData *sensorDataTemp_ptr = &sensorDataTemp;
+    
     json_object *my_json;
+    cbor_item_t *my_cbor;
 
     double result_time_json = 0, result_time_cbor = 0, result_time_protobuf = 0, result_time_xdr = 0;
     int err_json = 0, err_cbor = 0, err_protobuf = 0, err_xdr = 0;
@@ -41,14 +44,14 @@ void main(int argc, char **argv)
             data->sockfd = &sockfd[index];
             receiveFromUDP(data);
         }
-        initData(sensorData);
-        initData(sensorDataTemp);
-        parseRawBuffer(data->buffer, buffer_size, sensorData);
+        initData(sensorData_ptr);
+        initData(sensorDataTemp_ptr);
+        parseRawBuffer(data->buffer, buffer_size, sensorData_ptr);
 
-        TargetInfo *myTargetInfos = sensorData->tInfo;
-        SensorVersion mySensorVersion = sensorData->version;
-        SensorStatus mySensorStatus = sensorData->sStatus;
-        TargetStatus myTargetStatus = sensorData->tStatus;
+        TargetInfo *myTargetInfos = sensorData.tInfo;
+        SensorVersion mySensorVersion = sensorData.version;
+        SensorStatus mySensorStatus = sensorData.sStatus;
+        TargetStatus myTargetStatus = sensorData.tStatus;
 
 #if JSON 
         if(clock_gettime(clk_id, &start) == -1){
@@ -57,8 +60,9 @@ void main(int argc, char **argv)
         }
 
         my_json = json_object_new_object();
-        parse_to_json(sensorData, my_json);             
-        json_to_sensorData(my_json, sensorDataTemp);
+        parse_to_json(sensorData_ptr, my_json);             
+        json_to_sensorData(my_json, sensorDataTemp_ptr);
+        
 
         if(clock_gettime(clk_id, &stop) == -1){
             perror("clock gettime start");
@@ -67,8 +71,9 @@ void main(int argc, char **argv)
 
         result_time_json += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
 
-        if (!verification(*sensorData, *sensorDataTemp)) {
-           err_json ++;
+        if (verification(sensorData, sensorDataTemp)) {
+            printf("err att : %i\n", i);
+            err_json ++;
         } 
 #endif
 
@@ -77,12 +82,19 @@ void main(int argc, char **argv)
             perror("clock gettime start");
             exit(EXIT_FAILURE);
         } 
+        my_cbor = cbor_new_definite_map(4);
+        parse_to_cbor(sensorData_ptr, my_cbor);
+        cbor_to_sensorData(my_cbor, sensorDataTemp_ptr);
+
         if(clock_gettime(clk_id, &stop) == -1){
             perror("clock gettime start");
             exit(EXIT_FAILURE);
         }
 
         result_time_cbor += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
+        if (verification(sensorData, sensorDataTemp)) {
+           err_cbor ++;
+        }
 
 #endif
 
@@ -117,8 +129,6 @@ void main(int argc, char **argv)
     }
 
     free(data);
-    free(sensorData);
-    free(sensorDataTemp);
 
     printf("----- Result Benchmarking -----\n");
     printf("Data tested : %d\n", DATA_TESTED);
@@ -184,48 +194,55 @@ void debug_parse(struct json_object *data_json)
 
 int verification(SensorData sensorData_1, SensorData sensorData_2)
 {
-    // sensor version
-    if (sensorData_1.version.dataType != sensorData_2.version.dataType)
+    TargetInfo targetInfo_1 = *sensorData_1.tInfo;
+    TargetInfo targetInfo_2 =  *sensorData_2.tInfo;
+    SensorVersion sensorVersion_1 = sensorData_1.version, sensorVersion_2 = sensorData_2.version;
+    SensorStatus sensorStatus_1 = sensorData_1.sStatus, sensorStatus_2 = sensorData_2.sStatus;
+    TargetStatus targetStatus_1 = sensorData_1.tStatus, targetStatus_2 = sensorData_2.tStatus;
+
+    // sensor version 
+    if (sensorVersion_1.dataType != sensorVersion_2.dataType)
         return 1;
-    if (sensorData_1.version.master != sensorData_2.version.master)
+    if (sensorVersion_1.master != sensorVersion_2.master)
         return 1;
-    if (sensorData_1.version.result != sensorData_2.version.result)
+    if (sensorVersion_1.result != sensorVersion_2.result)
         return 1;
-    if (sensorData_1.version.second != sensorData_2.version.second)
+    if (sensorVersion_1.second != sensorVersion_2.second)
         return 1;
-    if (sensorData_1.version.step != sensorData_2.version.step)
+    if (sensorVersion_1.step != sensorVersion_2.step)
         return 1;
-    
+
     // sensor status
-    if (sensorData_1.sStatus.actl_mode != sensorData_2.sStatus.actl_mode)
+    if (sensorStatus_1.actl_mode != sensorStatus_2.actl_mode)
         return 1;
-    if (sensorData_1.sStatus.cfgStatus != sensorData_2.sStatus.cfgStatus)
+    if (sensorStatus_1.cfgStatus != sensorStatus_2.cfgStatus)
         return 1;
-    if (sensorData_1.sStatus.rollcount != sensorData_2.sStatus.rollcount)
+    if (sensorStatus_1.rollcount != sensorStatus_2.rollcount)
         return 1;
 
     // Target Status
-    if (sensorData_1.tStatus.noOfTarget != sensorData_2.tStatus.noOfTarget)
+    if (targetStatus_1.noOfTarget != targetStatus_2.noOfTarget)
         return 1;
-    if (sensorData_1.tStatus.rollcount != sensorData_2.tStatus.rollcount)
-        return 1;
+    if (targetStatus_1.rollcount != targetStatus_2.rollcount)
+        return 1; 
 
     // Target Info
-    if(sensorData_1.tInfo->azimuth != sensorData_2.tInfo->azimuth)
+    if(targetInfo_1.azimuth != targetInfo_2.azimuth)
         return 1;
-    if(sensorData_1.tInfo->index != sensorData_2.tInfo->index)
+    if(targetInfo_1.index != targetInfo_2.index)
         return 1;
-    if(sensorData_1.tInfo->range != sensorData_2.tInfo->range)
+    if(targetInfo_1.range != targetInfo_2.range)
         return 1;
-    if(sensorData_1.tInfo->rcs != sensorData_2.tInfo->rcs)
+    if(targetInfo_1.rcs != targetInfo_2.rcs)
         return 1;
-    if(sensorData_1.tInfo->rollCount != sensorData_2.tInfo->rollCount)
+    if(targetInfo_1.rollCount != targetInfo_2.rollCount)
         return 1;
-    if(sensorData_1.tInfo->SNR != sensorData_2.tInfo->SNR)
+    if(targetInfo_1.SNR != targetInfo_2.SNR)
         return 1;
-    if(sensorData_1.tInfo->vrel != sensorData_2.tInfo->vrel)
+    if(targetInfo_1.vrel != targetInfo_2.vrel)
         return 1;
     return 0;
+    
 }
 
 void printResult(int err, double time) {
@@ -234,6 +251,7 @@ void printResult(int err, double time) {
         printf("\tTime during the serialization: %f ns\n", time);
     }else {
         printf("\tData: NOK\n");
+        printf("\tNumber of error : %i", err);
     }
     printf("\n\n");
 }

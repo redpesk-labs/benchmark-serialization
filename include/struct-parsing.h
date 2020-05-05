@@ -15,6 +15,7 @@
 
 
 #include <json-c/json.h>
+#include <cbor.h>
 
 typedef struct
 {

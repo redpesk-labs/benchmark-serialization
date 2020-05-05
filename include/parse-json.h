@@ -18,6 +18,6 @@ struct json_object *TargetStatusToJsonObject(TargetStatus * data);
 TargetStatus JsonObjectToTargetStatus(struct json_object * data);
 
 struct json_object *TargetInfoToJsonObject(TargetInfo * data);
-TargetInfo JsonObjectToTargetInfo(struct json_object * data);
+TargetInfo *JsonObjectToTargetInfo(struct json_object * data);
 
 #endif
