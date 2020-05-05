@@ -32,9 +32,13 @@ After that it will test all different serializations and de-serializations. We u
 ## How use it
 
 Firstly you have to run the generator-udp project. you can find it at : [git@git.ovh.iot:vlefebvre/generator-udp.git](git@git.ovh.iot:vlefebvre/generator-udp.git)
+
 It will send data to the right udp port.
 And then run this project. You can go to the file **config-parsing.h** to change macro to change which serialization would be tested, and the number of data tested.
 
 ## Note
+
+libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)
+
 
 libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor)
