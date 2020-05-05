@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/benchmark.dir/main.c.o CMakeFiles/benchmark.dir/src/parse-json.c.o CMakeFiles/benchmark.dir/src/sp70c-data-handle.c.o CMakeFiles/benchmark.dir/src/udpServer.c.o  -o benchmark -ljson-c 
