@@ -1,3 +1,0 @@
-/home/valentin/gitlab/benchmark-serialisation/build/CMakeFiles/rebuild_cache.dir
-/home/valentin/gitlab/benchmark-serialisation/build/CMakeFiles/benchmark.dir
-/home/valentin/gitlab/benchmark-serialisation/build/CMakeFiles/edit_cache.dir
