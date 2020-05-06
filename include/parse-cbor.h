@@ -5,6 +5,7 @@ enum type
 {
     type_uint8,
     type_uint16,
+    type_int16,
     type_float,
     type_bool,
 };
@@ -30,7 +31,7 @@ SensorStatus cborToSensorStatus(cbor_item_t *cborData);
 cbor_item_t *TargetStatusToCbor(TargetStatus data);
 TargetStatus cborToTargetStatus(cbor_item_t *cborData);
 
-cbor_item_t *TargetInfoToCbor(TargetInfo * data);
-TargetInfo *cborToTargetInfo(cbor_item_t *cborData);
+cbor_item_t *TargetInfoToCbor(TargetInfo data);
+TargetInfo cborToTargetInfo(cbor_item_t *cborData);
 
 void addMapCbor(cbor_item_t *cborMap, union type_data value, enum type type_data, char *key);

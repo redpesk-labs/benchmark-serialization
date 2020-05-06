@@ -3,14 +3,14 @@
 
 #include "include/config-parsing.h"
 #include "include/struct-parsing.h"
-#include "include/udpServer.h"
 #include "include/sp70c-data-handle.h"
 #include "include/parse-json.h"
 #include "include/parse-cbor.h"
 
 /* Function Prototype */
 void error(char *msg);
-void catchDataFromUdp(SensorData **sensorData_ptr);
+void generateData(SensorData **sensorData_ptr);
+void debug_parse(struct json_object *data_json);
 int verification(SensorData *sensorData_1, SensorData *sensorData_2);
 void printResult(int err, double time);
 

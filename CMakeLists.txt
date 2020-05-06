@@ -10,7 +10,6 @@ add_executable(benchmark
 main.c
 src/parse-json.c 
 src/sp70c-data-handle.c
-src/udpServer.c
 src/parse-cbor.c
 src/parse-protobuf.c
 src/parse-xdr.c)

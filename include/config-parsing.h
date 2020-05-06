@@ -4,11 +4,11 @@
 #define NUMBER_PORT  1
 #define PARSING_BUFFER_SIZE 14
 
-#define DATA_TESTED     100
+#define DATA_TESTED     1000
 
 
 #define JSON        1
-#define CBOR        0
+#define CBOR        1
 #define PROTOBUF    0
 #define CDR         0
 

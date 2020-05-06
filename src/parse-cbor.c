@@ -24,21 +24,25 @@ void parse_to_cbor(SensorData *sensorData, cbor_item_t *my_cbor)
 void cbor_to_sensorData(cbor_item_t *my_cbor, SensorData *sensorData)
 {
     struct cbor_pair *cborPairTmp = cbor_map_handle(my_cbor);
-    cbor_item_t *mapCborSensorVersion = cbor_new_definite_map(5);
+    /* cbor_item_t *mapCborSensorVersion = cbor_new_definite_map(5);
     cbor_item_t *mapCborSensorStatus = cbor_new_definite_map(3);
     cbor_item_t *mapCborTargetStatus = cbor_new_definite_map(2);
-    cbor_item_t *mapCborTargetInfo = cbor_new_definite_map(7);
+    cbor_item_t *mapCborTargetInfo = cbor_new_definite_map(7); 
+    cbor_item_t *mapCborSensorVersion;
+    cbor_item_t *mapCborSensorStatus;
+    cbor_item_t *mapCborTargetStatus;
+    cbor_item_t *mapCborTargetInfo;
 
     
     mapCborSensorVersion = cborPairTmp[0].value;
     mapCborSensorStatus = cborPairTmp[1].value;
     mapCborTargetStatus = cborPairTmp[2].value;
-    mapCborTargetInfo = cborPairTmp[3].value;
-    sensorData->version = cborToSensorVersion(mapCborSensorVersion);
-    sensorData->sStatus = cborToSensorStatus(mapCborSensorStatus);
-    sensorData->tStatus = cborToTargetStatus(mapCborTargetStatus);
-    sensorData->tInfo = cborToTargetInfo(mapCborTargetInfo);
-    
+    mapCborTargetInfo = cborPairTmp[3].value; */
+
+    sensorData->version = cborToSensorVersion(cborPairTmp[0].value);
+    sensorData->sStatus = cborToSensorStatus(cborPairTmp[1].value);
+    sensorData->tStatus = cborToTargetStatus(cborPairTmp[2].value);
+    sensorData->tInfo = cborToTargetInfo(cborPairTmp[3].value);  
 }
 
 cbor_item_t *SensorVersionToCbor(SensorVersion data)
@@ -101,31 +105,32 @@ TargetStatus cborToTargetStatus(cbor_item_t *cborData)
     return targetStatusTmp;
 }
 
-cbor_item_t *TargetInfoToCbor(TargetInfo * data)
+cbor_item_t *TargetInfoToCbor(TargetInfo data)
 {
     cbor_item_t *cbor_temp = cbor_new_definite_map(7);
-    addMapCbor(cbor_temp, (union type_data)data->azimuth, type_uint16, "Azimuth");
-    addMapCbor(cbor_temp, (union type_data)data->index, type_uint8, "Index");
-    addMapCbor(cbor_temp, (union type_data)data->range, type_float, "Range");
-    addMapCbor(cbor_temp, (union type_data)data->rcs, type_float, "RCS");
-    addMapCbor(cbor_temp, (union type_data)data->rollCount, type_uint8, "Rollcount");
-    addMapCbor(cbor_temp, (union type_data)data->SNR, type_uint8, "SNR");
-    addMapCbor(cbor_temp, (union type_data)data->vrel, type_float, "Vrel");
+    addMapCbor(cbor_temp, (union type_data)data.azimuth, type_int16, "Azimuth");
+    addMapCbor(cbor_temp, (union type_data)data.index, type_uint8, "Index");
+    addMapCbor(cbor_temp, (union type_data)data.range, type_float, "Range");
+    addMapCbor(cbor_temp, (union type_data)data.rcs, type_float, "RCS");
+    addMapCbor(cbor_temp, (union type_data)data.rollCount, type_uint8, "Rollcount");
+    addMapCbor(cbor_temp, (union type_data)data.SNR, type_uint8, "SNR");
+    addMapCbor(cbor_temp, (union type_data)data.vrel, type_float, "Vrel");
     return cbor_temp;
 }
 
-TargetInfo *cborToTargetInfo(cbor_item_t *cborData)
+TargetInfo cborToTargetInfo(cbor_item_t *cborData)
 {
     struct cbor_pair *cborPairTmp = cbor_map_handle(cborData);
-    TargetInfo target;
-    TargetInfo *targetInfoTmp = &target;
-    targetInfoTmp->azimuth = cbor_get_uint16(cborPairTmp[0].value);
-    targetInfoTmp->index = cbor_get_uint8(cborPairTmp[1].value);
-    targetInfoTmp->range = cbor_float_get_float2(cborPairTmp[2].value);
-    targetInfoTmp->rcs = cbor_float_get_float2(cborPairTmp[3].value);
-    targetInfoTmp->rollCount = cbor_get_uint8(cborPairTmp[4].value);
-    targetInfoTmp->SNR = cbor_get_uint8(cborPairTmp[5].value);
-    targetInfoTmp->vrel = cbor_float_get_float2(cborPairTmp[6].value);
+    
+    TargetInfo targetInfoTmp;
+    targetInfoTmp.azimuth = cbor_get_uint16(cborPairTmp[0].value);
+    targetInfoTmp.index = cbor_get_uint8(cborPairTmp[1].value);
+    targetInfoTmp.range = cbor_float_get_float2(cborPairTmp[2].value);
+    targetInfoTmp.rcs = cbor_float_get_float2(cborPairTmp[3].value);
+    targetInfoTmp.rollCount = cbor_get_uint8(cborPairTmp[4].value);
+    targetInfoTmp.SNR = cbor_get_uint8(cborPairTmp[5].value);
+    targetInfoTmp.vrel = cbor_float_get_float2(cborPairTmp[6].value);
+
     return targetInfoTmp;
 }
 
@@ -142,19 +147,40 @@ void addMapCbor(cbor_item_t *cborMap, union type_data value, enum type type_data
         case type_uint16:
             cbor_map_add(cborMap, (struct cbor_pair) {
                 .key = cbor_move(cbor_build_string(key)),
-                .value = cbor_move(cbor_build_uint16(value.data_uint8))
+                .value = cbor_move(cbor_build_uint16(value.data_uint16))
             });
+            break;
+        case type_int16:
+            cbor_map_add(cborMap, (struct cbor_pair) {
+                .key = cbor_move(cbor_build_string(key)),
+                .value = (cbor_move(cbor_build_uint16(value.data_int16)))
+            });
+        /*
+            if(value.data_int16 > 0) {
+                cbor_map_add(cborMap, (struct cbor_pair) {
+                    .key = cbor_move(cbor_build_string(key)),
+                    .value = (cbor_move(cbor_build_uint16(value.data_int16)))
+                });
+            }else {
+                cbor_item_t *item_temp = cbor_build_uint16(value.data_int16);
+                cbor_mark_negint(item_temp);
+                cbor_map_add(cborMap, (struct cbor_pair) {
+                    .key = cbor_move(cbor_build_string(key)),
+                    .value = (cbor_move(item_temp))
+                });
+            }
+            */
             break;
         case type_float:
             cbor_map_add(cborMap, (struct cbor_pair) {
                 .key = cbor_move(cbor_build_string(key)),
-                .value = cbor_move(cbor_build_float2(value.data_uint8))
+                .value = cbor_move(cbor_build_float2(value.data_float))
             });
             break;
         case type_bool:
             cbor_map_add(cborMap, (struct cbor_pair) {
                 .key = cbor_move(cbor_build_string(key)),
-                .value = cbor_move(cbor_build_bool(value.data_uint8))
+                .value = cbor_move(cbor_build_bool(value.data_bool))
             });
             break;
         default:
