@@ -10,8 +10,8 @@
 
 /* Function Prototype */
 void error(char *msg);
-void debug_parse(struct json_object *data_json);
-int verification(SensorData sensorData_1, SensorData sensorData_2);
+void catchDataFromUdp(SensorData **sensorData_ptr);
+int verification(SensorData *sensorData_1, SensorData *sensorData_2);
 void printResult(int err, double time);
 
 #endif

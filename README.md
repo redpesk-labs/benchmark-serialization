@@ -38,7 +38,8 @@ And then run this project. You can go to the file **config-parsing.h** to change
 
 ## Note
 
-libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)
+libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)  `apt install libjson-c-dev`
 
+libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor) `apt install libcbor-dev`
 
-libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor)
+libprotobuf: `apt install libprotobuf-c-dev`

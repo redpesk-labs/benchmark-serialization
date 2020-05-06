@@ -35,10 +35,13 @@ void json_to_sensorData(json_object *my_json, SensorData *sensorData)
     target_status = JsonObjectToTargetStatus(my_json);
     target_info = JsonObjectToTargetInfo(my_json);
 
+    //printf("Azimmuth 1: %i\n", target_info->azimuth);
+
     sensorData->version = sensor_version;
     sensorData->sStatus = sensor_status;
     sensorData->tStatus = target_status;
     sensorData->tInfo = target_info;
+    sensorData->tInfoSize=0;
 }
 
 struct json_object *SensorVersionToJsonObject(SensorVersion * data)
