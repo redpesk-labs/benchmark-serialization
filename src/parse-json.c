@@ -8,19 +8,17 @@ void parse_to_json(SensorData *sensorData, json_object *my_json)
     struct json_object *SSobject;
     struct json_object *TSobject;
     struct json_object *TIobject;
-    //struct json_object *TIobjects=json_object_new_array();
 
     SVobject = SensorVersionToJsonObject(&sensorData->version);
     SSobject = SensorStatusToJsonObject(&sensorData->sStatus);
     TSobject = TargetStatusToJsonObject(&sensorData->tStatus);
-    TIobject = TargetInfoToJsonObject(sensorData->tInfo);
+    TIobject = TargetInfoToJsonObject(&sensorData->tInfo);
     
 
     json_object_object_add(my_json, "SensorVersion", SVobject);
     json_object_object_add(my_json, "SensorStatus", SSobject);
     json_object_object_add(my_json, "TargetStatus", TSobject);
     json_object_object_add(my_json, "TargetInfos", TIobject);
-
 }
 
 void json_to_sensorData(json_object *my_json, SensorData *sensorData)
@@ -28,7 +26,7 @@ void json_to_sensorData(json_object *my_json, SensorData *sensorData)
     SensorVersion sensor_version;
     SensorStatus sensor_status;
     TargetStatus target_status;
-    TargetInfo *target_info;
+    TargetInfo target_info;
 
     sensor_version = JsonObjectToSensorVersion(my_json);
     sensor_status = JsonObjectToSensorStatus(my_json);
@@ -69,19 +67,18 @@ struct json_object *SensorVersionToJsonObject(SensorVersion * data)
 SensorVersion JsonObjectToSensorVersion(struct json_object * data)
 {
     SensorVersion tempobject;
-    struct json_object *SVobject;
+    struct json_object *SVobject_json;
     struct json_object *dataType_json;
     struct json_object *result_json;
     struct json_object *master_json;
     struct json_object *second_json;
     struct json_object *step_json;
-    SVobject = json_object_new_object();
-    json_object_object_get_ex(data, "SensorVersion", &SVobject);
-    json_object_object_get_ex(SVobject, "DataType", &dataType_json);
-    json_object_object_get_ex(SVobject, "Result", &result_json);
-    json_object_object_get_ex(SVobject, "Master", &master_json);
-    json_object_object_get_ex(SVobject, "Second", &second_json);
-    json_object_object_get_ex(SVobject, "Step", &step_json);
+    json_object_object_get_ex(data, "SensorVersion", &SVobject_json);
+    json_object_object_get_ex(SVobject_json, "DataType", &dataType_json);
+    json_object_object_get_ex(SVobject_json, "Result", &result_json);
+    json_object_object_get_ex(SVobject_json, "Master", &master_json);
+    json_object_object_get_ex(SVobject_json, "Second", &second_json);
+    json_object_object_get_ex(SVobject_json, "Step", &step_json);
     tempobject.dataType = json_object_get_int(dataType_json);
     tempobject.result = json_object_get_boolean(result_json);
     tempobject.master = json_object_get_int(master_json);
@@ -116,7 +113,6 @@ SensorStatus JsonObjectToSensorStatus(struct json_object * data)
     struct json_object *actl_json;
     struct json_object *rollcount_json;
     struct json_object *cfg_json;
-    SSobject = json_object_new_object();
     json_object_object_get_ex(data, "SensorStatus", &SSobject);
     json_object_object_get_ex(SSobject, "Actl_mode", &actl_json);
     json_object_object_get_ex(SSobject, "Rollcount", &rollcount_json);
@@ -150,7 +146,6 @@ TargetStatus JsonObjectToTargetStatus(struct json_object * data)
     struct json_object *TSobject;
     struct json_object *noOfTarget_json;
     struct json_object *rollcount_json;
-    TSobject = json_object_new_object();
     json_object_object_get_ex(data, "TargetStatus", &TSobject);
     json_object_object_get_ex(TSobject, "NoOfTarget", &noOfTarget_json);
     json_object_object_get_ex(TSobject, "Rollcount", &rollcount_json);
@@ -190,10 +185,9 @@ struct json_object *TargetInfoToJsonObject(TargetInfo * data)
     return tempobject;   
 }
 
-TargetInfo *JsonObjectToTargetInfo(struct json_object * data)
+TargetInfo JsonObjectToTargetInfo(struct json_object * data)
 {
-    TargetInfo temp;
-    TargetInfo *tempobject = &temp;
+    TargetInfo tempobject;
     
     struct json_object *TIobject;
     struct json_object *index_json;
@@ -204,9 +198,7 @@ TargetInfo *JsonObjectToTargetInfo(struct json_object * data)
     struct json_object *rollcount_json;
     struct json_object *snr_json;
     
-    TIobject = json_object_new_object();
     json_object_object_get_ex(data, "TargetInfos", &TIobject);
-
     json_object_object_get_ex(TIobject, "Index", &index_json);
     json_object_object_get_ex(TIobject, "RCS", &rcs_json);
     json_object_object_get_ex(TIobject, "Range", &range_json);
@@ -215,13 +207,13 @@ TargetInfo *JsonObjectToTargetInfo(struct json_object * data)
     json_object_object_get_ex(TIobject, "Rollcount", &rollcount_json);
     json_object_object_get_ex(TIobject, "SNR", &snr_json);
 
-    tempobject->index = json_object_get_int(index_json);
-    tempobject->rcs = json_object_get_double(rcs_json);
-    tempobject->range = json_object_get_double(range_json);
-    tempobject->azimuth = json_object_get_int(azimuth_json);
-    tempobject->vrel = json_object_get_double(vrel_json);
-    tempobject->rollCount = json_object_get_int(rollcount_json);
-    tempobject->SNR = json_object_get_int(snr_json);
+    tempobject.index = json_object_get_int(index_json);
+    tempobject.rcs = json_object_get_double(rcs_json);
+    tempobject.range = json_object_get_double(range_json);
+    tempobject.azimuth = json_object_get_int(azimuth_json);
+    tempobject.vrel = json_object_get_double(vrel_json);
+    tempobject.rollCount = json_object_get_int(rollcount_json);
+    tempobject.SNR = json_object_get_int(snr_json);
 
     return tempobject;
 }

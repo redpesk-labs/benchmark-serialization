@@ -11,7 +11,6 @@ add_executable(benchmark
 main.c
 src/parse-json.c 
 src/sp70c-data-handle.c
-src/udpServer.c
 src/parse-cbor.c)
 
 # add the binary tree to the search path for include files

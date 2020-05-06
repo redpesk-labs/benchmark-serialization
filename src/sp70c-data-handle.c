@@ -47,7 +47,7 @@ int initData(SensorData *sensorData)
     initTargetStatus(&sensorData->tStatus);
     initSensorVersion(&sensorData->version);
     initSensorStatus(&sensorData->sStatus);
-    sensorData->tInfo=NULL;
+    initTargetInfo(&sensorData->tInfo);
     sensorData->tInfoSize=0;
     return 0;
 }
@@ -83,7 +83,7 @@ int parseRawBuffer(uint8_t *buffer, size_t size, SensorData* sensorData)
                     if(parseTargetStatus(parsingBuffer,sensorData)>0){
                         tInfoIndex = index + PARSING_BUFFER_SIZE;
                         sensorData->tInfoSize=0;
-                        parseAllTargetInfo(buffer+tInfoIndex,sensorData); //Parse each target info received after the 0x70B message
+                        parseTargetInfo(buffer+tInfoIndex,sensorData); //Parse each target info received after the 0x70B message
                     }
                     index += PARSING_BUFFER_SIZE*(sensorData->tStatus.noOfTarget+1)-1;
                     break;
@@ -130,7 +130,7 @@ int parseTargetStatus(uint8_t *buffer,SensorData* sensorData)
     TargetStatus targetStatus;
     targetStatus.noOfTarget=(uint8_t)(buffer[4]);
     targetStatus.rollcount=(uint8_t)(buffer[5]&0x3);
-    if(targetStatus.noOfTarget>0){
+    /* if(targetStatus.noOfTarget>0){
         if(sensorData->tInfo){
             if(sensorData->tStatus.noOfTarget!=targetStatus.noOfTarget){
                 sensorData->tInfo=(TargetInfo *)realloc(sensorData->tInfo,sizeof(TargetInfo)*targetStatus.noOfTarget);
@@ -141,7 +141,7 @@ int parseTargetStatus(uint8_t *buffer,SensorData* sensorData)
             if(!sensorData->tInfo){
                 printf("ERROR ALLOCATING MEMORY\n");
             }
-        }
+         }
     }
     if(targetStatus.noOfTarget==0){
         if(sensorData->tInfo){
@@ -149,7 +149,7 @@ int parseTargetStatus(uint8_t *buffer,SensorData* sensorData)
             sensorData->tInfo=NULL;
         }
     }
-
+*/
     sensorData->tStatus=targetStatus;
     //printf("Number of targets : %d\n", sensorData->tStatus.noOfTarget);
     return sensorData->tStatus.noOfTarget;
@@ -166,11 +166,11 @@ int parseTargetInfo(uint8_t *buffer,SensorData* sensorData)
     targetInfo.vrel=(float)(((float)((buffer[9]&7)/**256*/+buffer[10])*0.05)-35);
     targetInfo.rollCount=(uint8_t)(buffer[9]>>5);
     targetInfo.SNR=(int8_t)(buffer[11]-127);
-    if(sensorData->tInfo && sensorData->tStatus.noOfTarget>0){
+/*     if(sensorData->tInfo && sensorData->tStatus.noOfTarget>0){
         targetInfoCopy(sensorData->tInfo+sensorData->tInfoSize,&targetInfo);
         sensorData->tInfoSize++;
-    }
-
+    } */
+    sensorData->tInfo = targetInfo;
     return 0;
 }
 

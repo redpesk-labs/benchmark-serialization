@@ -2,99 +2,102 @@
 
 void main(int argc, char **argv)
 {
-    ssize_t size;
-    int buffer_size =3*14;
-    int sockfd[NUMBER_PORT], index, ret;
+    SensorData **sensorData_ptr;
+    sensorData_ptr = malloc(DATA_TESTED*sizeof(SensorData *));
+    for (int i = 0; i<DATA_TESTED; i++) {
+        sensorData_ptr[i] = malloc(sizeof(SensorData));
+    } 
+    SensorData **sensorDataTemp_ptr;
+    sensorDataTemp_ptr = malloc(DATA_TESTED*sizeof(SensorData *));
+    for (int i = 0; i<DATA_TESTED; i++) {
+        sensorDataTemp_ptr[i] = malloc(sizeof(SensorData));
+        initData(sensorDataTemp_ptr[i]);
+    } 
     
-    int port[NUMBER_PORT] = {1111};
-    uint8_t buffer[200];
-
-    dataUDP *data;
-    data = malloc(sizeof(dataUDP));
-
-    SensorData sensorData;
-    SensorData *sensorData_ptr = &sensorData;
-
-    SensorData sensorDataTemp;
-    SensorData *sensorDataTemp_ptr = &sensorDataTemp;
-    
-    json_object *my_json;
-    cbor_item_t *my_cbor;
-
-    double result_time_json = 0, result_time_cbor = 0, result_time_protobuf = 0, result_time_xdr = 0;
+    uint64_t result_time_json, result_time_cbor, result_time_protobuf, result_time_xdr;
     int err_json = 0, err_cbor = 0, err_protobuf = 0, err_xdr = 0;
+
     struct timespec start, stop;
     clockid_t clk_id;
+    uint64_t timer_start;
+    uint64_t timer_stop;
 
     clk_id = CLOCK_MONOTONIC;
 
     printf (" ====== BENCHMARKING DATA SERIALIZATION ====== \n");
+    printf("data tested : %i\n", (int)DATA_TESTED);
 
-    // Initialize sockets UDP
-    for(index = 0; index<NUMBER_PORT; index ++) {
-        initServerUDP(port[index], &sockfd[index]);
+    generateData(sensorData_ptr);
+
+#if JSON
+
+    struct json_object *my_json;
+
+    if(clock_gettime(clk_id, &start) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
     }
-
-    // Begin the loop and run for each data reveived on the udp port
-    for(int i=0; i<DATA_TESTED; i++) {
-        for(index = 0; index<NUMBER_PORT; index ++) {
-            data->index = index;
-            data->buffer = buffer;
-            data->port = port[index];
-            data->sockfd = &sockfd[index];
-            receiveFromUDP(data);
-        }
-        initData(sensorData_ptr);
-        initData(sensorDataTemp_ptr);
-        parseRawBuffer(data->buffer, buffer_size, sensorData_ptr);
-
-        TargetInfo *myTargetInfos = sensorData.tInfo;
-        SensorVersion mySensorVersion = sensorData.version;
-        SensorStatus mySensorStatus = sensorData.sStatus;
-        TargetStatus myTargetStatus = sensorData.tStatus;
-
-#if JSON 
-        if(clock_gettime(clk_id, &start) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        }
-
+    
+    for (int i=0; i<DATA_TESTED; i++) {
         my_json = json_object_new_object();
-        parse_to_json(sensorData_ptr, my_json);             
-        json_to_sensorData(my_json, sensorDataTemp_ptr);
-        
+        parse_to_json(sensorData_ptr[i], my_json);             
+        json_to_sensorData(my_json, sensorDataTemp_ptr[i]);
+        json_object_put(my_json);
+    }
+    
+    if(clock_gettime(clk_id, &stop) == -1){
+        perror("clock gettime stop");
+        exit(EXIT_FAILURE);
+    }
+    timer_start = start.tv_sec*1000000000 + start.tv_nsec;
+    timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
+    result_time_json = timer_stop - timer_start;
 
-        if(clock_gettime(clk_id, &stop) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        }
-
-        result_time_json += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
-
-        if (verification(sensorData, sensorDataTemp)) {
+    for (int i=0; i<DATA_TESTED; i++) {
+        if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
             printf("err att : %i\n", i);
             err_json ++;
-        } 
+        }
+    }
+    printf("# JSON :\n");
+    printResult(err_json, result_time_json);
+
 #endif
 
 #if CBOR 
-        if(clock_gettime(clk_id, &start) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        } 
+
+    cbor_item_t *my_cbor;
+
+    if(clock_gettime(clk_id, &start) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    } 
+
+    for (int i=0; i<DATA_TESTED; i++) {
         my_cbor = cbor_new_definite_map(4);
-        parse_to_cbor(sensorData_ptr, my_cbor);
-        cbor_to_sensorData(my_cbor, sensorDataTemp_ptr);
+        parse_to_cbor(sensorData_ptr[i], my_cbor);
+        cbor_to_sensorData(my_cbor, sensorDataTemp_ptr[i]);
+        cbor_decref(&my_cbor);
+    }
 
-        if(clock_gettime(clk_id, &stop) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        }
+    if(clock_gettime(clk_id, &stop) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    }
+    timer_start = start.tv_sec*1000000000 + start.tv_nsec;
+    timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
+    result_time_cbor = timer_stop - timer_start;
 
-        result_time_cbor += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
-        if (verification(sensorData, sensorDataTemp)) {
-           err_cbor ++;
+    //printf("Azimuth 1 : %i\n", sensorData_ptr[20]->tInfo.azimuth);
+    //printf("Azimuth 2 : %i\n", sensorDataTemp_ptr[20]->tInfo.azimuth);
+    for (int i=0; i<DATA_TESTED; i++) {
+        if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+            printf("err att : %i\n", i);
+            err_cbor ++;
         }
+    }
+    printf("# CBOR :\n");
+    printResult(err_cbor, result_time_cbor);
 
 #endif
 
@@ -126,31 +129,12 @@ void main(int argc, char **argv)
 
 #endif
 
-    }
-
-    free(data);
-
-    printf("----- Result Benchmarking -----\n");
-    printf("Data tested : %d\n", DATA_TESTED);
-    printf("\n\n");
-
-#if JSON
-    printf("# JSON :\n");
-    printResult(err_json, result_time_json/DATA_TESTED);
-#endif
-#if CBOR
-    printf("# CBOR :\n");
-    printResult(err_cbor, result_time_cbor/DATA_TESTED);
-#endif
-#if PROTOBUF
-    printf("# PROTOBUF :\n");
-    printResult(err_protobuf, result_time_protobuf/DATA_TESTED);
-#endif
-#if XDR
-    printf("# XDR :\n");
-    printResult(err_xdr, result_time_xdr/DATA_TESTED);
-#endif
-
+for (int i = 0; i<DATA_TESTED; i++) {
+        free(sensorData_ptr[i]);
+        free(sensorDataTemp_ptr[i]);
+    }    
+    free(sensorData_ptr);
+    free(sensorDataTemp_ptr);
 }
 
 /**
@@ -161,6 +145,18 @@ void main(int argc, char **argv)
 void error(char *msg) {
     perror(msg);
     exit(0);
+}
+
+void generateData(SensorData **sensorData_ptr)
+{
+   int buffer_size =3*14;
+   uint8_t buffer[3*14] = {0xaa, 0xaa, 0x0a, 0x06, 0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55,
+    0xaa, 0xaa, 0xb, 0x07, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55,
+    0xaa, 0xaa, 0x0c, 0x07, 0x01, 0x6b, 0x01, 0x86, 0x2a, 0x02, 0xbf, 0x79, 0x55, 0x55};
+    for(int i=0; i<DATA_TESTED; i++) {
+        initData(sensorData_ptr[i]);
+        parseRawBuffer(buffer, buffer_size, sensorData_ptr[i]);
+    }
 }
 
 void debug_parse(struct json_object *data_json)
@@ -192,13 +188,13 @@ void debug_parse(struct json_object *data_json)
     printf(" ===== END DEBUG PARSE JSON =====\n");
 }
 
-int verification(SensorData sensorData_1, SensorData sensorData_2)
+int verification(SensorData *sensorData_1, SensorData *sensorData_2)
 {
-    TargetInfo targetInfo_1 = *sensorData_1.tInfo;
-    TargetInfo targetInfo_2 =  *sensorData_2.tInfo;
-    SensorVersion sensorVersion_1 = sensorData_1.version, sensorVersion_2 = sensorData_2.version;
-    SensorStatus sensorStatus_1 = sensorData_1.sStatus, sensorStatus_2 = sensorData_2.sStatus;
-    TargetStatus targetStatus_1 = sensorData_1.tStatus, targetStatus_2 = sensorData_2.tStatus;
+
+    TargetInfo targetInfo_1 = sensorData_1->tInfo, targetInfo_2 = sensorData_2->tInfo;
+    SensorVersion sensorVersion_1 = sensorData_1->version, sensorVersion_2 = sensorData_2->version;
+    SensorStatus sensorStatus_1 = sensorData_1->sStatus, sensorStatus_2 = sensorData_2->sStatus;
+    TargetStatus targetStatus_1 = sensorData_1->tStatus, targetStatus_2 = sensorData_2->tStatus;
 
     // sensor version 
     if (sensorVersion_1.dataType != sensorVersion_2.dataType)
@@ -245,7 +241,8 @@ int verification(SensorData sensorData_1, SensorData sensorData_2)
     
 }
 
-void printResult(int err, double time) {
+void printResult(int err, double time) 
+{
     if (err == 0){
         printf("\tData : OK\n");
         printf("\tTime during the serialization: %f ns\n", time);

@@ -64,7 +64,7 @@ typedef struct {
     SensorVersion version;
     SensorStatus sStatus;
     TargetStatus tStatus;
-    TargetInfo *tInfo;
+    TargetInfo tInfo;
     uint8_t tInfoSize;    
 } SensorData;
 
