@@ -2,6 +2,7 @@
 
 void main(int argc, char **argv)
 {
+    // Allocate memory 
     SensorData **sensorData_ptr;
     sensorData_ptr = malloc(DATA_TESTED*sizeof(SensorData *));
     for (int i = 0; i<DATA_TESTED; i++) {
@@ -12,16 +13,17 @@ void main(int argc, char **argv)
     for (int i = 0; i<DATA_TESTED; i++) {
         sensorDataTemp_ptr[i] = malloc(sizeof(SensorData));
         initData(sensorDataTemp_ptr[i]);
-    } 
+    }
     
+    // Initiate result values
     uint64_t result_time_json, result_time_cbor, result_time_protobuf, result_time_xdr;
     int err_json = 0, err_cbor = 0, err_protobuf = 0, err_xdr = 0;
 
+    // Initiate values for our clock
     struct timespec start, stop;
     clockid_t clk_id;
     uint64_t timer_start;
     uint64_t timer_stop;
-
     clk_id = CLOCK_MONOTONIC;
 
     printf (" ====== BENCHMARKING DATA SERIALIZATION ====== \n");
@@ -63,6 +65,7 @@ void main(int argc, char **argv)
     printResult(err_json, result_time_json);
 
 #endif
+//TODO Implement function to serialize in JSON using tab
 
 #if CBOR 
 
@@ -88,8 +91,6 @@ void main(int argc, char **argv)
     timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
     result_time_cbor = timer_stop - timer_start;
 
-    //printf("Azimuth 1 : %i\n", sensorData_ptr[20]->tInfo.azimuth);
-    //printf("Azimuth 2 : %i\n", sensorDataTemp_ptr[20]->tInfo.azimuth);
     for (int i=0; i<DATA_TESTED; i++) {
         if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
             printf("err att : %i\n", i);
@@ -100,7 +101,9 @@ void main(int argc, char **argv)
     printResult(err_cbor, result_time_cbor);
 
 #endif
+//TODO Implement function to serialize in CBOR using tab
 
+//TODO Implement function to serialize in protobuf
 #if PROTOBUF 
         if(clock_gettime(clk_id, &start) == -1){
             perror("clock gettime start");
@@ -115,17 +118,107 @@ void main(int argc, char **argv)
 
 #endif
 
-#if XDR 
-        if(clock_gettime(clk_id, &start) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        } 
-        if(clock_gettime(clk_id, &stop) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        }
+#if XDR_MACRO 
+    XDR my_xdr;
+    XDR *my_xdr_ptr = &my_xdr;
+    char buffer_xdr[40*32];
+    unsigned long len = 40*32;
 
-        result_time_protobuf += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
+    xdrmem_create(my_xdr_ptr, buffer_xdr, len, XDR_ENCODE);
+
+    if(clock_gettime(clk_id, &start) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    } 
+    for (int i=0; i<DATA_TESTED; i++) {
+
+        my_xdr_ptr->x_op = XDR_ENCODE;
+        xdr_setpos(my_xdr_ptr, 0);
+        xdr_sensorData(sensorData_ptr[i], my_xdr_ptr);
+
+        my_xdr_ptr->x_op = XDR_DECODE;
+        xdr_setpos(my_xdr_ptr, 0);
+        xdr_sensorData(sensorDataTemp_ptr[i], my_xdr_ptr);
+        
+    }
+    if(clock_gettime(clk_id, &stop) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    }
+
+    timer_start = start.tv_sec*1000000000 + start.tv_nsec;
+    timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
+    result_time_xdr = timer_stop - timer_start;
+
+    for (int i=0; i<DATA_TESTED; i++) {
+        if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+            printf("err att : %i\n", i);
+            err_xdr ++;
+        }
+    }
+    printf("# XDR :\n");
+    printResult(err_xdr, result_time_xdr);
+
+#endif
+
+#if DEBUG
+    float floatToParse_1 = 5.0;
+    float floatToParse_2 = 10.0;
+    float floatParsed_1 = 0.0;
+    float floatParsed_2 = 0.0;
+    unsigned int len = 40*32;
+    char buffer_xdr[len];
+    
+    XDR my_xdr;
+    XDR *my_xdr_ptr = &my_xdr;
+    int err =0;
+    SensorVersion *test_struct, *temp_struct;
+    test_struct = malloc(sizeof(SensorVersion));
+    temp_struct = malloc(sizeof(SensorVersion));
+    test_struct->dataType = 1;
+    test_struct->result = 1;
+    test_struct->master = 2;
+    test_struct->second = 3;
+    test_struct->step = 4;
+
+    temp_struct->dataType = 0;
+    temp_struct->result = 0;
+    temp_struct->master = 0;
+    temp_struct->second = 0;
+    temp_struct->step = 0;
+
+    xdrmem_create(my_xdr_ptr, buffer_xdr, len, XDR_ENCODE);
+    err = addSensorVersionToXdr(my_xdr_ptr, test_struct);
+    if(err ==0)
+        printf("Error au parsing\n");
+    err = 0;
+    printf("Position: %i\n",xdr_getpos(my_xdr_ptr));
+    /* xdr_uint8_t(&my_xdr, &test_struct.dataType);
+    bool_t temp = test_struct.result;
+    xdr_bool(&my_xdr, &temp);
+    xdr_uint8_t(&my_xdr, &test_struct.master);
+    xdr_uint8_t(&my_xdr, &test_struct.second);
+    xdr_uint8_t(&my_xdr, &test_struct.step); */
+
+    my_xdr_ptr->x_op = XDR_DECODE;
+    xdr_setpos(my_xdr_ptr, 0);
+    err = addSensorVersionToXdr(my_xdr_ptr, temp_struct);
+    if(err ==0)
+        printf("Error au dé-parsing\n");
+    err = 0;
+    /* xdr_uint8_t(&my_xdr, &temp_struct.dataType);
+    xdr_bool(&my_xdr, &temp);
+    temp_struct.result = temp;
+    xdr_uint8_t(&my_xdr, &temp_struct.master);
+    xdr_uint8_t(&my_xdr, &temp_struct.second);
+    xdr_uint8_t(&my_xdr, &temp_struct.step); */
+
+    printf("dataType : %i\n", temp_struct->dataType);
+    printf("result : %i\n", temp_struct->result);
+    printf("master : %i\n", temp_struct->master);
+    printf("second : %i\n", temp_struct->second);
+    printf("step : %i\n", temp_struct->step);
+    
 
 #endif
 
@@ -215,7 +308,7 @@ int verification(SensorData *sensorData_1, SensorData *sensorData_2)
         return 1;
     if (sensorStatus_1.rollcount != sensorStatus_2.rollcount)
         return 1;
-
+    
     // Target Status
     if (targetStatus_1.noOfTarget != targetStatus_2.noOfTarget)
         return 1;
@@ -245,7 +338,7 @@ void printResult(int err, double time)
 {
     if (err == 0){
         printf("\tData : OK\n");
-        printf("\tTime during the serialization: %f ns\n", time);
+        printf("\tTime during the serialization: %f ms\n", time/1000000);
     }else {
         printf("\tData: NOK\n");
         printf("\tNumber of error : %i", err);

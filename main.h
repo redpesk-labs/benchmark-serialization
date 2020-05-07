@@ -6,6 +6,7 @@
 #include "include/sp70c-data-handle.h"
 #include "include/parse-json.h"
 #include "include/parse-cbor.h"
+#include "include/parse-xdr.h"
 
 /* Function Prototype */
 void error(char *msg);
