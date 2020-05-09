@@ -1,16 +1,6 @@
 #include "config.h"
 #include "struct-parsing.h"
 
-/**
- * @brief print the error message
- * @param msg char *
- * @retval none
- * **/
-void error(char* msg) {
-	perror(msg);
-	exit(0);
-}
-
 void generateData(SensorData** sensorData_ptr)
 {
 	int buffer_size = 3 * 14;
@@ -21,35 +11,6 @@ void generateData(SensorData** sensorData_ptr)
 		initData(sensorData_ptr[i]);
 		parseRawBuffer(buffer, buffer_size, sensorData_ptr[i]);
 	}
-}
-
-void debug_parse(struct json_object* data_json)
-{
-	struct json_object* SVobject;
-	struct json_object* SSobject;
-	struct json_object* TSobject;
-	struct json_object* TIobject;
-
-	struct json_object* datatType;
-	struct json_object* rollCountSensor;
-	struct json_object* rollcountTarget;
-	struct json_object* azimuth;
-	json_object_object_get_ex(data_json, "SensorVersion", &SVobject);
-	json_object_object_get_ex(SVobject, "DataType", &datatType);
-	json_object_object_get_ex(data_json, "SensorStatus", &SSobject);
-	json_object_object_get_ex(SSobject, "Rollcount", &rollCountSensor);
-	json_object_object_get_ex(data_json, "TargetStatus", &TSobject);
-	json_object_object_get_ex(TSobject, "Rollcount", &rollcountTarget);
-	json_object_object_get_ex(data_json, "TargetInfos", &TIobject);
-	json_object_object_get_ex(TIobject, "Azimuth", &azimuth);
-
-
-	printf(" ===== DEBUG PARSE JSON =====\n");
-	printf("SensorVersion - datatType : %s\n", json_object_get_string(datatType));
-	printf("SensorStatus - Rollcount : %s\n", json_object_get_string(rollCountSensor));
-	printf("TargetStatus - Rollcount : %s\n", json_object_get_string(rollcountTarget));
-	printf("TargetInfos - Azimuth : %s\n", json_object_get_string(azimuth));
-	printf(" ===== END DEBUG PARSE JSON =====\n");
 }
 
 int verification(SensorData* sensorData_1, SensorData* sensorData_2)
