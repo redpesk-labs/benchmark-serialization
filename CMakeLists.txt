@@ -16,12 +16,12 @@ add_executable(benchmark
 )
 
 # add the binary tree to the search path for include files
-target_include_directories(benchmark PUBLIC
+target_include_directories(benchmark PRIVATE
 	"${PROJECT_BINARY_DIR}"
 	"${PROJECT_SOURCE_DIR}/include"
 )
 
-target_link_libraries(benchmark
+target_link_libraries(benchmark PRIVATE
 	json-c
 	cbor
 	protobuf-c
