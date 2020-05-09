@@ -1,5 +1,11 @@
 #include "parse-cbor.h"
 
+inline void addMapCbor_uint8(cbor_item_t* cborMap, uint8_t value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_uint8, key); }
+inline void addMapCbor_uint16(cbor_item_t* cborMap, uint16_t value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_uint16, key); }
+inline void addMapCbor_int16(cbor_item_t* cborMap, int16_t value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_int16, key); }
+inline void addMapCbor_float(cbor_item_t* cborMap, float value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_float, key); }
+inline void addMapCbor_bool(cbor_item_t* cborMap, bool value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_bool, key); }
+
 void parse_to_cbor(SensorData* sensorData, cbor_item_t* my_cbor)
 {
 	//cbor_serialize(my_cbor, &sensorData,sizeof(SensorData));
@@ -48,11 +54,11 @@ void cbor_to_sensorData(cbor_item_t* my_cbor, SensorData* sensorData)
 cbor_item_t* SensorVersionToCbor(SensorVersion data)
 {
 	cbor_item_t* cbor_temp = cbor_new_definite_map(5);
-	addMapCbor(cbor_temp, (type_data)data.dataType, type_uint8, "DataType");
-	addMapCbor(cbor_temp, (type_data)data.master, type_uint8, "Master");
-	addMapCbor(cbor_temp, (type_data)data.result, type_uint8, "Result");
-	addMapCbor(cbor_temp, (type_data)data.second, type_uint8, "Second");
-	addMapCbor(cbor_temp, (type_data)data.step, type_uint8, "Step");
+	addMapCbor_uint8(cbor_temp, data.dataType, "DataType");
+	addMapCbor_uint8(cbor_temp, data.master, "Master");
+	addMapCbor_uint8(cbor_temp, data.result, "Result");
+	addMapCbor_uint8(cbor_temp, data.second, "Second");
+	addMapCbor_uint8(cbor_temp, data.step, "Step");
 	return cbor_temp;
 
 }
@@ -72,9 +78,9 @@ SensorVersion cborToSensorVersion(cbor_item_t* cborData)
 cbor_item_t* SensorStatusToCbor(SensorStatus data)
 {
 	cbor_item_t* cbor_temp = cbor_new_definite_map(3);
-	addMapCbor(cbor_temp, (type_data)data.actl_mode, type_uint8, "ActlMode");
-	addMapCbor(cbor_temp, (type_data)data.cfgStatus, type_uint8, "CfgStatus");
-	addMapCbor(cbor_temp, (type_data)data.rollcount, type_uint8, "Rollcount");
+	addMapCbor_uint8(cbor_temp, data.actl_mode, "ActlMode");
+	addMapCbor_uint8(cbor_temp, data.cfgStatus, "CfgStatus");
+	addMapCbor_uint8(cbor_temp, data.rollcount, "Rollcount");
 	return cbor_temp;
 }
 
@@ -91,8 +97,8 @@ SensorStatus cborToSensorStatus(cbor_item_t* cborData)
 cbor_item_t* TargetStatusToCbor(TargetStatus data)
 {
 	cbor_item_t* cbor_temp = cbor_new_definite_map(2);
-	addMapCbor(cbor_temp, (type_data)data.noOfTarget, type_uint8, "NoOfTarget");
-	addMapCbor(cbor_temp, (type_data)data.rollcount, type_uint8, "Rollcount");
+	addMapCbor_uint8(cbor_temp, data.noOfTarget, "NoOfTarget");
+	addMapCbor_uint8(cbor_temp, data.rollcount, "Rollcount");
 	return cbor_temp;
 }
 
@@ -108,13 +114,13 @@ TargetStatus cborToTargetStatus(cbor_item_t* cborData)
 cbor_item_t* TargetInfoToCbor(TargetInfo data)
 {
 	cbor_item_t* cbor_temp = cbor_new_definite_map(7);
-	addMapCbor(cbor_temp, (type_data)data.azimuth, type_int16, "Azimuth");
-	addMapCbor(cbor_temp, (type_data)data.index, type_uint8, "Index");
-	addMapCbor(cbor_temp, (type_data)data.range, type_float, "Range");
-	addMapCbor(cbor_temp, (type_data)data.rcs, type_float, "RCS");
-	addMapCbor(cbor_temp, (type_data)data.rollCount, type_uint8, "Rollcount");
-	addMapCbor(cbor_temp, (type_data)data.SNR, type_uint8, "SNR");
-	addMapCbor(cbor_temp, (type_data)data.vrel, type_float, "Vrel");
+	addMapCbor_int16(cbor_temp, data.azimuth, "Azimuth");
+	addMapCbor_uint8(cbor_temp, data.index, "Index");
+	addMapCbor_float(cbor_temp, data.range, "Range");
+	addMapCbor_float(cbor_temp, data.rcs, "RCS");
+	addMapCbor_uint8(cbor_temp, data.rollCount, "Rollcount");
+	addMapCbor_uint8(cbor_temp, data.SNR, "SNR");
+	addMapCbor_float(cbor_temp, data.vrel, "Vrel");
 	return cbor_temp;
 }
 
