@@ -1,5 +1,6 @@
 #include "config.h"
 #include "struct-parsing.h"
+#include "sp70c-data-handle.h"
 
 void generateData(SensorData** sensorData_ptr)
 {
