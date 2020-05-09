@@ -1,4 +1,4 @@
-#include "config-parsing.h"
+#include "config.h"
 #include "struct-parsing.h"
 
 /**
