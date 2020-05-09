@@ -3,6 +3,7 @@
 #include "sp70c-data-handle.h"
 
 #define SZ_BUFFER 3*14
+#define TIME_RESOLUTION 1000000000ULL
 
 void generateData(SensorData** sensorData_ptr)
 {
@@ -99,10 +100,6 @@ int main()
 		initData(sensorDataTemp_ptr[i]);
 	}
 
-	// Initiate result values
-	uint64_t result_time_json, result_time_cbor, result_time_xdr;
-	int err_json = 0, err_cbor = 0, err_xdr = 0;
-
 	// Initiate values for our clock
 	struct timespec start, stop;
 	clockid_t clk_id;
@@ -116,6 +113,9 @@ int main()
 	generateData(sensorData_ptr);
 
 #ifdef BENCH_JSON
+	// Initiate result values
+	uint64_t result_time_json;
+	int err_json = 0;
 
 	struct json_object* my_json;
 
@@ -135,8 +135,8 @@ int main()
 		perror("clock gettime stop");
 		exit(EXIT_FAILURE);
 	}
-	timer_start = start.tv_sec * 1000000000 + start.tv_nsec;
-	timer_stop = stop.tv_sec * 1000000000 + stop.tv_nsec;
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_json = timer_stop - timer_start;
 
 	for (int i = 0; i < DATA_TESTED; i++) {
@@ -151,7 +151,9 @@ int main()
 #endif // BENCH_JSON
 
 #ifdef BENCH_CBOR 
-
+	// Initiate result values
+	uint64_t result_time_cbor;
+	int err_cbor = 0;
 	cbor_item_t* my_cbor;
 
 	if (clock_gettime(clk_id, &start) == -1) {
@@ -170,8 +172,8 @@ int main()
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
-	timer_start = start.tv_sec * 1000000000 + start.tv_nsec;
-	timer_stop = stop.tv_sec * 1000000000 + stop.tv_nsec;
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_cbor = timer_stop - timer_start;
 
 	for (int i = 0; i < DATA_TESTED; i++) {
@@ -185,7 +187,11 @@ int main()
 
 #endif // BENCH_CBOR
 
-#ifdef BENCH_XDR 
+#ifdef BENCH_XDR
+	// Initiate result values
+	uint64_t result_time_xdr;
+	int err_xdr = 0;
+
 	XDR my_xdr;
 	XDR* my_xdr_ptr = &my_xdr;
 	char buffer_xdr[40 * 32];
@@ -213,8 +219,8 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	timer_start = start.tv_sec * 1000000000 + start.tv_nsec;
-	timer_stop = stop.tv_sec * 1000000000 + stop.tv_nsec;
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_xdr = timer_stop - timer_start;
 
 	for (int i = 0; i < DATA_TESTED; i++) {

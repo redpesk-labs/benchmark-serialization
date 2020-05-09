@@ -25,9 +25,12 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #include <sdkddkver.h>
+#pragma warning( push )
+#pragma warning( disable: 4005)
 #define WINVER										_WIN32_WINNT_WIN10
 #define _WIN32_WINNT								_WIN32_WINNT_WIN10
 #define NTDDI_VERSION								NTDDI_WIN10_RS5
+#pragma warning( pop )
 
 #include <Windows.h>
 #define CLOCK_REALTIME								0
@@ -39,7 +42,7 @@
 #define w2ux 116444736000000000i64					//1.jan1601 to 1.jan1970
 
 typedef int clockid_t;
-struct timespec { long tv_sec; long tv_nsec; };		//header part
+struct timespec { uint64_t tv_sec; uint64_t tv_nsec; };		//header part
 
 inline void unix_time(struct timespec* spec)
 {
