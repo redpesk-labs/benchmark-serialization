@@ -40,22 +40,17 @@ To have a better result the `DATA_TESTED` macro is set to 1000000.
 
 create a build folder:
 
-    ```console
     cd build
     cmake ..
     make
     ./benchmark
-    ```
 
 You can also use Valgrind to have a profiling:
 
-    ```console
     valgrind --tool=callgrind ./benchmark
-    ```
 
 ## RESULT EXAMPLE
 
-    ```
     ====== BENCHMARKING DATA SERIALIZATION ====== 
     data tested : 1000000
     # JSON MAP:
@@ -82,7 +77,6 @@ You can also use Valgrind to have a profiling:
         Data : OK
         Time during the serialization: 281.472919 ms
 
-    ```
 
 ## Note
 
