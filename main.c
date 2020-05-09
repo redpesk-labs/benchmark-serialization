@@ -1,4 +1,5 @@
 #include "config-parsing.h"
+#include "struct-parsing.h"
 
 /**
  * @brief print the error message
@@ -148,7 +149,7 @@ int main()
 
 	generateData(sensorData_ptr);
 
-#if JSON
+#ifdef BENCH_JSON
 
 	struct json_object* my_json;
 
@@ -181,10 +182,9 @@ int main()
 	printf("# JSON :\n");
 	printResult(err_json, result_time_json);
 
-#endif
-	//TODO Implement function to serialize in JSON using tab
+#endif // BENCH_JSON
 
-#if CBOR 
+#ifdef BENCH_CBOR 
 
 	cbor_item_t* my_cbor;
 
@@ -217,10 +217,9 @@ int main()
 	printf("# CBOR :\n");
 	printResult(err_cbor, result_time_cbor);
 
-#endif
-	//TODO Implement function to serialize in CBOR using tab
+#endif // BENCH_CBOR
 
-#if XDR_MACRO 
+#ifdef BENCH_XDR 
 	XDR my_xdr;
 	XDR* my_xdr_ptr = &my_xdr;
 	char buffer_xdr[40 * 32];
@@ -261,9 +260,9 @@ int main()
 	printf("# XDR :\n");
 	printResult(err_xdr, result_time_xdr);
 
-#endif
+#endif // BENCH_XDR
 
-#if DEBUG
+#if BENCH_DEBUG
 	float floatToParse_1 = 5.0;
 	float floatToParse_2 = 10.0;
 	float floatParsed_1 = 0.0;

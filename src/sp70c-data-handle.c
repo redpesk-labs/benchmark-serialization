@@ -1,3 +1,4 @@
+#include "config-parsing.h"
 #include "sp70c-data-handle.h"
 
 //Sets everything to 0

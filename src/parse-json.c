@@ -1,6 +1,5 @@
 #include "parse-json.h"
 
-
 void parse_to_json(SensorData* sensorData, json_object* my_json)
 {
 	struct json_object* tempobject;
@@ -220,8 +219,3 @@ TargetInfo JsonObjectToTargetInfo(struct json_object* data)
 
 	return tempobject;
 }
-
-
-
-
-

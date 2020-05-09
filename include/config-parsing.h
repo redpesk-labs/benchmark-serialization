@@ -5,19 +5,14 @@
 
 #define DATA_TESTED				10000
 
-#define JSON					1
-#define CBOR					1
-#define XDR_MACRO				1
-#define DEBUG					0
-
-#if JSON == 1
+#ifdef BENCH_JSON
 #include "parse-json.h"
 #endif
 
-#if CBOR == 1
+#ifdef BENCH_CBOR
 #include "parse-cbor.h"
 #endif
 
-#if XDR_MACRO == 1
+#if BENCH_XDR
 #include "parse-xdr.h"
 #endif

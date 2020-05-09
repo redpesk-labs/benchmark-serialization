@@ -1,4 +1,5 @@
 #pragma once
+
 #include "struct-parsing.h"
 #include <json.h>
 
