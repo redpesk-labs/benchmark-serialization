@@ -1,11 +1,10 @@
-#ifndef STRUCT_PARSING_H
-#define STRUCT_PARSING_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <time.h>
 
 #include <sys/socket.h>
@@ -68,6 +67,3 @@ typedef struct {
     TargetInfo tInfo;
     uint8_t tInfoSize;    
 } SensorData;
-
-
-#endif

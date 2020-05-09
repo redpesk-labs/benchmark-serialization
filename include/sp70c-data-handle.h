@@ -1,5 +1,4 @@
-#ifndef SP70C_DATA_HANDLE_H
-#define SP70C_DATA_HANDLE_H
+#pragma once
 
 #include "struct-parsing.h"
 #include "config-parsing.h"
@@ -18,5 +17,3 @@ int parseTargetInfo(uint8_t *buffer,SensorData* sensorData);
 int parseAllTargetInfo(uint8_t *buffer,SensorData *sensorData);
 
 int targetInfoCopy(TargetInfo *copy, TargetInfo *copied);
-
-#endif

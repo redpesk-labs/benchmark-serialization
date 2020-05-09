@@ -1,6 +1,4 @@
-#ifndef PARSE_JSON_H
-#define PARSE_JSON_H
-
+#pragma once
 #include "config-parsing.h"
 #include "struct-parsing.h"
 #include "sp70c-data-handle.h"
@@ -19,5 +17,3 @@ TargetStatus JsonObjectToTargetStatus(struct json_object * data);
 
 struct json_object *TargetInfoToJsonObject(TargetInfo * data);
 TargetInfo JsonObjectToTargetInfo(struct json_object * data);
-
-#endif

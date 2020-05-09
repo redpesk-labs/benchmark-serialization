@@ -1,5 +1,4 @@
-#ifndef CONFIG_PARSING_H
-#define CONFIG_PARSING_H
+#pragma once
 
 #define NUMBER_PORT  1
 #define PARSING_BUFFER_SIZE 14
@@ -12,5 +11,3 @@
 #define PROTOBUF    0
 #define XDR_MACRO   1
 #define DEBUG       0
-
-#endif

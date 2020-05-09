@@ -1,5 +1,4 @@
-#ifndef MAIN_H
-#define MAIN_H
+#pragma once
 
 #include "include/config-parsing.h"
 #include "include/struct-parsing.h"
@@ -14,5 +13,3 @@ void generateData(SensorData **sensorData_ptr);
 void debug_parse(struct json_object *data_json);
 int verification(SensorData *sensorData_1, SensorData *sensorData_2);
 void printResult(int err, double time);
-
-#endif
