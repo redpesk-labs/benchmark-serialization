@@ -8,48 +8,6 @@ static const uint8_t sp70c_data[] = {
 	0xaa, 0xaa, 0x0c, 0x07, 0x01, 0x6b, 0x01, 0x86, 0x2a, 0x02, 0xbf, 0x79, 0x55, 0x55
 };
 
-int parseRawBuffer(SensorData* sensorData)
-{
-	int index, tInfoIndex;
-	uint16_t messageID;
-	uint8_t parsingBuffer[PARSING_BUFFER_SIZE];
-
-	for (index = 0; index < sizeof(sp70c_data); index++) {
-		if (sp70c_data[index] == 0xaa && index + 1 < sizeof(sp70c_data) && sp70c_data[index + 1] == 0xaa) {
-			messageID = (uint16_t)(((uint16_t)sp70c_data[index + 3] * 0x100 + (uint16_t)sp70c_data[index + 2]));
-			if (sp70c_data[index + PARSING_BUFFER_SIZE - 1] == 0x55 && sp70c_data[index + PARSING_BUFFER_SIZE - 2] == 0x55) {
-
-				for (int i = 0; i < PARSING_BUFFER_SIZE; i++)
-				{
-					parsingBuffer[i] = sp70c_data[index + i];
-				}
-				switch (messageID)
-				{
-				case 0x400: // if Sensor Version message ID
-					parseSensorVersion(parsingBuffer, sensorData);
-					index += PARSING_BUFFER_SIZE - 1;
-					break;
-
-				case 0x60A:// if Sensor Status message ID
-					parseSensorStatus(parsingBuffer, sensorData);
-					index += PARSING_BUFFER_SIZE - 1;
-					break;
-
-				case 0x70B:// if Sensor Target status message ID
-					if (parseTargetStatus(parsingBuffer, sensorData) > 0) {
-						tInfoIndex = index + PARSING_BUFFER_SIZE;
-						sensorData->tInfoSize = 0;
-						parseTargetInfo(sp70c_data + tInfoIndex, sensorData); //Parse each target info received after the 0x70B message
-					}
-					index += PARSING_BUFFER_SIZE * (sensorData->tStatus.noOfTarget + 1) - 1;
-					break;
-				}
-			}
-		}
-	}
-	return 0;
-}
-
 //Parse data that matched the SensorVersion message ID
 int parseSensorVersion(uint8_t* buffer, SensorData* sensorData)
 {
@@ -108,7 +66,7 @@ int parseTargetStatus(uint8_t* buffer, SensorData* sensorData)
 }
 
 //Parse data that matched the TargetInfo message ID
-int parseTargetInfo(uint8_t* buffer, SensorData* sensorData)
+int parseTargetInfo(const uint8_t* buffer, SensorData* sensorData)
 {
 	TargetInfo targetInfo;
 	targetInfo.index = (uint8_t)buffer[4];
@@ -127,7 +85,7 @@ int parseTargetInfo(uint8_t* buffer, SensorData* sensorData)
 }
 
 //Parse all targets info according to the number of detected targets
-int parseAllTargetInfo(uint8_t* buffer, SensorData* sensorData)
+int parseAllTargetInfo(const uint8_t* buffer, SensorData* sensorData)
 {
 	uint8_t parsingBuffer[PARSING_BUFFER_SIZE];
 	int noOfTargets = sensorData->tStatus.noOfTarget;
@@ -155,5 +113,47 @@ int targetInfoCopy(TargetInfo* copy, TargetInfo* copied)
 	copy->rollCount = copied->rollCount;
 	copy->SNR = copied->SNR;
 	copy->vrel = copied->vrel;
+	return 0;
+}
+
+int parseRawBuffer(SensorData* sensorData)
+{
+	size_t index, tInfoIndex;
+	uint16_t messageID;
+	uint8_t parsingBuffer[PARSING_BUFFER_SIZE];
+
+	for (index = 0; index < sizeof(sp70c_data); ++index) {
+		if (sp70c_data[index] == 0xaa && index + 1 < sizeof(sp70c_data) && sp70c_data[index + 1] == 0xaa) {
+			messageID = (uint16_t)(((uint16_t)sp70c_data[index + 3] * 0x100 + (uint16_t)sp70c_data[index + 2]));
+			if (sp70c_data[index + PARSING_BUFFER_SIZE - 1] == 0x55 && sp70c_data[index + PARSING_BUFFER_SIZE - 2] == 0x55) {
+
+				for (int i = 0; i < PARSING_BUFFER_SIZE; i++)
+				{
+					parsingBuffer[i] = sp70c_data[index + i];
+				}
+				switch (messageID)
+				{
+				case 0x400: // if Sensor Version message ID
+					parseSensorVersion(parsingBuffer, sensorData);
+					index += PARSING_BUFFER_SIZE - 1;
+					break;
+
+				case 0x60A:// if Sensor Status message ID
+					parseSensorStatus(parsingBuffer, sensorData);
+					index += PARSING_BUFFER_SIZE - 1;
+					break;
+
+				case 0x70B:// if Sensor Target status message ID
+					if (parseTargetStatus(parsingBuffer, sensorData) > 0) {
+						tInfoIndex = index + PARSING_BUFFER_SIZE;
+						sensorData->tInfoSize = 0;
+						parseTargetInfo(sp70c_data + tInfoIndex, sensorData); //Parse each target info received after the 0x70B message
+					}
+					index += PARSING_BUFFER_SIZE * (sensorData->tStatus.noOfTarget + 1) - 1;
+					break;
+				}
+			}
+		}
+	}
 	return 0;
 }

@@ -52,7 +52,9 @@ int main()
 	uint64_t result_time_json;
 	int err_json = 0;
 
-	struct json_object* my_json;
+	Serializer json;
+	memset(&json, 0, sizeof(json));
+	jsonc_get_serializer(&json);
 
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
@@ -60,16 +62,19 @@ int main()
 	}
 
 	for (int i = 0; i < DATA_TESTED; i++) {
-		my_json = json_object_new_object();
-		parse_to_json(&sensorData, my_json);
-		json_to_sensorData(my_json, &sensorDataTemp);
-		json_object_put(my_json);
+		void* result;
+		json.serialize(json.context, sensorData, &result);
+		json.deserialize(json.context, result, &sensorDataTemp);
+		json.freeobject(json.context, result);
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {
 		perror("clock gettime stop");
 		exit(EXIT_FAILURE);
 	}
+
+	json.cleanup(json.context);
+
 	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_json = timer_stop - timer_start;

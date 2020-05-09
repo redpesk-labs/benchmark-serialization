@@ -6,7 +6,7 @@
 #define DATA_TESTED				10000
 
 #ifdef BENCH_JSON
-#include "parse-json.h"
+#include "parse-jsonc.h"
 #endif
 
 #ifdef BENCH_CBOR

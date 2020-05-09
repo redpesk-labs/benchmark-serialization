@@ -43,7 +43,7 @@ project(benchmark)
 		target_compile_definitions(benchmark PRIVATE BENCH_JSON)
 		target_include_directories(benchmark PRIVATE "${JSONC_INCLUDE_DIRS}")
 		target_link_libraries(benchmark PRIVATE "${JSONC_LIBRARIES}")
-		target_sources(benchmark PRIVATE src/parse-json.c)
+		target_sources(benchmark PRIVATE "src/parse-jsonc.c")
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------
