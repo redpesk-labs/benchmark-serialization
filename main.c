@@ -5,7 +5,7 @@
 #define SZ_BUFFER 3*14
 #define TIME_RESOLUTION 1000000000ULL
 
-void generateData(SensorData** sensorData_ptr)
+void generateData(SensorData* sensorData_ptr)
 {
 	int buffer_size = SZ_BUFFER;
 	uint8_t buffer[SZ_BUFFER] = {
@@ -14,8 +14,8 @@ void generateData(SensorData** sensorData_ptr)
 		0xaa, 0xaa, 0x0c, 0x07, 0x01, 0x6b, 0x01, 0x86, 0x2a, 0x02, 0xbf, 0x79, 0x55, 0x55
 	};
 	for (int i = 0; i < DATA_TESTED; i++) {
-		initData(sensorData_ptr[i]);
-		parseRawBuffer(buffer, buffer_size, sensorData_ptr[i]);
+		initData(&sensorData_ptr[i]);
+		parseRawBuffer(buffer, buffer_size, &sensorData_ptr[i]);
 	}
 }
 
@@ -72,11 +72,11 @@ int verification(SensorData* sensorData_1, SensorData* sensorData_2)
 
 }
 
-void printResult(int err, double time)
+void printResult(int err, uint64_t time)
 {
 	if (err == 0) {
 		printf("\tData : OK\n");
-		printf("\tTime during the serialization: %f ms\n", time / 1000000);
+		printf("\tTime during the serialization: %f ms\n", (double)time / 1000000);
 	}
 	else {
 		printf("\tData: NOK\n");
@@ -88,16 +88,10 @@ void printResult(int err, double time)
 int main()
 {
 	// Allocate memory 
-	SensorData** sensorData_ptr;
-	sensorData_ptr = malloc(DATA_TESTED * sizeof(SensorData*));
+	SensorData* sensorData_ptr = malloc(DATA_TESTED * sizeof(SensorData));
+	SensorData* sensorDataTemp_ptr = malloc(DATA_TESTED * sizeof(SensorData));
 	for (int i = 0; i < DATA_TESTED; i++) {
-		sensorData_ptr[i] = malloc(sizeof(SensorData));
-	}
-	SensorData** sensorDataTemp_ptr;
-	sensorDataTemp_ptr = malloc(DATA_TESTED * sizeof(SensorData*));
-	for (int i = 0; i < DATA_TESTED; i++) {
-		sensorDataTemp_ptr[i] = malloc(sizeof(SensorData));
-		initData(sensorDataTemp_ptr[i]);
+		initData(&sensorDataTemp_ptr[i]);
 	}
 
 	// Initiate values for our clock
@@ -126,8 +120,8 @@ int main()
 
 	for (int i = 0; i < DATA_TESTED; i++) {
 		my_json = json_object_new_object();
-		parse_to_json(sensorData_ptr[i], my_json);
-		json_to_sensorData(my_json, sensorDataTemp_ptr[i]);
+		parse_to_json(&sensorData_ptr[i], my_json);
+		json_to_sensorData(my_json, &sensorDataTemp_ptr[i]);
 		json_object_put(my_json);
 	}
 
@@ -140,7 +134,7 @@ int main()
 	result_time_json = timer_stop - timer_start;
 
 	for (int i = 0; i < DATA_TESTED; i++) {
-		if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+		if (verification(&sensorData_ptr[i], &sensorDataTemp_ptr[i])) {
 			printf("err att : %i\n", i);
 			err_json++;
 		}
@@ -163,8 +157,8 @@ int main()
 
 	for (int i = 0; i < DATA_TESTED; i++) {
 		my_cbor = cbor_new_definite_map(4);
-		parse_to_cbor(sensorData_ptr[i], my_cbor);
-		cbor_to_sensorData(my_cbor, sensorDataTemp_ptr[i]);
+		parse_to_cbor(&sensorData_ptr[i], my_cbor);
+		cbor_to_sensorData(my_cbor, &sensorDataTemp_ptr[i]);
 		cbor_decref(&my_cbor);
 	}
 
@@ -177,7 +171,7 @@ int main()
 	result_time_cbor = timer_stop - timer_start;
 
 	for (int i = 0; i < DATA_TESTED; i++) {
-		if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+		if (verification(&sensorData_ptr[i], &sensorDataTemp_ptr[i])) {
 			printf("err att : %i\n", i);
 			err_cbor++;
 		}
@@ -207,11 +201,11 @@ int main()
 
 		my_xdr_ptr->x_op = XDR_ENCODE;
 		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(sensorData_ptr[i], my_xdr_ptr);
+		xdr_sensorData(&sensorData_ptr[i], my_xdr_ptr);
 
 		my_xdr_ptr->x_op = XDR_DECODE;
 		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(sensorDataTemp_ptr[i], my_xdr_ptr);
+		xdr_sensorData(&sensorDataTemp_ptr[i], my_xdr_ptr);
 
 	}
 	if (clock_gettime(clk_id, &stop) == -1) {
@@ -224,7 +218,7 @@ int main()
 	result_time_xdr = timer_stop - timer_start;
 
 	for (int i = 0; i < DATA_TESTED; i++) {
-		if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+		if (verification(&sensorData_ptr[i], &sensorDataTemp_ptr[i])) {
 			printf("err att : %i\n", i);
 			err_xdr++;
 		}
@@ -294,13 +288,7 @@ int main()
 
 
 #endif
-
-	for (int i = 0; i < DATA_TESTED; i++) {
-		free(sensorData_ptr[i]);
-		free(sensorDataTemp_ptr[i]);
-	}
 	free(sensorData_ptr);
 	free(sensorDataTemp_ptr);
-
 	return 0;
 }

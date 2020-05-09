@@ -2,7 +2,6 @@
 
 void parse_to_json(SensorData* sensorData, json_object* my_json)
 {
-	struct json_object* tempobject;
 	struct json_object* SVobject;
 	struct json_object* SSobject;
 	struct json_object* TSobject;
@@ -210,10 +209,10 @@ TargetInfo JsonObjectToTargetInfo(struct json_object* data)
 	json_object_object_get_ex(TIobject, "SNR", &snr_json);
 
 	tempobject.index = json_object_get_int(index_json);
-	tempobject.rcs = json_object_get_double(rcs_json);
-	tempobject.range = json_object_get_double(range_json);
+	tempobject.rcs = (float)json_object_get_double(rcs_json);
+	tempobject.range = (float)json_object_get_double(range_json);
 	tempobject.azimuth = json_object_get_int(azimuth_json);
-	tempobject.vrel = json_object_get_double(vrel_json);
+	tempobject.vrel = (float)json_object_get_double(vrel_json);
 	tempobject.rollCount = json_object_get_int(rollcount_json);
 	tempobject.SNR = json_object_get_int(snr_json);
 

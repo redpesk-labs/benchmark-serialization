@@ -1,10 +1,10 @@
 #include "parse-cbor.h"
 
-inline void addMapCbor_uint8(cbor_item_t* cborMap, uint8_t value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_uint8, key); }
-inline void addMapCbor_uint16(cbor_item_t* cborMap, uint16_t value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_uint16, key); }
-inline void addMapCbor_int16(cbor_item_t* cborMap, int16_t value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_int16, key); }
-inline void addMapCbor_float(cbor_item_t* cborMap, float value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_float, key); }
-inline void addMapCbor_bool(cbor_item_t* cborMap, bool value, char* key) { type_data td = { value }; addMapCbor(cborMap, td, type_bool, key); }
+inline void addMapCbor_uint8	(cbor_item_t* cborMap, uint8_t value, char* key)	{ type_data td; td.data_int8 = value; addMapCbor(cborMap, td, type_uint8, key); }
+inline void addMapCbor_uint16	(cbor_item_t* cborMap, uint16_t value, char* key)	{ type_data td; td.data_uint16 = value; addMapCbor(cborMap, td, type_uint16, key); }
+inline void addMapCbor_int16	(cbor_item_t* cborMap, int16_t value, char* key)	{ type_data td; td.data_int16 = value; addMapCbor(cborMap, td, type_int16, key); }
+inline void addMapCbor_float	(cbor_item_t* cborMap, float value, char* key)		{ type_data td; td.data_float = value; addMapCbor(cborMap, td, type_float, key); }
+inline void addMapCbor_bool		(cbor_item_t* cborMap, bool value, char* key)		{ type_data td; td.data_bool = value; addMapCbor(cborMap, td, type_bool, key); }
 
 void parse_to_cbor(SensorData* sensorData, cbor_item_t* my_cbor)
 {

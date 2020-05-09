@@ -71,7 +71,7 @@ inline int clock_gettime(clockid_t clk_id, struct timespec* spec)
 	QueryPerformanceCounter((LARGE_INTEGER*)&curticks);
 	curticks -= startticks;
 	spec->tv_sec = startspec.tv_sec + (curticks / tps);
-	spec->tv_nsec = startspec.tv_nsec + (double)(curticks % tps) * ticks2nano;
+	spec->tv_nsec = (uint64_t)((double)startspec.tv_nsec + ((curticks % tps) * ticks2nano));
 	if (!(spec->tv_nsec < exp9))
 	{
 		spec->tv_sec++;
