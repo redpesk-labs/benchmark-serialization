@@ -3,7 +3,6 @@
 The aim's project has to compare different data serialization between :
 
     1.JSON
-    2.protobuf
     3.CBOR
     4.XDR
 
@@ -57,4 +56,3 @@ libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)  
 
 libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor) `apt install libcbor-dev`
 
-libprotobuf: `apt install libprotobuf-c-dev`

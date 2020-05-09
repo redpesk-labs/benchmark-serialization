@@ -16,8 +16,8 @@ void main(int argc, char **argv)
     }
     
     // Initiate result values
-    uint64_t result_time_json, result_time_cbor, result_time_protobuf, result_time_xdr;
-    int err_json = 0, err_cbor = 0, err_protobuf = 0, err_xdr = 0;
+    uint64_t result_time_json, result_time_cbor, result_time_xdr;
+    int err_json = 0, err_cbor = 0, err_xdr = 0;
 
     // Initiate values for our clock
     struct timespec start, stop;
@@ -102,21 +102,6 @@ void main(int argc, char **argv)
 
 #endif
 //TODO Implement function to serialize in CBOR using tab
-
-//TODO Implement function to serialize in protobuf
-#if PROTOBUF 
-        if(clock_gettime(clk_id, &start) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        } 
-        if(clock_gettime(clk_id, &stop) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        }
-
-        result_time_protobuf += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
-
-#endif
 
 #if XDR_MACRO 
     XDR my_xdr;
