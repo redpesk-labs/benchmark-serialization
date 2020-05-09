@@ -67,3 +67,7 @@ project(benchmark)
 		"${JSONC_LIBRARIES}"
 		"${CBOR_LIBRARIES}"
 	)
+
+	target_compile_features(benchmark PRIVATE
+		c_std_11
+	)
