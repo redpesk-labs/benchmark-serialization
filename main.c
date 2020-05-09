@@ -1,74 +1,17 @@
 #include "config.h"
-#include "struct-parsing.h"
+#include "data.h"
 #include "sp70c-data-handle.h"
 
-#define SZ_BUFFER 3*14
 #define TIME_RESOLUTION 1000000000ULL
 
 void generateData(SensorData* sensorData_ptr)
 {
-	int buffer_size = SZ_BUFFER;
-	uint8_t buffer[SZ_BUFFER] = {
-		0xaa, 0xaa, 0x0a, 0x06, 0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55,
-		0xaa, 0xaa, 0x0b, 0x07, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55,
-		0xaa, 0xaa, 0x0c, 0x07, 0x01, 0x6b, 0x01, 0x86, 0x2a, 0x02, 0xbf, 0x79, 0x55, 0x55
-	};
-	for (int i = 0; i < DATA_TESTED; i++) {
-		parseRawBuffer(buffer, buffer_size, &sensorData_ptr[i]);
-	}
+	parseRawBuffer(sensorData_ptr);
 }
 
-int verification(SensorData* sensorData_1, SensorData* sensorData_2)
+int verification(SensorData* sd1, SensorData* sd2)
 {
-
-	TargetInfo targetInfo_1 = sensorData_1->tInfo, targetInfo_2 = sensorData_2->tInfo;
-	SensorVersion sensorVersion_1 = sensorData_1->version, sensorVersion_2 = sensorData_2->version;
-	SensorStatus sensorStatus_1 = sensorData_1->sStatus, sensorStatus_2 = sensorData_2->sStatus;
-	TargetStatus targetStatus_1 = sensorData_1->tStatus, targetStatus_2 = sensorData_2->tStatus;
-
-	// sensor version 
-	if (sensorVersion_1.dataType != sensorVersion_2.dataType)
-		return 1;
-	if (sensorVersion_1.master != sensorVersion_2.master)
-		return 1;
-	if (sensorVersion_1.result != sensorVersion_2.result)
-		return 1;
-	if (sensorVersion_1.second != sensorVersion_2.second)
-		return 1;
-	if (sensorVersion_1.step != sensorVersion_2.step)
-		return 1;
-
-	// sensor status
-	if (sensorStatus_1.actl_mode != sensorStatus_2.actl_mode)
-		return 1;
-	if (sensorStatus_1.cfgStatus != sensorStatus_2.cfgStatus)
-		return 1;
-	if (sensorStatus_1.rollcount != sensorStatus_2.rollcount)
-		return 1;
-
-	// Target Status
-	if (targetStatus_1.noOfTarget != targetStatus_2.noOfTarget)
-		return 1;
-	if (targetStatus_1.rollcount != targetStatus_2.rollcount)
-		return 1;
-
-	// Target Info
-	if (targetInfo_1.azimuth != targetInfo_2.azimuth)
-		return 1;
-	if (targetInfo_1.index != targetInfo_2.index)
-		return 1;
-	if (targetInfo_1.range != targetInfo_2.range)
-		return 1;
-	if (targetInfo_1.rcs != targetInfo_2.rcs)
-		return 1;
-	if (targetInfo_1.rollCount != targetInfo_2.rollCount)
-		return 1;
-	if (targetInfo_1.SNR != targetInfo_2.SNR)
-		return 1;
-	if (targetInfo_1.vrel != targetInfo_2.vrel)
-		return 1;
-	return 0;
-
+	return memcmp(sd1, sd2, sizeof(SensorData));
 }
 
 void printResult(int err, uint64_t time)
@@ -87,8 +30,10 @@ void printResult(int err, uint64_t time)
 int main()
 {
 	// Allocate memory 
-	SensorData* sensorData_ptr = calloc(DATA_TESTED, sizeof(SensorData));
-	SensorData* sensorDataTemp_ptr = calloc(DATA_TESTED, sizeof(SensorData));
+	SensorData sensorData;
+	memset(&sensorData, 0, sizeof(SensorData));
+	SensorData sensorDataTemp;
+	memset(&sensorDataTemp, 0, sizeof(SensorData));
 
 	// Initiate values for our clock
 	struct timespec start, stop;
@@ -100,7 +45,7 @@ int main()
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n");
 	printf("data tested : %i\n", (int)DATA_TESTED);
 
-	generateData(sensorData_ptr);
+	generateData(&sensorData);
 
 #ifdef BENCH_JSON
 	// Initiate result values
@@ -116,8 +61,8 @@ int main()
 
 	for (int i = 0; i < DATA_TESTED; i++) {
 		my_json = json_object_new_object();
-		parse_to_json(&sensorData_ptr[i], my_json);
-		json_to_sensorData(my_json, &sensorDataTemp_ptr[i]);
+		parse_to_json(&sensorData, my_json);
+		json_to_sensorData(my_json, &sensorDataTemp);
 		json_object_put(my_json);
 	}
 
@@ -129,11 +74,9 @@ int main()
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_json = timer_stop - timer_start;
 
-	for (int i = 0; i < DATA_TESTED; i++) {
-		if (verification(&sensorData_ptr[i], &sensorDataTemp_ptr[i])) {
-			printf("err att : %i\n", i);
-			err_json++;
-		}
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_json++;
 	}
 	printf("# JSON :\n");
 	printResult(err_json, result_time_json);
@@ -153,8 +96,8 @@ int main()
 
 	for (int i = 0; i < DATA_TESTED; i++) {
 		my_cbor = cbor_new_definite_map(4);
-		parse_to_cbor(&sensorData_ptr[i], my_cbor);
-		cbor_to_sensorData(my_cbor, &sensorDataTemp_ptr[i]);
+		parse_to_cbor(&sensorData, my_cbor);
+		cbor_to_sensorData(my_cbor, &sensorDataTemp);
 		cbor_decref(&my_cbor);
 	}
 
@@ -166,11 +109,9 @@ int main()
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_cbor = timer_stop - timer_start;
 
-	for (int i = 0; i < DATA_TESTED; i++) {
-		if (verification(&sensorData_ptr[i], &sensorDataTemp_ptr[i])) {
-			printf("err att : %i\n", i);
-			err_cbor++;
-		}
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_cbor++;
 	}
 	printf("# CBOR :\n");
 	printResult(err_cbor, result_time_cbor);
@@ -197,11 +138,11 @@ int main()
 
 		my_xdr_ptr->x_op = XDR_ENCODE;
 		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(&sensorData_ptr[i], my_xdr_ptr);
+		xdr_sensorData(&sensorData_ptr, my_xdr_ptr);
 
 		my_xdr_ptr->x_op = XDR_DECODE;
 		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(&sensorDataTemp_ptr[i], my_xdr_ptr);
+		xdr_sensorData(&sensorDataTemp, my_xdr_ptr);
 
 	}
 	if (clock_gettime(clk_id, &stop) == -1) {
@@ -213,11 +154,9 @@ int main()
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_xdr = timer_stop - timer_start;
 
-	for (int i = 0; i < DATA_TESTED; i++) {
-		if (verification(&sensorData_ptr[i], &sensorDataTemp_ptr[i])) {
-			printf("err att : %i\n", i);
-			err_xdr++;
-		}
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_xdr++;
 	}
 	printf("# XDR :\n");
 	printResult(err_xdr, result_time_xdr);
@@ -284,7 +223,5 @@ int main()
 
 
 #endif
-	free(sensorData_ptr);
-	free(sensorDataTemp_ptr);
 	return 0;
 }

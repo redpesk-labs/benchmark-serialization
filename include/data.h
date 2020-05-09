@@ -5,14 +5,6 @@
 
 typedef struct
 {
-	int index;
-	uint8_t* buffer;
-	int port;
-	int* sockfd;
-} dataUDP;
-
-typedef struct
-{
 	uint8_t index;
 	float rcs;
 	float range;

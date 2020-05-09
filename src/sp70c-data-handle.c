@@ -1,20 +1,27 @@
 #include "config.h"
 #include "sp70c-data-handle.h"
 
-int parseRawBuffer(uint8_t* buffer, size_t size, SensorData* sensorData)
+/// @brief A binary representation of a sp70c frame
+static const uint8_t sp70c_data[] = {
+	0xaa, 0xaa, 0x0a, 0x06, 0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55,
+	0xaa, 0xaa, 0x0b, 0x07, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55,
+	0xaa, 0xaa, 0x0c, 0x07, 0x01, 0x6b, 0x01, 0x86, 0x2a, 0x02, 0xbf, 0x79, 0x55, 0x55
+};
+
+int parseRawBuffer(SensorData* sensorData)
 {
 	int index, tInfoIndex;
 	uint16_t messageID;
 	uint8_t parsingBuffer[PARSING_BUFFER_SIZE];
 
-	for (index = 0; index < size; index++) {
-		if (buffer[index] == 0xaa && buffer[index + 1] == 0xaa) {
-			messageID = (uint16_t)(((uint16_t)buffer[index + 3] * 0x100 + (uint16_t)buffer[index + 2]));
-			if (buffer[index + PARSING_BUFFER_SIZE - 1] == 0x55 && buffer[index + PARSING_BUFFER_SIZE - 2] == 0x55) {
+	for (index = 0; index < sizeof(sp70c_data); index++) {
+		if (sp70c_data[index] == 0xaa && index + 1 < sizeof(sp70c_data) && sp70c_data[index + 1] == 0xaa) {
+			messageID = (uint16_t)(((uint16_t)sp70c_data[index + 3] * 0x100 + (uint16_t)sp70c_data[index + 2]));
+			if (sp70c_data[index + PARSING_BUFFER_SIZE - 1] == 0x55 && sp70c_data[index + PARSING_BUFFER_SIZE - 2] == 0x55) {
 
 				for (int i = 0; i < PARSING_BUFFER_SIZE; i++)
 				{
-					parsingBuffer[i] = buffer[index + i];
+					parsingBuffer[i] = sp70c_data[index + i];
 				}
 				switch (messageID)
 				{
@@ -32,12 +39,9 @@ int parseRawBuffer(uint8_t* buffer, size_t size, SensorData* sensorData)
 					if (parseTargetStatus(parsingBuffer, sensorData) > 0) {
 						tInfoIndex = index + PARSING_BUFFER_SIZE;
 						sensorData->tInfoSize = 0;
-						parseTargetInfo(buffer + tInfoIndex, sensorData); //Parse each target info received after the 0x70B message
+						parseTargetInfo(sp70c_data + tInfoIndex, sensorData); //Parse each target info received after the 0x70B message
 					}
 					index += PARSING_BUFFER_SIZE * (sensorData->tStatus.noOfTarget + 1) - 1;
-					break;
-				default:
-					continue;
 					break;
 				}
 			}
@@ -45,7 +49,6 @@ int parseRawBuffer(uint8_t* buffer, size_t size, SensorData* sensorData)
 	}
 	return 0;
 }
-
 
 //Parse data that matched the SensorVersion message ID
 int parseSensorVersion(uint8_t* buffer, SensorData* sensorData)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "struct-parsing.h"
+#include "data.h"
 #include <json.h>
 
 void parse_to_json(SensorData* sensorData, struct json_object* my_json);

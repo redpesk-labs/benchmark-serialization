@@ -1,6 +1,6 @@
 #pragma once
 
-#include "struct-parsing.h"
+#include "data.h"
 #include <cbor.h>
 
 typedef enum

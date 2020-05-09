@@ -1,6 +1,6 @@
 #pragma once
 
-#include "struct-parsing.h"
+#include "data.h"
 
 void xdr_sensorData(SensorData* sensorData, XDR* xdr);
 int xdr_sensorVersion(XDR* xdr, SensorVersion* sensorVersion);
