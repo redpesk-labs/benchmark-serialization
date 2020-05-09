@@ -18,6 +18,13 @@
 #include <cbor.h>
 #include <rpc/xdr.h>
 
+enum option
+{
+    MAP,
+    ARRAY,
+};
+
+
 typedef struct
 {
     int index;

@@ -2,10 +2,12 @@
 
 The aim's project has to compare different data serialization between :
 
-    1.JSON
-    2.protobuf
-    3.CBOR
-    4.XDR
+    1.JSON in map
+    2.JSON in Array
+    3.CBOR in map
+    4.CBOR in Array
+    5.XDR
+    6.protobuf(TODO)
 
 It will take the SP70C data example.
 
@@ -34,7 +36,7 @@ After that it will test all different serializations and de-serializations. We u
 ## How use it
 
 You can go to the file **config-parsing.h** to change macros to change which serialization would be tested, and the number of data tested.
-To have a better result the `DATA_TESTED` macro is set to 10000.
+To have a better result the `DATA_TESTED` macro is set to 1000000.
 
 create a build folder:
 
@@ -49,6 +51,37 @@ You can also use Valgrind to have a profiling:
 
     ```console
     valgrind --tool=callgrind ./benchmark
+    ```
+
+## RESULT EXAMPLE
+
+    ```
+    ====== BENCHMARKING DATA SERIALIZATION ====== 
+    data tested : 1000000
+    # JSON MAP:
+        Data : OK
+        Time during the serialization: 4540.577748 ms
+
+
+    # JSON ARRAY :
+        Data : OK
+        Time during the serialization: 1720.860678 ms
+
+
+    # CBOR MAP:
+        Data : OK
+        Time during the serialization: 3496.097179 ms
+
+
+    # CBOR ARRAY:
+        Data : OK
+        Time during the serialization: 2252.337715 ms
+
+
+    # XDR :
+        Data : OK
+        Time during the serialization: 281.472919 ms
+
     ```
 
 ## Note

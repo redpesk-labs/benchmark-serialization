@@ -19,19 +19,20 @@ union type_data
     bool data_bool;
 };
 
-void parse_to_cbor(SensorData *sensorData, cbor_item_t *my_cbor);
-void cbor_to_sensorData(cbor_item_t *my_cbor, SensorData *sensorData);
+void parse_to_cbor(SensorData *sensorData, cbor_item_t *my_cbor, enum option my_option);
+void cbor_to_sensorData(cbor_item_t *my_cbor, SensorData *sensorData, enum option my_option);
 
-cbor_item_t *SensorVersionToCbor(SensorVersion data);
-SensorVersion cborToSensorVersion(cbor_item_t *cborData);
+cbor_item_t *SensorVersionToCbor(SensorVersion data, enum option my_option);
+SensorVersion cborToSensorVersion(cbor_item_t *cborData, enum option my_option);
 
-cbor_item_t *SensorStatusToCbor(SensorStatus data);
-SensorStatus cborToSensorStatus(cbor_item_t *cborData);
+cbor_item_t *SensorStatusToCbor(SensorStatus data, enum option my_option);
+SensorStatus cborToSensorStatus(cbor_item_t *cborData, enum option my_option);
 
-cbor_item_t *TargetStatusToCbor(TargetStatus data);
-TargetStatus cborToTargetStatus(cbor_item_t *cborData);
+cbor_item_t *TargetStatusToCbor(TargetStatus data, enum option my_option);
+TargetStatus cborToTargetStatus(cbor_item_t *cborData, enum option my_option);
 
-cbor_item_t *TargetInfoToCbor(TargetInfo data);
-TargetInfo cborToTargetInfo(cbor_item_t *cborData);
+cbor_item_t *TargetInfoToCbor(TargetInfo data, enum option my_option);
+TargetInfo cborToTargetInfo(cbor_item_t *cborData, enum option my_option);
 
 void addMapCbor(cbor_item_t *cborMap, union type_data value, enum type type_data, char *key);
+void addArrayCbor(cbor_item_t *cborArray,size_t index, union type_data value, enum type type_data);

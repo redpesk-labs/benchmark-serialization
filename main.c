@@ -16,8 +16,8 @@ void main(int argc, char **argv)
     }
     
     // Initiate result values
-    uint64_t result_time_json, result_time_cbor, result_time_protobuf, result_time_xdr;
-    int err_json = 0, err_cbor = 0, err_protobuf = 0, err_xdr = 0;
+    uint64_t result_time_json, result_time_json_array, result_time_cbor, result_time_cbor_array, result_time_protobuf, result_time_xdr;
+    int err_json = 0, err_json_array = 0, err_cbor = 0, err_cbor_array = 0, err_protobuf = 0, err_xdr = 0;
 
     // Initiate values for our clock
     struct timespec start, stop;
@@ -31,7 +31,7 @@ void main(int argc, char **argv)
 
     generateData(sensorData_ptr);
 
-#if JSON
+#if JSON_MAP
 
     struct json_object *my_json;
 
@@ -42,8 +42,8 @@ void main(int argc, char **argv)
     
     for (int i=0; i<DATA_TESTED; i++) {
         my_json = json_object_new_object();
-        parse_to_json(sensorData_ptr[i], my_json);             
-        json_to_sensorData(my_json, sensorDataTemp_ptr[i]);
+        parse_to_json(sensorData_ptr[i], my_json, MAP);             
+        json_to_sensorData(my_json, sensorDataTemp_ptr[i], MAP);
         json_object_put(my_json);
     }
     
@@ -61,13 +61,48 @@ void main(int argc, char **argv)
             err_json ++;
         }
     }
-    printf("# JSON :\n");
+    printf("# JSON MAP:\n");
     printResult(err_json, result_time_json);
+
+#endif
+
+#if JSON_ARRAY
+
+    struct json_object *my_json_array;
+
+    if(clock_gettime(clk_id, &start) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    }
+    
+    for (int i=0; i<DATA_TESTED; i++) {
+        my_json_array = json_object_new_array();
+        parse_to_json(sensorData_ptr[i], my_json_array, ARRAY);             
+        json_to_sensorData(my_json_array, sensorDataTemp_ptr[i], ARRAY);
+        json_object_put(my_json_array);
+    }
+    
+    if(clock_gettime(clk_id, &stop) == -1){
+        perror("clock gettime stop");
+        exit(EXIT_FAILURE);
+    }
+    timer_start = start.tv_sec*1000000000 + start.tv_nsec;
+    timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
+    result_time_json_array = timer_stop - timer_start;
+
+    for (int i=0; i<DATA_TESTED; i++) {
+        if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+            printf("err att : %i\n", i);
+            err_json_array ++;
+        }
+    }
+    printf("# JSON ARRAY :\n");
+    printResult(err_json_array, result_time_json_array);
 
 #endif
 //TODO Implement function to serialize in JSON using tab
 
-#if CBOR 
+#if CBOR_MAP 
 
     cbor_item_t *my_cbor;
 
@@ -78,8 +113,8 @@ void main(int argc, char **argv)
 
     for (int i=0; i<DATA_TESTED; i++) {
         my_cbor = cbor_new_definite_map(4);
-        parse_to_cbor(sensorData_ptr[i], my_cbor);
-        cbor_to_sensorData(my_cbor, sensorDataTemp_ptr[i]);
+        parse_to_cbor(sensorData_ptr[i], my_cbor, MAP);
+        cbor_to_sensorData(my_cbor, sensorDataTemp_ptr[i], MAP);
         cbor_decref(&my_cbor);
     }
 
@@ -97,11 +132,44 @@ void main(int argc, char **argv)
             err_cbor ++;
         }
     }
-    printf("# CBOR :\n");
+    printf("# CBOR MAP:\n");
     printResult(err_cbor, result_time_cbor);
 
 #endif
-//TODO Implement function to serialize in CBOR using tab
+
+#if CBOR_ARRAY
+    cbor_item_t temp;
+    cbor_item_t *my_cbor_array = &temp;
+
+    if(clock_gettime(clk_id, &start) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    } 
+    my_cbor_array = cbor_new_definite_array(4);
+    for (int i=0; i<DATA_TESTED; i++) {       
+        parse_to_cbor(sensorData_ptr[i], my_cbor_array, ARRAY);
+        cbor_to_sensorData((my_cbor_array), sensorDataTemp_ptr[i], ARRAY);
+    }
+    cbor_decref(&my_cbor_array);
+    if(clock_gettime(clk_id, &stop) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    }
+    timer_start = start.tv_sec*1000000000 + start.tv_nsec;
+    timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
+    result_time_cbor_array = timer_stop - timer_start;
+
+    for (int i=0; i<DATA_TESTED; i++) {
+        if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+            printf("err att : %i\n", i);
+            err_cbor_array ++;
+        }
+    }
+    printf("# CBOR ARRAY:\n");
+    printResult(err_cbor_array, result_time_cbor_array);
+
+#endif
+
 
 //TODO Implement function to serialize in protobuf
 #if PROTOBUF 
@@ -187,31 +255,36 @@ void main(int argc, char **argv)
     temp_struct->second = 0;
     temp_struct->step = 0;
 
-    xdrmem_create(my_xdr_ptr, buffer_xdr, len, XDR_ENCODE);
-    err = addSensorVersionToXdr(my_xdr_ptr, test_struct);
-    if(err ==0)
-        printf("Error au parsing\n");
-    err = 0;
-    printf("Position: %i\n",xdr_getpos(my_xdr_ptr));
-    /* xdr_uint8_t(&my_xdr, &test_struct.dataType);
-    bool_t temp = test_struct.result;
-    xdr_bool(&my_xdr, &temp);
-    xdr_uint8_t(&my_xdr, &test_struct.master);
-    xdr_uint8_t(&my_xdr, &test_struct.second);
-    xdr_uint8_t(&my_xdr, &test_struct.step); */
+    // *** Serialize
 
-    my_xdr_ptr->x_op = XDR_DECODE;
-    xdr_setpos(my_xdr_ptr, 0);
-    err = addSensorVersionToXdr(my_xdr_ptr, temp_struct);
-    if(err ==0)
-        printf("Error au dé-parsing\n");
-    err = 0;
-    /* xdr_uint8_t(&my_xdr, &temp_struct.dataType);
-    xdr_bool(&my_xdr, &temp);
-    temp_struct.result = temp;
-    xdr_uint8_t(&my_xdr, &temp_struct.master);
-    xdr_uint8_t(&my_xdr, &temp_struct.second);
-    xdr_uint8_t(&my_xdr, &temp_struct.step); */
+    struct json_object *my_json;
+    struct json_object *dataType_json;
+    struct json_object *result_json;
+    struct json_object *master_json;
+    struct json_object *second_json;
+    struct json_object *step_json;
+    my_json = json_object_new_array();
+    dataType_json = json_object_new_int(test_struct->dataType);
+    result_json = json_object_new_boolean(test_struct->result);
+    master_json = json_object_new_int(test_struct->master);
+    second_json = json_object_new_int(test_struct->second);
+    step_json = json_object_new_int(test_struct->step);
+    json_object_array_add(my_json, dataType_json);
+    json_object_array_add(my_json, result_json);
+    json_object_array_add(my_json, master_json);
+    json_object_array_add(my_json, second_json);
+    json_object_array_add(my_json, step_json);
+
+    temp_struct->dataType =json_object_get_int(json_object_array_get_idx(my_json, 0));
+    temp_struct->result =json_object_get_boolean(json_object_array_get_idx(my_json, 1));
+    temp_struct->master =json_object_get_int(json_object_array_get_idx(my_json, 2));
+    temp_struct->second =json_object_get_int(json_object_array_get_idx(my_json, 3));
+    temp_struct->step =json_object_get_int(json_object_array_get_idx(my_json, 4));
+
+    json_object_put(my_json);
+
+
+    // *** END
 
     printf("dataType : %i\n", temp_struct->dataType);
     printf("result : %i\n", temp_struct->result);
@@ -288,7 +361,6 @@ int verification(SensorData *sensorData_1, SensorData *sensorData_2)
     SensorVersion sensorVersion_1 = sensorData_1->version, sensorVersion_2 = sensorData_2->version;
     SensorStatus sensorStatus_1 = sensorData_1->sStatus, sensorStatus_2 = sensorData_2->sStatus;
     TargetStatus targetStatus_1 = sensorData_1->tStatus, targetStatus_2 = sensorData_2->tStatus;
-
     // sensor version 
     if (sensorVersion_1.dataType != sensorVersion_2.dataType)
         return 1;
@@ -314,7 +386,6 @@ int verification(SensorData *sensorData_1, SensorData *sensorData_2)
         return 1;
     if (targetStatus_1.rollcount != targetStatus_2.rollcount)
         return 1; 
-
     // Target Info
     if(targetInfo_1.azimuth != targetInfo_2.azimuth)
         return 1;
