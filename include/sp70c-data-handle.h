@@ -2,12 +2,6 @@
 
 #include "struct-parsing.h"
 
-int initTargetInfo(TargetInfo* tInfo);
-int initSensorVersion(SensorVersion* sVersion);
-int initSensorStatus(SensorStatus* sStatus);
-int initTargetStatus(TargetStatus* tStatus);
-int initData(SensorData* sensorData);
-
 int parseRawBuffer(uint8_t* buffer, size_t size, SensorData* sensorData);
 int parseSensorVersion(uint8_t* buffer, SensorData* sensorData);
 int parseSensorStatus(uint8_t* buffer, SensorData* sensorData);

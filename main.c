@@ -14,7 +14,6 @@ void generateData(SensorData* sensorData_ptr)
 		0xaa, 0xaa, 0x0c, 0x07, 0x01, 0x6b, 0x01, 0x86, 0x2a, 0x02, 0xbf, 0x79, 0x55, 0x55
 	};
 	for (int i = 0; i < DATA_TESTED; i++) {
-		initData(&sensorData_ptr[i]);
 		parseRawBuffer(buffer, buffer_size, &sensorData_ptr[i]);
 	}
 }
@@ -88,11 +87,8 @@ void printResult(int err, uint64_t time)
 int main()
 {
 	// Allocate memory 
-	SensorData* sensorData_ptr = malloc(DATA_TESTED * sizeof(SensorData));
-	SensorData* sensorDataTemp_ptr = malloc(DATA_TESTED * sizeof(SensorData));
-	for (int i = 0; i < DATA_TESTED; i++) {
-		initData(&sensorDataTemp_ptr[i]);
-	}
+	SensorData* sensorData_ptr = calloc(DATA_TESTED, sizeof(SensorData));
+	SensorData* sensorDataTemp_ptr = calloc(DATA_TESTED, sizeof(SensorData));
 
 	// Initiate values for our clock
 	struct timespec start, stop;

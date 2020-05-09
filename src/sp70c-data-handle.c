@@ -1,58 +1,6 @@
 #include "config.h"
 #include "sp70c-data-handle.h"
 
-//Sets everything to 0
-int initTargetInfo(TargetInfo* tInfo)
-{
-	tInfo->azimuth = 0;
-	tInfo->index = 0;
-	tInfo->range = 0;
-	tInfo->rcs = 0;
-	tInfo->rollCount = 0;
-	tInfo->SNR = 0;
-	tInfo->vrel = 0;
-	return 0;
-}
-
-
-//Sets everything to 0
-int initSensorVersion(SensorVersion* sVersion)
-{
-	sVersion->dataType = 0;
-	sVersion->master = 0;
-	sVersion->result = 0;
-	sVersion->second = 0;
-	sVersion->step = 0;
-	return 0;
-}
-
-//Sets everything to 0
-int initSensorStatus(SensorStatus* sStatus)
-{
-	sStatus->actl_mode = 0;
-	sStatus->cfgStatus = 0;
-	sStatus->rollcount = 0;
-	return 0;
-}
-
-int initTargetStatus(TargetStatus* tStatus)
-{
-	tStatus->noOfTarget = 0;
-	tStatus->rollcount = 0;
-	return 0;
-}
-
-//Sets everything to 0
-int initData(SensorData* sensorData)
-{
-	initTargetStatus(&sensorData->tStatus);
-	initSensorVersion(&sensorData->version);
-	initSensorStatus(&sensorData->sStatus);
-	initTargetInfo(&sensorData->tInfo);
-	sensorData->tInfoSize = 0;
-	return 0;
-}
-
 int parseRawBuffer(uint8_t* buffer, size_t size, SensorData* sensorData)
 {
 	int index, tInfoIndex;
