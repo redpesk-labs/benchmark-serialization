@@ -7,7 +7,8 @@
 #include "include/parse-json.h"
 #include "include/parse-cbor.h"
 #include "include/parse-xdr.h"
-
+#include "include/parse-protobuf.h"
+#define MAX_MSG_SIZE 1024
 /* Function Prototype */
 void error(char *msg);
 void generateData(SensorData **sensorData_ptr);

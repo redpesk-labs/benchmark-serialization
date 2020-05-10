@@ -12,7 +12,8 @@ src/parse-json.c
 src/sp70c-data-handle.c
 src/parse-cbor.c
 src/parse-protobuf.c
-src/parse-xdr.c)
+src/parse-xdr.c
+sensordata.pb-c.c)
 
 # add the binary tree to the search path for include files
 target_include_directories(benchmark PUBLIC

@@ -11,7 +11,7 @@
 #define JSON_ARRAY  1
 #define CBOR_MAP    1
 #define CBOR_ARRAY  1
-#define PROTOBUF    0
+#define PROTOBUF    1
 #define XDR_MACRO   1
 #define DEBUG       0
 

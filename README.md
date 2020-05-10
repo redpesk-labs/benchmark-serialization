@@ -7,7 +7,7 @@ The aim's project has to compare different data serialization between :
     3.CBOR in map
     4.CBOR in Array
     5.XDR
-    6.protobuf(TODO)
+    6.protobuf
 
 It will take the SP70C data example.
 
@@ -52,30 +52,38 @@ You can also use Valgrind to have a profiling:
 ## RESULT EXAMPLE
 
     ====== BENCHMARKING DATA SERIALIZATION ====== 
+
     data tested : 1000000
+
     # JSON MAP:
         Data : OK
-        Time during the serialization: 4540.577748 ms
+        Time during the serialization: 4352.010288 ms
 
 
     # JSON ARRAY :
         Data : OK
-        Time during the serialization: 1720.860678 ms
+        Time during the serialization: 1711.330259 ms
 
 
     # CBOR MAP:
         Data : OK
-        Time during the serialization: 3496.097179 ms
+        Time during the serialization: 3100.252335 ms
 
 
     # CBOR ARRAY:
         Data : OK
-        Time during the serialization: 2252.337715 ms
+        Time during the serialization: 3016.003068 ms
+
+
+    # PROTOBUF :
+        Data : OK
+        Time during the serialization: 1451.426229 ms
 
 
     # XDR :
         Data : OK
-        Time during the serialization: 281.472919 ms
+        Time during the serialization: 313.980669 ms
+
 
 
 ## Note

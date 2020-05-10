@@ -26,8 +26,8 @@ void main(int argc, char **argv)
     uint64_t timer_stop;
     clk_id = CLOCK_MONOTONIC;
 
-    printf (" ====== BENCHMARKING DATA SERIALIZATION ====== \n");
-    printf("data tested : %i\n", (int)DATA_TESTED);
+    printf (" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
+    printf("data tested : %i\n\n", (int)DATA_TESTED);
 
     generateData(sensorData_ptr);
 
@@ -100,7 +100,6 @@ void main(int argc, char **argv)
     printResult(err_json_array, result_time_json_array);
 
 #endif
-//TODO Implement function to serialize in JSON using tab
 
 #if CBOR_MAP 
 
@@ -170,19 +169,39 @@ void main(int argc, char **argv)
 
 #endif
 
-
-//TODO Implement function to serialize in protobuf
 #if PROTOBUF 
-        if(clock_gettime(clk_id, &start) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        } 
-        if(clock_gettime(clk_id, &stop) == -1){
-            perror("clock gettime start");
-            exit(EXIT_FAILURE);
-        }
+    uint8_t buf[1024];      // Buffer to store serialized data
+    uint8_t *buf_ptr = buf;             
+    size_t length;          // Length of serialized data
+    SensorDataMessage *msg;
 
-        result_time_protobuf += (stop.tv_sec - start.tv_sec)*1000000000 + (stop.tv_nsec - start.tv_nsec);
+    if(clock_gettime(clk_id, &start) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    } 
+    for (int i=0; i<DATA_TESTED; i++) {
+        // Encode
+        length = parse_to_protobuf(sensorData_ptr[i], buf_ptr); 
+        //Decode
+        protobuf_to_sensorData(buf_ptr, sensorDataTemp_ptr[i], length);
+    }
+    if(clock_gettime(clk_id, &stop) == -1){
+        perror("clock gettime start");
+        exit(EXIT_FAILURE);
+    }
+
+    timer_start = start.tv_sec*1000000000 + start.tv_nsec;
+    timer_stop = stop.tv_sec*1000000000 + stop.tv_nsec;
+    result_time_protobuf = timer_stop - timer_start;
+
+    for (int i=0; i<DATA_TESTED; i++) {
+        if (verification(sensorData_ptr[i], sensorDataTemp_ptr[i])) {
+            printf("err att : %i\n", i);
+            err_protobuf ++;
+        }
+    }
+    printf("# PROTOBUF :\n");
+    printResult(err_protobuf, result_time_protobuf);
 
 #endif
 
@@ -243,11 +262,11 @@ void main(int argc, char **argv)
     SensorVersion *test_struct, *temp_struct;
     test_struct = malloc(sizeof(SensorVersion));
     temp_struct = malloc(sizeof(SensorVersion));
-    test_struct->dataType = 1;
+    test_struct->dataType = 10;
     test_struct->result = 1;
-    test_struct->master = 2;
-    test_struct->second = 3;
-    test_struct->step = 4;
+    test_struct->master = 20;
+    test_struct->second = 30;
+    test_struct->step = 40;
 
     temp_struct->dataType = 0;
     temp_struct->result = 0;
@@ -257,33 +276,47 @@ void main(int argc, char **argv)
 
     // *** Serialize
 
-    struct json_object *my_json;
-    struct json_object *dataType_json;
-    struct json_object *result_json;
-    struct json_object *master_json;
-    struct json_object *second_json;
-    struct json_object *step_json;
-    my_json = json_object_new_array();
-    dataType_json = json_object_new_int(test_struct->dataType);
-    result_json = json_object_new_boolean(test_struct->result);
-    master_json = json_object_new_int(test_struct->master);
-    second_json = json_object_new_int(test_struct->second);
-    step_json = json_object_new_int(test_struct->step);
-    json_object_array_add(my_json, dataType_json);
-    json_object_array_add(my_json, result_json);
-    json_object_array_add(my_json, master_json);
-    json_object_array_add(my_json, second_json);
-    json_object_array_add(my_json, step_json);
-
-    temp_struct->dataType =json_object_get_int(json_object_array_get_idx(my_json, 0));
-    temp_struct->result =json_object_get_boolean(json_object_array_get_idx(my_json, 1));
-    temp_struct->master =json_object_get_int(json_object_array_get_idx(my_json, 2));
-    temp_struct->second =json_object_get_int(json_object_array_get_idx(my_json, 3));
-    temp_struct->step =json_object_get_int(json_object_array_get_idx(my_json, 4));
-
-    json_object_put(my_json);
+    SensorVersionMessage msg = SENSOR_VERSION_MESSAGE__INIT;
+    void *buf;             // Buffer to store serialized data
+    size_t length;           // Length of serialized data
+/*
+    msg.datatype = test_struct->dataType;
+    msg.result = test_struct->result;
+    msg.master = test_struct->master;
+    msg.second = test_struct->second;
+    msg.step = test_struct->step;
+    */
+    msg.datatype = 2;
+    msg.result = true;
+    msg.master = 3;
+    msg.second = 3;
+    msg.step = 3;
+    length = sensor_version_message__get_packed_size(&msg);
+    buf = malloc(length);
+    sensor_version_message__pack(&msg, buf);
+    printf("Writting %li serialized bytes\n",length);
+    
 
 
+    uint8_t buf_temp[MAX_MSG_SIZE];
+    SensorVersionMessage *msg_temp;
+    size_t length_temp = length;
+    /*
+    for (int i = 0; i<length_temp; i++) {
+        buf_temp[i] = &buf[i];
+    }
+    */
+    msg_temp = sensor_version_message__unpack(NULL, length_temp, buf);
+    if (msg_temp == NULL)
+    {
+        fprintf(stderr, "error unpacking incoming message\n");
+        exit(1);
+    }
+    temp_struct->dataType = msg_temp->datatype;
+    temp_struct->result = msg_temp->result;
+    temp_struct->master = msg_temp->master;
+    temp_struct->second = msg_temp->second;
+    temp_struct->step = msg_temp->step;
     // *** END
 
     printf("dataType : %i\n", temp_struct->dataType);
@@ -291,8 +324,8 @@ void main(int argc, char **argv)
     printf("master : %i\n", temp_struct->master);
     printf("second : %i\n", temp_struct->second);
     printf("step : %i\n", temp_struct->step);
-    
-
+  
+free(buf);
 #endif
 
 for (int i = 0; i<DATA_TESTED; i++) {
