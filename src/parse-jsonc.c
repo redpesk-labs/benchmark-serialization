@@ -172,16 +172,16 @@ int jsonc_deserialize_SensorData(struct json_object* input, SensorData* output)
 	struct json_object* tmp;
 
 	if (!json_object_object_get_ex(input, "version", &tmp)) return EXIT_FAILURE;
-	if (!jsonc_deserialize_SensorVersion(tmp, &output->version)) return EXIT_FAILURE;
+	if (jsonc_deserialize_SensorVersion(tmp, &output->version)) return EXIT_FAILURE;
 
 	if (!json_object_object_get_ex(input, "sStatus", &tmp)) return EXIT_FAILURE;
-	if (!jsonc_deserialize_SensorStatus(tmp, &output->sStatus)) return EXIT_FAILURE;
+	if (jsonc_deserialize_SensorStatus(tmp, &output->sStatus)) return EXIT_FAILURE;
 
 	if (!json_object_object_get_ex(input, "tStatus", &tmp)) return EXIT_FAILURE;
-	if (!jsonc_deserialize_TargetStatus(tmp, &output->tStatus)) return EXIT_FAILURE;
+	if (jsonc_deserialize_TargetStatus(tmp, &output->tStatus)) return EXIT_FAILURE;
 
 	if (!json_object_object_get_ex(input, "tInfo", &tmp)) return EXIT_FAILURE;
-	if (!jsonc_deserialize_TargetInfo(tmp, &output->tInfo)) return EXIT_FAILURE;
+	if (jsonc_deserialize_TargetInfo(tmp, &output->tInfo)) return EXIT_FAILURE;
 
 	if (!json_object_object_get_ex(input, "tInfoSize", &tmp)) return EXIT_FAILURE;
 	output->tInfoSize = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
@@ -264,6 +264,7 @@ void jsonc_get_serializer(Serializer* s)
 		s->init			= jsonc_init;
 		s->cleanup		= jsonc_cleanup;
 		s->print		= jsonc_print;
+		s->freeobject	= jsonc_freeobject;
 		s->serialize	= jsonc_serialize;
 		s->deserialize	= jsonc_deserialize;
 	}
