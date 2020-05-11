@@ -1,6 +1,7 @@
 #include "config.h"
 #include "data.h"
 #include "sp70c-data-handle.h"
+#include "string.h"
 
 #define TIME_RESOLUTION 1000000000ULL
 
@@ -143,7 +144,7 @@ int main()
 
 		my_xdr_ptr->x_op = XDR_ENCODE;
 		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(&sensorData_ptr, my_xdr_ptr);
+		xdr_sensorData(&sensorData, my_xdr_ptr);
 
 		my_xdr_ptr->x_op = XDR_DECODE;
 		xdr_setpos(my_xdr_ptr, 0);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data.h"
+#include <rpc/xdr.h>
 
 void xdr_sensorData(SensorData* sensorData, XDR* xdr);
 int xdr_sensorVersion(XDR* xdr, SensorVersion* sensorVersion);
