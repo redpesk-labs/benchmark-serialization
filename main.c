@@ -12,7 +12,7 @@ void generateData(SensorData* sensorData_ptr)
 
 int verification(SensorData* sd1, SensorData* sd2)
 {
-	return memcmp(sd1, sd2, sizeof(SensorData));
+	return memcmp(sd1, sd2, sizeof(SensorData *));
 }
 
 void printResult(int err, uint64_t time)
