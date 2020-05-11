@@ -92,4 +92,3 @@ libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)  
 
 libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor) `apt install libcbor-dev`
 
-libprotobuf: `apt install libprotobuf-c-dev`
