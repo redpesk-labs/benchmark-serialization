@@ -17,6 +17,10 @@
 #include "parse-xdr.h"
 #endif
 
+#if BENCH_PROTOBUF
+#include "parse-protobuf.h"
+#endif
+
 // Portability fix: on windows there is no posix clock
 // This code provides a precision clock using the performance counters using
 // the same interface as the posix clock.

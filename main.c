@@ -53,8 +53,6 @@ int main()
 	uint64_t result_time_json;
 	int err_json = 0;
 	int option = MAP;
-	
-	
 
 	Serializer json;
 	memset(&json, 0, sizeof(json));
@@ -63,7 +61,7 @@ int main()
 	#ifdef BENCH_JSON_ARRAY	
 		option = ARRAY;
 	#endif
-	
+
 	json.context = &option;
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
@@ -181,6 +179,42 @@ int main()
 	printResult(err_xdr, result_time_xdr);
 
 #endif // BENCH_XDR
+
+#ifdef BENCH_PROTOBUF
+    uint8_t buf[1024];      // Buffer to store serialized data
+    uint8_t *buf_ptr = buf;             
+    size_t length;          // Length of serialized data
+    SensorDataMessage *msg;
+	uint64_t result_time_protobuf;
+	int err_protobuf = 0;
+
+	if (clock_gettime(clk_id, &start) == -1) {
+		perror("clock gettime start");
+		exit(EXIT_FAILURE);
+	}
+
+	for (int i = 0; i < DATA_TESTED; i++) {
+        // Encode
+        length = parse_to_protobuf(&sensorData, buf_ptr); 
+        //Decode
+        protobuf_to_sensorData(buf_ptr, &sensorDataTemp, length);
+	}
+
+	if (clock_gettime(clk_id, &stop) == -1) {
+		perror("clock gettime start");
+		exit(EXIT_FAILURE);
+	}
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
+	result_time_protobuf = timer_stop - timer_start;
+
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_protobuf++;
+	}
+	printf("# PROTOBUF :\n");
+	printResult(err_protobuf, result_time_protobuf);
+#endif
 
 #if BENCH_DEBUG
 	float floatToParse_1 = 5.0;

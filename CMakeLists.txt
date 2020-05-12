@@ -90,6 +90,36 @@ project(benchmark)
 		target_sources(benchmark PRIVATE src/parse-xdr.c)
 	endif()
 
+	# ---------- protobuf enabled --------------------------------------------------
+	if (BENCH_PROTOBUF)
+		find_path(PROTOBUFC_INCLUDE_DIRS protobuf-c.h
+			HINTS ${PROTOBUFC_INSTALL_DIR} $ENV{PROTOBUFCC_INSTALL_DIR}
+			PATH_SUFFIXES "include" "protobuf-c" "include/protobuf-c"
+		)
+		if (NOT DEFINED PROTOBUFC_INCLUDE_DIRS OR "${PROTOBUFC_INCLUDE_DIRS}" STREQUAL "PROTOBUFC_INCLUDE_DIRS-NOTFOUND")
+			message(FATAL_ERROR "protobuf-c's header file (protobuf-c.h) was not found!")
+		else()
+			message(STATUS "protobuf-c's header file found: ${PROTOBUFC_INCLUDE_DIRS}")
+		endif()
+
+		find_library(PROTOBUFC_LIBRARIES
+			NAMES protobuf-c libprotobuf-c
+			HINTS ${PROTOBUFC_INSTALL_DIR} $ENV{PROTOBUFC_INSTALL_DIR}
+			PATH_SUFFIXES "lib"
+		)
+		if (NOT DEFINED PROTOBUFC_LIBRARIES OR "${PROTOBUFC_LIBRARIES}" STREQUAL "PROTOBUFC_LIBRARIES-NOTFOUND")
+			message(FATAL_ERROR "protobuf-c's library was not found!")
+		else()
+			message(STATUS "protobuf-c's library found: ${PROTOBUFC_LIBRARIES}")
+		endif()
+
+		target_compile_definitions(benchmark PRIVATE BENCH_PROTOBUF)
+		target_include_directories(benchmark PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
+		target_link_libraries(benchmark PRIVATE "${PROTOBUFC_LIBRARIES}")
+		target_sources(benchmark PRIVATE "sensordata.pb-c.c")
+		target_sources(benchmark PRIVATE "src/parse-protobuf.c")
+	endif()
+
 	# ---------- debug enabled ------------------------------------------------
 	if (BENCH_DEBUG)
 		target_compile_definitions(benchmark PRIVATE BENCH_DEBUG)
