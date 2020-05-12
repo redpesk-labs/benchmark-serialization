@@ -9,7 +9,7 @@ enum option
 	ARRAY,
 };
 
-typedef struct
+typedef struct 
 {
 	uint8_t index;
 	float rcs;

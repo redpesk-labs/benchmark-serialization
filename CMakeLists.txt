@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 option(BENCH_JSON			"Enable json-c benchmark" ON)
-option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" OFF)
+option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
 option(BENCH_CBOR			"Enable cbor benchmark" ON)
+option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" ON)
 option(BENCH_XDR			"Enable xdr benchmark" ON)
-option(BENCH_PROTOBUF		"Enable protobuf benchmark" ON)
+option(BENCH_PROTOBUF		"Enable protobuf benchmark" OFF)
 option(BENCH_DEBUG			"Enable debug infos" OFF)
 
 # set the project name
@@ -82,6 +83,10 @@ project(benchmark)
 		target_include_directories(benchmark PRIVATE "${CBOR_INCLUDE_DIRS}")
 		target_link_libraries(benchmark PRIVATE "${CBOR_LIBRARIES}")
 		target_sources(benchmark PRIVATE src/parse-cbor.c)
+
+		if (BENCH_CBOR_ARRAY)
+			target_compile_definitions(benchmark PRIVATE BENCH_CBOR_ARRAY)
+		endif()
 	endif()
 
 	# ---------- xdr enabled --------------------------------------------------

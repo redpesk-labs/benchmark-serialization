@@ -2,17 +2,58 @@
 #include "data.h"
 #include "sp70c-data-handle.h"
 #include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define TIME_RESOLUTION 1000000000ULL
 
 void generateData(SensorData* sensorData_ptr)
 {
-	parseRawBuffer(sensorData_ptr);
+	//parseRawBuffer(sensorData_ptr);
+
+	sensorData_ptr->version.dataType = 1;
+	sensorData_ptr->version.result = 2;
+	sensorData_ptr->version.master = 3;
+	sensorData_ptr->version.second = 4;
+	sensorData_ptr->version.step = 15;
+
+	sensorData_ptr->sStatus.actl_mode = 3;
+	sensorData_ptr->sStatus.rollcount = 2;
+	sensorData_ptr->sStatus.cfgStatus = 1;
+
+	sensorData_ptr->tStatus.noOfTarget= 10;
+	sensorData_ptr->tStatus.rollcount= 11;
+
+	sensorData_ptr->tInfo.index= 12;
+	sensorData_ptr->tInfo.rcs= 4.5;
+	sensorData_ptr->tInfo.range= 1.35;
+	sensorData_ptr->tInfo.azimuth= -6;
+	sensorData_ptr->tInfo.vrel= 0.02;
+	sensorData_ptr->tInfo.rollCount= 3;
+	sensorData_ptr->tInfo.SNR= -8;
+
+	sensorData_ptr->tInfoSize = 1;
+}
+
+void printByHexa(SensorData* sd)
+{
+	printf("struct by hexa :");
+	for (int index =0; index<sizeof(TargetInfo); index++) {
+		printf(" %02x", ((char *)&sd->tInfo)[index]);
+	}
+	printf("\n");
 }
 
 int verification(SensorData* sd1, SensorData* sd2)
 {
-	return memcmp(sd1, sd2, sizeof(SensorData *));
+	int err=0;
+
+/* 	printf("Print data by hexa :\n");
+	printByHexa(sd1);
+	printByHexa(sd2);  */
+
+	err+= memcmp(sd1, sd2, sizeof(SensorData));
+	return err;
 }
 
 void printResult(int err, uint64_t time)
@@ -43,10 +84,13 @@ int main()
 	uint64_t timer_stop;
 	clk_id = CLOCK_MONOTONIC;
 
-	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n");
-	printf("data tested : %i\n", (int)DATA_TESTED);
-
+	//Generate data to parse
 	generateData(&sensorData);
+
+	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
+	printf("data tested : %i\n\n", (int)DATA_TESTED);
+
+	
 
 #ifdef BENCH_JSON
 	// Initiate result values
@@ -104,24 +148,34 @@ int main()
 	// Initiate result values
 	uint64_t result_time_cbor;
 	int err_cbor = 0;
-	cbor_item_t* my_cbor;
+	int option_cbor = MAP;
 
+	Serializer cborc;
+	memset(&cborc, 0, sizeof(cborc));
+	cborc_get_serializer(&cborc);
+	
+#ifdef BENCH_CBOR_ARRAY	
+		option_cbor = ARRAY;	
+#endif
+	cborc.context = &option_cbor;
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
-
+	void* result;
 	for (int i = 0; i < DATA_TESTED; i++) {
-		my_cbor = cbor_new_definite_map(4);
-		parse_to_cbor(&sensorData, my_cbor);
-		cbor_to_sensorData(my_cbor, &sensorDataTemp);
-		cbor_decref(&my_cbor);
+		
+		cborc.serialize(cborc.context, sensorData, &result);
+		cborc.deserialize(cborc.context, result, &sensorDataTemp);
+		
 	}
+	//cborc.freeobject(cborc.context, result);
 
 	if (clock_gettime(clk_id, &stop) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
+
 	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_cbor = timer_stop - timer_start;
@@ -130,7 +184,11 @@ int main()
 		printf("output differs from input\n");
 		err_cbor++;
 	}
-	printf("# CBOR :\n");
+	printf("# CBOR");
+#ifdef BENCH_CBOR_ARRAY	
+		printf(" Array");	
+#endif
+	printf(":\n");
 	printResult(err_cbor, result_time_cbor);
 
 #endif // BENCH_CBOR
@@ -214,7 +272,7 @@ int main()
 	}
 	printf("# PROTOBUF :\n");
 	printResult(err_protobuf, result_time_protobuf);
-#endif
+#endif //BENCH_PROTOBUF
 
 #if BENCH_DEBUG
 	float floatToParse_1 = 5.0;
@@ -275,6 +333,6 @@ int main()
 	printf("step : %i\n", temp_struct->step);
 
 
-#endif
+#endif //BENCH_DEBUG
 	return 0;
 }
