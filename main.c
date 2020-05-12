@@ -52,11 +52,19 @@ int main()
 	// Initiate result values
 	uint64_t result_time_json;
 	int err_json = 0;
+	int option = MAP;
+	
+	
 
 	Serializer json;
 	memset(&json, 0, sizeof(json));
 	jsonc_get_serializer(&json);
 
+	#ifdef BENCH_JSON_ARRAY	
+		option = ARRAY;
+	#endif
+	
+	json.context = &option;
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
@@ -84,7 +92,12 @@ int main()
 		printf("output differs from input\n");
 		err_json++;
 	}
-	printf("# JSON :\n");
+
+	printf("# JSON ");
+#ifdef BENCH_JSON_ARRAY	
+		printf("Array ");	
+#endif
+	printf(":\n");
 	printResult(err_json, result_time_json);
 
 #endif // BENCH_JSON

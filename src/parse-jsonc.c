@@ -4,14 +4,24 @@
 /// @brief Serialize a SensorVersion object using json-c.
 /// @param[in] sv The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv)
+struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv, enum option opt)
 {
-	struct json_object* out = json_object_new_object();
-	json_object_object_add(out, "dataType", json_object_new_int(sv.dataType));
-	json_object_object_add(out, "result", json_object_new_boolean(sv.result));
-	json_object_object_add(out, "master", json_object_new_int(sv.master));
-	json_object_object_add(out, "second", json_object_new_int(sv.second));
-	json_object_object_add(out, "step", json_object_new_int(sv.step));
+	struct json_object* out;
+	if (opt == ARRAY) {
+		out = json_object_new_array();
+		json_object_array_add(out, json_object_new_int(sv.dataType));
+        json_object_array_add(out, json_object_new_boolean(sv.result));
+        json_object_array_add(out, json_object_new_int(sv.master));
+        json_object_array_add(out, json_object_new_int(sv.second));
+        json_object_array_add(out, json_object_new_int(sv.step));
+	} else {
+		out = json_object_new_object();
+		json_object_object_add(out, "dataType", json_object_new_int(sv.dataType));
+		json_object_object_add(out, "result", json_object_new_boolean(sv.result));
+		json_object_object_add(out, "master", json_object_new_int(sv.master));
+		json_object_object_add(out, "second", json_object_new_int(sv.second));
+		json_object_object_add(out, "step", json_object_new_int(sv.step));
+	}
 	return out;
 }
 
@@ -19,24 +29,37 @@ struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* output)
+int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* output, enum option opt)
 {
-	struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "dataType", &tmp)) return EXIT_FAILURE;
-	output->dataType = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	if (opt == ARRAY) {
 
-	if (!json_object_object_get_ex(input, "result", &tmp)) return EXIT_FAILURE;
-	output->result = (bool)json_object_get_boolean(tmp); // TODO: check value boundaries before casting.
+		output->dataType = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 0));
+		output->result = (bool)json_object_get_boolean(json_object_array_get_idx(input, 1));
+		output->master = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 2));
+		output->second = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 3));
+		output->step = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 4));
 
-	if (!json_object_object_get_ex(input, "master", &tmp)) return EXIT_FAILURE;
-	output->master = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	} else {
 
-	if (!json_object_object_get_ex(input, "second", &tmp)) return EXIT_FAILURE;
-	output->second = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "step", &tmp)) return EXIT_FAILURE;
-	output->step = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		if (!json_object_object_get_ex(input, "dataType", &tmp)) return EXIT_FAILURE;
+		output->dataType = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "result", &tmp)) return EXIT_FAILURE;
+		output->result = (bool)json_object_get_boolean(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "master", &tmp)) return EXIT_FAILURE;
+		output->master = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "second", &tmp)) return EXIT_FAILURE;
+		output->second = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "step", &tmp)) return EXIT_FAILURE;
+		output->step = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -44,12 +67,22 @@ int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* ou
 /// @brief Serialize a SensorStatus object using json-c.
 /// @param[in] ss The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss)
+struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss, enum option opt)
 {
-	struct json_object* out = json_object_new_object();
-	json_object_object_add(out, "actl_mode", json_object_new_int(ss.actl_mode));
-	json_object_object_add(out, "rollcount", json_object_new_boolean(ss.rollcount));
-	json_object_object_add(out, "cfgStatus", json_object_new_int(ss.cfgStatus));
+	struct json_object* out;
+
+	if (opt == ARRAY) {
+		out = json_object_new_array();
+		json_object_array_add(out, json_object_new_int(ss.actl_mode));
+		json_object_array_add(out, json_object_new_boolean(ss.rollcount));
+		json_object_array_add(out, json_object_new_int(ss.cfgStatus));
+	} else  {
+		out = json_object_new_object();
+		json_object_object_add(out, "actl_mode", json_object_new_int(ss.actl_mode));
+		json_object_object_add(out, "rollcount", json_object_new_boolean(ss.rollcount));
+		json_object_object_add(out, "cfgStatus", json_object_new_int(ss.cfgStatus));
+	}
+
 	return out;
 }
 
@@ -57,30 +90,51 @@ struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_SensorStatus(struct json_object* input, SensorStatus* output)
+int jsonc_deserialize_SensorStatus(struct json_object* input, SensorStatus* output, enum option opt)
 {
-	struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "actl_mode", &tmp)) return EXIT_FAILURE;
-	output->actl_mode = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	if (opt == ARRAY) {
 
-	if (!json_object_object_get_ex(input, "rollcount", &tmp)) return EXIT_FAILURE;
-	output->rollcount = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		output->actl_mode = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 0));
+		output->rollcount = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 1));
+		output->cfgStatus = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 2));
 
-	if (!json_object_object_get_ex(input, "cfgStatus", &tmp)) return EXIT_FAILURE;
-	output->cfgStatus = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	} else {
+		struct json_object* tmp;
 
+		if (!json_object_object_get_ex(input, "actl_mode", &tmp)) return EXIT_FAILURE;
+		output->actl_mode = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "rollcount", &tmp)) return EXIT_FAILURE;
+		output->rollcount = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "cfgStatus", &tmp)) return EXIT_FAILURE;
+		output->cfgStatus = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	}
 	return EXIT_SUCCESS;
 }
 
 /// @brief Serialize a TargetStatus object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts)
+struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts, enum option opt)
 {
-	struct json_object* out = json_object_new_object();
-	json_object_object_add(out, "noOfTarget", json_object_new_int(ts.noOfTarget));
-	json_object_object_add(out, "rollcount", json_object_new_boolean(ts.rollcount));
+	struct json_object* out;
+
+	if (opt == ARRAY) {
+
+		out = json_object_new_array();
+		json_object_array_add(out, json_object_new_int(ts.noOfTarget));
+		json_object_array_add(out, json_object_new_boolean(ts.rollcount));
+
+	} else {
+
+		out = json_object_new_object();
+		json_object_object_add(out, "noOfTarget", json_object_new_int(ts.noOfTarget));
+		json_object_object_add(out, "rollcount", json_object_new_boolean(ts.rollcount));
+
+	}
+
 	return out;
 }
 
@@ -88,15 +142,21 @@ struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* output)
+int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* output, enum option opt)
 {
-	struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "noOfTarget", &tmp)) return EXIT_FAILURE;
-	output->noOfTarget = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	if (opt == ARRAY) {
+		output->noOfTarget = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 0));
+		output->rollcount = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 1));
+	} else {
+		struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "rollcount", &tmp)) return EXIT_FAILURE;
-	output->rollcount = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		if (!json_object_object_get_ex(input, "noOfTarget", &tmp)) return EXIT_FAILURE;
+		output->noOfTarget = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "rollcount", &tmp)) return EXIT_FAILURE;
+		output->rollcount = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -104,16 +164,30 @@ int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* outp
 /// @brief Serialize a TargetInfo object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti)
+struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti, enum option opt)
 {
-	struct json_object* out = json_object_new_object();
-	json_object_object_add(out, "index", json_object_new_int(ti.index));
-	json_object_object_add(out, "rcs", json_object_new_double(ti.rcs));
-	json_object_object_add(out, "range", json_object_new_double(ti.range));
-	json_object_object_add(out, "azimuth", json_object_new_int(ti.azimuth));
-	json_object_object_add(out, "vrel", json_object_new_double(ti.vrel));
-	json_object_object_add(out, "rollCount", json_object_new_int(ti.rollCount));
-	json_object_object_add(out, "SNR", json_object_new_int(ti.SNR));
+	struct json_object* out;
+
+	if (opt == ARRAY) {
+		out = json_object_new_array();
+		json_object_array_add(out, json_object_new_int(ti.index));
+		json_object_array_add(out, json_object_new_double(ti.rcs));
+		json_object_array_add(out, json_object_new_double(ti.range));
+		json_object_array_add(out, json_object_new_int(ti.azimuth));
+		json_object_array_add(out, json_object_new_double(ti.vrel));
+		json_object_array_add(out, json_object_new_int(ti.rollCount));
+		json_object_array_add(out, json_object_new_int(ti.SNR));
+	} else {
+		out = json_object_new_object();
+		json_object_object_add(out, "index", json_object_new_int(ti.index));
+		json_object_object_add(out, "rcs", json_object_new_double(ti.rcs));
+		json_object_object_add(out, "range", json_object_new_double(ti.range));
+		json_object_object_add(out, "azimuth", json_object_new_int(ti.azimuth));
+		json_object_object_add(out, "vrel", json_object_new_double(ti.vrel));
+		json_object_object_add(out, "rollCount", json_object_new_int(ti.rollCount));
+		json_object_object_add(out, "SNR", json_object_new_int(ti.SNR));
+	}
+	
 	return out;
 }
 
@@ -121,30 +195,45 @@ struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output)
+int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output, enum option opt)
 {
-	struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "index", &tmp)) return EXIT_FAILURE;
-	output->index = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	if (opt == ARRAY) {
 
-	if (!json_object_object_get_ex(input, "rcs", &tmp)) return EXIT_FAILURE;
-	output->rcs = (float)json_object_get_double(tmp); // TODO: check value boundaries before casting.
+		output->index = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 0));
+		output->rcs = (float)json_object_get_double(json_object_array_get_idx(input, 1));
+		output->range = (float)json_object_get_double(json_object_array_get_idx(input, 2));
+		output->azimuth = (int16_t)json_object_get_int(json_object_array_get_idx(input, 3));
+		output->vrel = (float)json_object_get_double(json_object_array_get_idx(input, 4));
+		output->rollCount = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 5));
+		output->SNR = (int8_t)json_object_get_int(json_object_array_get_idx(input, 6));
 
-	if (!json_object_object_get_ex(input, "range", &tmp)) return EXIT_FAILURE;
-	output->range = (float)json_object_get_double(tmp); // TODO: check value boundaries before casting.
+	}else {
 
-	if (!json_object_object_get_ex(input, "azimuth", &tmp)) return EXIT_FAILURE;
-	output->azimuth = (int16_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "vrel", &tmp)) return EXIT_FAILURE;
-	output->vrel = (float)json_object_get_double(tmp); // TODO: check value boundaries before casting.
+		if (!json_object_object_get_ex(input, "index", &tmp)) return EXIT_FAILURE;
+		output->index = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
 
-	if (!json_object_object_get_ex(input, "rollCount", &tmp)) return EXIT_FAILURE;
-	output->rollCount = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		if (!json_object_object_get_ex(input, "rcs", &tmp)) return EXIT_FAILURE;
+		output->rcs = (float)json_object_get_double(tmp); // TODO: check value boundaries before casting.
 
-	if (!json_object_object_get_ex(input, "SNR", &tmp)) return EXIT_FAILURE;
-	output->SNR = (int8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		if (!json_object_object_get_ex(input, "range", &tmp)) return EXIT_FAILURE;
+		output->range = (float)json_object_get_double(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "azimuth", &tmp)) return EXIT_FAILURE;
+		output->azimuth = (int16_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "vrel", &tmp)) return EXIT_FAILURE;
+		output->vrel = (float)json_object_get_double(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "rollCount", &tmp)) return EXIT_FAILURE;
+		output->rollCount = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+		if (!json_object_object_get_ex(input, "SNR", &tmp)) return EXIT_FAILURE;
+		output->SNR = (int8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -152,14 +241,26 @@ int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output)
 /// @brief Serialize a SensorData object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorData(SensorData input)
+struct json_object* jsonc_serialize_SensorData(SensorData input, enum option opt)
 {
-	json_object* out = json_object_new_object();
-	json_object_object_add(out, "version", jsonc_serialize_SensorVersion(input.version));
-	json_object_object_add(out, "sStatus", jsonc_serialize_SensorStatus(input.sStatus));
-	json_object_object_add(out, "tStatus", jsonc_serialize_TargetStatus(input.tStatus));
-	json_object_object_add(out, "tInfo", jsonc_serialize_TargetInfo(input.tInfo));
-	json_object_object_add(out, "tInfoSize", json_object_new_int(input.tInfoSize));
+	json_object* out;
+
+	if (opt == ARRAY) {
+		out = json_object_new_array();
+		json_object_array_add(out, jsonc_serialize_SensorVersion(input.version, opt));
+		json_object_array_add(out, jsonc_serialize_SensorStatus(input.sStatus, opt));
+		json_object_array_add(out, jsonc_serialize_TargetStatus(input.tStatus, opt));
+		json_object_array_add(out, jsonc_serialize_TargetInfo(input.tInfo, opt));
+		json_object_array_add(out, json_object_new_int(input.tInfoSize));		
+	} else {
+		out = json_object_new_object();
+		json_object_object_add(out, "version", jsonc_serialize_SensorVersion(input.version, opt));
+		json_object_object_add(out, "sStatus", jsonc_serialize_SensorStatus(input.sStatus, opt));
+		json_object_object_add(out, "tStatus", jsonc_serialize_TargetStatus(input.tStatus, opt));
+		json_object_object_add(out, "tInfo", jsonc_serialize_TargetInfo(input.tInfo, opt));
+		json_object_object_add(out, "tInfoSize", json_object_new_int(input.tInfoSize));
+	}
+
 	return out;
 }
 
@@ -167,24 +268,33 @@ struct json_object* jsonc_serialize_SensorData(SensorData input)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_SensorData(struct json_object* input, SensorData* output)
+int jsonc_deserialize_SensorData(struct json_object* input, SensorData* output, enum option opt)
 {
-	struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "version", &tmp)) return EXIT_FAILURE;
-	if (jsonc_deserialize_SensorVersion(tmp, &output->version)) return EXIT_FAILURE;
+	if (opt == ARRAY) {
+		if (jsonc_deserialize_SensorVersion(json_object_array_get_idx(input, 0), &output->version, opt)) return EXIT_FAILURE;
+		if (jsonc_deserialize_SensorStatus(json_object_array_get_idx(input, 1), &output->sStatus, opt)) return EXIT_FAILURE;
+		if (jsonc_deserialize_TargetStatus(json_object_array_get_idx(input, 2), &output->tStatus, opt)) return EXIT_FAILURE;
+		if (jsonc_deserialize_TargetInfo(json_object_array_get_idx(input, 3), &output->tInfo, opt)) return EXIT_FAILURE;
+		output->tInfoSize = (uint8_t)json_object_get_int(json_object_array_get_idx(input, 4));
+	} else {
+		struct json_object* tmp;
 
-	if (!json_object_object_get_ex(input, "sStatus", &tmp)) return EXIT_FAILURE;
-	if (jsonc_deserialize_SensorStatus(tmp, &output->sStatus)) return EXIT_FAILURE;
+		if (!json_object_object_get_ex(input, "version", &tmp)) return EXIT_FAILURE;
+		if (jsonc_deserialize_SensorVersion(tmp, &output->version, opt)) return EXIT_FAILURE;
 
-	if (!json_object_object_get_ex(input, "tStatus", &tmp)) return EXIT_FAILURE;
-	if (jsonc_deserialize_TargetStatus(tmp, &output->tStatus)) return EXIT_FAILURE;
+		if (!json_object_object_get_ex(input, "sStatus", &tmp)) return EXIT_FAILURE;
+		if (jsonc_deserialize_SensorStatus(tmp, &output->sStatus, opt)) return EXIT_FAILURE;
 
-	if (!json_object_object_get_ex(input, "tInfo", &tmp)) return EXIT_FAILURE;
-	if (jsonc_deserialize_TargetInfo(tmp, &output->tInfo)) return EXIT_FAILURE;
+		if (!json_object_object_get_ex(input, "tStatus", &tmp)) return EXIT_FAILURE;
+		if (jsonc_deserialize_TargetStatus(tmp, &output->tStatus, opt)) return EXIT_FAILURE;
 
-	if (!json_object_object_get_ex(input, "tInfoSize", &tmp)) return EXIT_FAILURE;
-	output->tInfoSize = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+		if (!json_object_object_get_ex(input, "tInfo", &tmp)) return EXIT_FAILURE;
+		if (jsonc_deserialize_TargetInfo(tmp, &output->tInfo, opt)) return EXIT_FAILURE;
+
+		if (!json_object_object_get_ex(input, "tInfoSize", &tmp)) return EXIT_FAILURE;
+		output->tInfoSize = (uint8_t)json_object_get_int(tmp); // TODO: check value boundaries before casting.
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -196,7 +306,6 @@ int jsonc_deserialize_SensorData(struct json_object* input, SensorData* output)
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int jsonc_init(void* ctx)
 {
-	// Nothing to do
 	return EXIT_SUCCESS;
 }
 
@@ -238,7 +347,8 @@ int jsonc_freeobject(void* ctx, void* data)
 int jsonc_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
-	*output = jsonc_serialize_SensorData(input);
+	enum option opt = *((int *)ctx);
+	*output = jsonc_serialize_SensorData(input, opt);
 	return EXIT_SUCCESS;
 }
 
@@ -251,7 +361,8 @@ int jsonc_serialize(void* ctx, SensorData input, void** output)
 int jsonc_deserialize(void* ctx, void* input, SensorData* output)
 {
 	if (!input || !output) return EXIT_FAILURE;
-	return jsonc_deserialize_SensorData((struct json_object*)input, output);
+	enum option opt = *((int *)ctx);
+	return jsonc_deserialize_SensorData((struct json_object*)input, output, opt);
 }
 
 /// @brief Get the json-c serializer.

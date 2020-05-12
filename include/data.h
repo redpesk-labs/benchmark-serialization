@@ -3,6 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+enum option
+{
+	MAP, 
+	ARRAY,
+};
+
 typedef struct
 {
 	uint8_t index;
