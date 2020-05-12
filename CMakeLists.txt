@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 
 option(BENCH_JSON			"Enable json-c benchmark" ON)
 option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" OFF)
-#CMAKE_DEPENDENT_OPTION(BENCH_JSON_ARRAY "Enable Enable json-c option array benchmark" ON "BENCH_JSON" OFF)
 option(BENCH_CBOR			"Enable cbor benchmark" ON)
 option(BENCH_XDR			"Enable xdr benchmark" ON)
+option(BENCH_PROTOBUF		"Enable protobuf benchmark" ON)
 option(BENCH_DEBUG			"Enable debug infos" OFF)
 
 # set the project name
@@ -46,11 +46,14 @@ project(benchmark)
 		target_include_directories(benchmark PRIVATE "${JSONC_INCLUDE_DIRS}")
 		target_link_libraries(benchmark PRIVATE "${JSONC_LIBRARIES}")
 		target_sources(benchmark PRIVATE "src/parse-jsonc.c")
+
+		if (BENCH_JSON_ARRAY)
+			target_compile_definitions(benchmark PRIVATE BENCH_JSON_ARRAY)
+		endif()
+
 	endif()
 
-	if (BENCH_JSON_ARRAY)
-		target_compile_definitions(benchmark PRIVATE BENCH_JSON_ARRAY)
-	endif()
+
 
 	# ---------- cbor enabled -------------------------------------------------
 	if (BENCH_CBOR)
