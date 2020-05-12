@@ -33,6 +33,8 @@ And store `DATA_TESTED` times the same value in a buffer. It will be our input t
 
 After that it will test all different serializations and de-serializations. We use the **MONOTONIC CLOCK** to calculate the time passed in each case. Before to print the result, it will **verify** if all data is well serialized.
 
+To have a significant bench, it is recommended to create a binary for each serialization techno.
+
 ## How use it
 
 You can go to the file **config-parsing.h** to change macros to change which serialization would be tested, and the number of data tested.
@@ -41,13 +43,24 @@ To have a better result the `DATA_TESTED` macro is set to 1000000.
 create a build folder:
 
     cd build
-    cmake ..
+    cmake [-DBENCH_OPTION=ON] ..
     make
     ./benchmark
 
 You can also use Valgrind to have a profiling:
 
     valgrind --tool=callgrind ./benchmark
+
+### -DOPTION
+
+Here is the list of different options to configure the bench :
+
+    1. -DBENCH_JSON=ON
+    2. -DBENCH_JSON=ON -DBENCH_JSON_ARRAY=ON
+    3. -DBENCH_CBOR=ON
+    4. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
+    5. -DBENCH_XDR=ON
+    6. -DBENCH_PROTOBUF=ON
 
 ## RESULT EXAMPLE
 
