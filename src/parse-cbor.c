@@ -138,6 +138,7 @@ struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion input, enum optio
 			addArrayCbor_uint8(out, input.result, 2);
 			addArrayCbor_uint8(out, input.second, 3);
 			addArrayCbor_uint8(out, input.step, 4);
+			out =cbor_move(out);
 			break;
 		
 		case MAP:
@@ -152,7 +153,7 @@ struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion input, enum optio
 		default :
 			break;
     }
-
+	
 	return out;
 }
 
@@ -165,11 +166,11 @@ int cbor_deserialize_SensorVersion(struct cbor_item_t* input, SensorVersion* out
     struct cbor_pair *cborPairTmp ;
     switch (opt) {
         case ARRAY :
-            output->dataType = cbor_get_uint8(cbor_array_get(input, 0));
-            output->master = cbor_get_uint8(cbor_array_get(input, 1));
-            output->result = cbor_get_uint8(cbor_array_get(input, 2));
-            output->second = cbor_get_uint8(cbor_array_get(input, 3));
-            output->step = cbor_get_uint8(cbor_array_get(input, 4));
+            output->dataType = cbor_get_uint8(cbor_move(cbor_array_get(input, 0)));
+            output->master = cbor_get_uint8(cbor_move(cbor_array_get(input, 1)));
+            output->result = cbor_get_uint8(cbor_move(cbor_array_get(input, 2)));
+            output->second = cbor_get_uint8(cbor_move(cbor_array_get(input, 3)));
+            output->step = cbor_get_uint8(cbor_move(cbor_array_get(input, 4)));
             break;
         case MAP :
             cborPairTmp = cbor_map_handle(input);
@@ -194,10 +195,11 @@ struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum option 
 
 	switch (opt) {
     case ARRAY:
-        out = cbor_move(cbor_new_definite_array(3));
-		addArrayCbor_uint8(cbor_move(out), input.actl_mode, 0);
-		addArrayCbor_uint8(cbor_move(out), input.cfgStatus, 1);
-		addArrayCbor_uint8(cbor_move(out), input.rollcount, 2);
+        out = cbor_new_definite_array(3);
+		addArrayCbor_uint8(out, input.actl_mode, 0);
+		addArrayCbor_uint8(out, input.cfgStatus, 1);
+		addArrayCbor_uint8(out, input.rollcount, 2);
+		out = cbor_move(out);
         break;
     case MAP:
         out = cbor_new_definite_map(3);
@@ -208,7 +210,6 @@ struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum option 
 	default :
 		break;
     }
-
 	return out;
 }
 
@@ -222,9 +223,9 @@ int cbor_deserialize_SensorStatus(struct cbor_item_t* input, SensorStatus* outpu
 
     switch (opt) {
         case ARRAY :
-			output->actl_mode = cbor_get_uint8(cbor_array_get(input, 0));
-            output->cfgStatus = cbor_get_uint8(cbor_array_get(input, 1));
-			output->rollcount = cbor_get_uint8(cbor_array_get(input, 2));
+			output->actl_mode = cbor_get_uint8(cbor_move(cbor_array_get(input, 0)));
+            output->cfgStatus = cbor_get_uint8(cbor_move(cbor_array_get(input, 1)));
+			output->rollcount = cbor_get_uint8(cbor_move(cbor_array_get(input, 2)));
             break;
         case MAP :
 			cborPairTmp = cbor_map_handle(input);
@@ -249,18 +250,19 @@ struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus input, enum option 
     switch (opt) {
         case ARRAY :
             out = cbor_new_definite_array(2);
-			addArrayCbor_uint8(cbor_move(out), input.noOfTarget, 0);
-			addArrayCbor_uint8(cbor_move(out), input.rollcount, 1);
+			addArrayCbor_uint8(out, input.noOfTarget, 0);
+			addArrayCbor_uint8(out, input.rollcount, 1);
+			out = cbor_move(out);
             break;
         case MAP :
             out = cbor_new_definite_map(2);
-			addMapCbor_uint8(cbor_move(out), input.noOfTarget, "NoOfTarget");
-			addMapCbor_uint8(cbor_move(out), input.rollcount, "Rollcount");
+			addMapCbor_uint8(out, input.noOfTarget, "NoOfTarget");
+			addMapCbor_uint8(out, input.rollcount, "Rollcount");
             break;
 		default :
 			break;      
     }
-
+	
 	return out;
 }
 
@@ -274,8 +276,8 @@ int cbor_deserialize_TargetStatus(struct cbor_item_t* input, TargetStatus* outpu
 
     switch (opt) {
         case ARRAY :
-            output->noOfTarget = cbor_get_uint8(cbor_array_get(input, 0));
-            output->rollcount = cbor_get_uint8(cbor_array_get(input, 1));            
+            output->noOfTarget = cbor_get_uint8(cbor_move(cbor_array_get(input, 0)));
+            output->rollcount = cbor_get_uint8(cbor_move(cbor_array_get(input, 1)));            
             break;
         case MAP :
             cborPairTmp = cbor_map_handle(input);
@@ -299,13 +301,14 @@ struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum option opt)
     switch (opt) {
         case ARRAY :
             out = cbor_new_definite_array(7);
-            addArrayCbor_int16(cbor_move(out), input.azimuth, 0);
-            addArrayCbor_uint8(cbor_move(out), input.index, 1);
-            addArrayCbor_float(cbor_move(out), input.range, 2);
-            addArrayCbor_float(cbor_move(out), input.rcs, 3);
-            addArrayCbor_uint8(cbor_move(out), input.rollCount, 4);
-            addArrayCbor_uint8(cbor_move(out), input.SNR, 5);
-            addArrayCbor_float(cbor_move(out), input.vrel, 6);
+            addArrayCbor_int16((out), input.azimuth, 0);
+            addArrayCbor_uint8((out), input.index, 1);
+            addArrayCbor_float((out), input.range, 2);
+            addArrayCbor_float((out), input.rcs, 3);
+            addArrayCbor_uint8((out), input.rollCount, 4);
+            addArrayCbor_uint8((out), input.SNR, 5);
+            addArrayCbor_float((out), input.vrel, 6);
+			out = cbor_move(out);
             break;
         case MAP :
 			out = cbor_new_definite_map(7);
@@ -320,7 +323,7 @@ struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum option opt)
 		default :
 			break;
     }
-
+	
     return out;
 }
 
@@ -334,13 +337,13 @@ int cbor_deserialize_TargetInfo(struct cbor_item_t* input, TargetInfo* output, e
 
     switch (opt) {
     case ARRAY:
-        output->azimuth = cbor_get_uint16(cbor_array_get(input, 0));
-        output->index = cbor_get_uint8(cbor_array_get(input, 1));
-        output->range = cbor_float_get_float2(cbor_array_get(input, 2));
-        output->rcs = cbor_float_get_float2(cbor_array_get(input, 3));
-        output->rollCount = cbor_get_uint8(cbor_array_get(input, 4));
-        output->SNR = cbor_get_uint8(cbor_array_get(input, 5));
-        output->vrel = cbor_float_get_float2(cbor_array_get(input, 6));
+        output->azimuth = cbor_get_uint16(cbor_move(cbor_array_get(input, 0)));
+        output->index = cbor_get_uint8(cbor_move(cbor_array_get(input, 1)));
+        output->range = cbor_float_get_float2(cbor_move(cbor_array_get(input, 2)));
+        output->rcs = cbor_float_get_float2(cbor_move(cbor_array_get(input, 3)));
+        output->rollCount = cbor_get_uint8(cbor_move(cbor_array_get(input, 4)));
+        output->SNR = cbor_get_uint8(cbor_move(cbor_array_get(input, 5)));
+        output->vrel = cbor_float_get_float2(cbor_move(cbor_array_get(input, 6)));
         break;
     
     case MAP:
@@ -357,7 +360,6 @@ int cbor_deserialize_TargetInfo(struct cbor_item_t* input, TargetInfo* output, e
 	default :
 		break;
     }
-
 	return EXIT_SUCCESS;
 }
 
@@ -417,11 +419,11 @@ int cbor_deserialize_SensorData(struct cbor_item_t *input, SensorData* output, e
 
     switch (opt) {
         case ARRAY : 
-			if (cbor_deserialize_SensorVersion(cbor_array_get(input, 0), &output->version, opt)) return EXIT_FAILURE;
-			if (cbor_deserialize_SensorStatus(cbor_array_get(input, 1), &output->sStatus, opt)) return EXIT_FAILURE;
-			if (cbor_deserialize_TargetStatus(cbor_array_get(input, 2), &output->tStatus, opt)) return EXIT_FAILURE;
-			if (cbor_deserialize_TargetInfo(cbor_array_get(input, 3), &output->tInfo, opt)) return EXIT_FAILURE;
-			output->tInfoSize = cbor_get_uint8(cbor_array_get(input, 4));
+			if (cbor_deserialize_SensorVersion(cbor_move(cbor_array_get(input, 0)), &output->version, opt)) return EXIT_FAILURE;
+			if (cbor_deserialize_SensorStatus(cbor_move(cbor_array_get(input, 1)), &output->sStatus, opt)) return EXIT_FAILURE;
+			if (cbor_deserialize_TargetStatus(cbor_move(cbor_array_get(input, 2)), &output->tStatus, opt)) return EXIT_FAILURE;
+			if (cbor_deserialize_TargetInfo(cbor_move(cbor_array_get(input, 3)), &output->tInfo, opt)) return EXIT_FAILURE;
+			output->tInfoSize = cbor_get_uint8(cbor_move(cbor_array_get(input, 4)));
             break;
 
         case MAP :
@@ -436,7 +438,6 @@ int cbor_deserialize_SensorData(struct cbor_item_t *input, SensorData* output, e
 		default :
 			break;
     }
-
 	return EXIT_SUCCESS;
 }
 
@@ -489,10 +490,7 @@ int cborc_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	enum option opt = *((int *)ctx);
-	*output = (cbor_serialize_SensorData(input, opt));
-
-	//cbor_decref((cbor_item_t **)output);
-	
+	*output = (cbor_serialize_SensorData(input, opt));	
 	return EXIT_SUCCESS;
 }
 

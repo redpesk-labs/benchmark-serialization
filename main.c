@@ -174,9 +174,8 @@ int main()
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
-	
+	void* result;
 	for (int i = 0; i < DATA_TESTED; i++) {
-		void* result;
 		cborc.serialize(cborc.context, sensorData, &result);
 		cborc.deserialize(cborc.context, result, &sensorDataTemp);
 		cborc.freeobject(cborc.context, result);
@@ -270,6 +269,7 @@ int main()
         length = protobuf_serialize_sensorData(&sensorData, buf_ptr); 
         //Decode
         protobuf_deserialize_sensorData(buf_ptr, &sensorDataTemp, length);
+		
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {
