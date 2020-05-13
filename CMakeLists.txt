@@ -5,7 +5,7 @@ option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
 option(BENCH_CBOR			"Enable cbor benchmark" ON)
 option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" ON)
 option(BENCH_XDR			"Enable xdr benchmark" ON)
-option(BENCH_PROTOBUF		"Enable protobuf benchmark" OFF)
+option(BENCH_PROTOBUF		"Enable protobuf benchmark" ON)
 option(BENCH_DEBUG			"Enable debug infos" OFF)
 
 # set the project name
@@ -14,7 +14,7 @@ project(benchmark)
 	# ---------- Add the main executable target -------------------------------
 	add_executable(benchmark
 		main.c
-		src/sp70c-data-handle.c
+		#src/sp70c-data-handle.c
 	)
 
 	target_include_directories(benchmark PRIVATE "${PROJECT_SOURCE_DIR}/include" )

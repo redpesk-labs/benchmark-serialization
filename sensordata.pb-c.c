@@ -543,7 +543,7 @@ const ProtobufCMessageDescriptor target_info_message__descriptor =
   (ProtobufCMessageInit) target_info_message__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor sensor_data_message__field_descriptors[4] =
+static const ProtobufCFieldDescriptor sensor_data_message__field_descriptors[5] =
 {
   {
     "sensorVersion",
@@ -593,17 +593,30 @@ static const ProtobufCFieldDescriptor sensor_data_message__field_descriptors[4] 
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "tinfosize",
+    5,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_UINT32,
+    0,   /* quantifier_offset */
+    offsetof(SensorDataMessage, tinfosize),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned sensor_data_message__field_indices_by_name[] = {
   1,   /* field[1] = sensorStatus */
   0,   /* field[0] = sensorVersion */
   3,   /* field[3] = targetInfo */
   2,   /* field[2] = targetStatus */
+  4,   /* field[4] = tinfosize */
 };
 static const ProtobufCIntRange sensor_data_message__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 4 }
+  { 0, 5 }
 };
 const ProtobufCMessageDescriptor sensor_data_message__descriptor =
 {
@@ -613,7 +626,7 @@ const ProtobufCMessageDescriptor sensor_data_message__descriptor =
   "SensorDataMessage",
   "",
   sizeof(SensorDataMessage),
-  4,
+  5,
   sensor_data_message__field_descriptors,
   sensor_data_message__field_indices_by_name,
   1,  sensor_data_message__number_ranges,

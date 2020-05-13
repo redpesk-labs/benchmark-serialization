@@ -1,6 +1,80 @@
 #include "parse-protobuf.h"
 
-size_t parse_to_protobuf(SensorData *sensorData, uint8_t *buf)
+
+ int protobuf_serialize_sensorVersion(SensorVersion input, SensorVersionMessage* output)
+{
+    output->datatype = input.dataType;
+    output->result = input.result;
+    output->master = input.master;
+    output->second = input.second;
+    output->step = input.step;
+    return 0;
+}
+
+int protobuf_deserialize_sensorVersion(SensorVersionMessage *input, SensorVersion *output)
+{
+    output->dataType = input->datatype;
+    output->result = input->result;
+    output->master = input->master;
+    output->second = input->second;
+    output->step = input->step;
+    return 0;
+}
+
+int protobuf_serialize_sensorStatus(SensorStatus input, SensorStatusMessage* ouput)
+{
+    ouput->actl_mode = input.actl_mode;
+    ouput->rollcount = input.rollcount;
+    ouput->cfgstatus = input.cfgStatus;
+    return 0;
+}
+
+int protobuf_deserialize_sensorStatus(SensorStatusMessage *input, SensorStatus* output)
+{
+    output->actl_mode = input->actl_mode;
+    output->rollcount = input->rollcount;
+    output->cfgStatus = input->cfgstatus;
+    return 0;
+}
+
+int protobuf_serialize_targetStatus(TargetStatus input, TargetStatusMessage* output)
+{
+    output->nooftarget = input.noOfTarget;
+    output->rollcount = input.rollcount;
+    return 0;
+}
+
+int protobuf_deserialize_targetStatus(TargetStatusMessage *input, TargetStatus *output)
+{
+    output->noOfTarget = input->nooftarget;
+    output->rollcount = input->rollcount;
+    return 0;
+}
+
+int protobuf_serialize_targetInfo(TargetInfo input, TargetInfoMessage* output)
+{
+    output->index = input.index;
+    output->rcs = input.rcs;
+    output->range = input.range;
+    output->azimuth = input.azimuth;
+    output->vrel = input.vrel;
+    output->rollcount = input.rollCount;
+    output->snr = input.SNR;
+    return 0;
+}
+
+int protobuf_deserialize_targetInfo(TargetInfoMessage *msg, TargetInfo *targetInfo)
+{
+    targetInfo->index = msg->index;
+    targetInfo->rcs = msg->rcs;
+    targetInfo->range = msg->range;
+    targetInfo->azimuth = msg->azimuth;
+    targetInfo->vrel = msg->vrel;
+    targetInfo->rollCount = msg->rollcount;
+    targetInfo->SNR = msg->snr;
+}
+
+size_t protobuf_serialize_sensorData(SensorData *sensorData, uint8_t *buf)
 {
     //void *buf;             // Buffer to store serialized data
     size_t length;           // Length of serialized data
@@ -11,15 +85,16 @@ size_t parse_to_protobuf(SensorData *sensorData, uint8_t *buf)
     TargetStatusMessage msg_tstatus = TARGET_STATUS_MESSAGE__INIT;
     TargetInfoMessage msg_tinfo = TARGET_INFO_MESSAGE__INIT;
 
-    sensorVersionToProtobuf(&sensorData->version,&msg_sversion);
-    sensorStatusToProtobuf(&sensorData->sStatus, &msg_sstatus);
-    targetStatusToProtobuf(&sensorData->tStatus, &msg_tstatus);
-    targetInfoToProtobuf(&sensorData->tInfo, &msg_tinfo);
+    protobuf_serialize_sensorVersion(sensorData->version, &msg_sversion);
+    protobuf_serialize_sensorStatus(sensorData->sStatus, &msg_sstatus);
+    protobuf_serialize_targetStatus(sensorData->tStatus, &msg_tstatus);
+    protobuf_serialize_targetInfo(sensorData->tInfo, &msg_tinfo);
 
     msg.sensorversion = &msg_sversion;
     msg.sensorstatus = &msg_sstatus;
     msg.targetstatus = &msg_tstatus;
     msg.targetinfo = &msg_tinfo;
+    msg.tinfosize = (uint32_t)sensorData->tInfoSize;
 
 
     length = sensor_data_message__get_packed_size(&msg);
@@ -29,7 +104,7 @@ size_t parse_to_protobuf(SensorData *sensorData, uint8_t *buf)
 
 }
 
-void protobuf_to_sensorData(uint8_t *buf, SensorData *sensorData, size_t length)
+void protobuf_deserialize_sensorData(uint8_t *buf, SensorData *sensorData, size_t length)
 {
     SensorDataMessage *msg;
     SensorVersionMessage *msg_sversion;
@@ -44,85 +119,24 @@ void protobuf_to_sensorData(uint8_t *buf, SensorData *sensorData, size_t length)
     msg_tinfo = msg->targetinfo;
 
     SensorVersion sensorVersionTemp;
+    memset(&sensorVersionTemp, 0, sizeof(SensorVersion));
     SensorStatus sensorStatusTemp;
+    memset(&sensorStatusTemp, 0, sizeof(SensorStatus));
     TargetStatus targetStatusTemp;
+    memset(&targetStatusTemp, 0, sizeof(TargetStatus));
     TargetInfo targetInfoTemp;
+    memset(&targetInfoTemp, 0, sizeof(TargetInfo));
 
-    protobufToSensorVersion(msg_sversion, &sensorVersionTemp);
-    protobufToSensorStatus(msg_sstatus, &sensorStatusTemp);
-    protobufToTargetStatus(msg_tstatus, &targetStatusTemp);
-    protobufToTargetInfo(msg_tinfo, &targetInfoTemp);
+    protobuf_deserialize_sensorVersion(msg_sversion, &sensorVersionTemp);
+    protobuf_deserialize_sensorStatus(msg_sstatus, &sensorStatusTemp);
+    protobuf_deserialize_targetStatus(msg_tstatus, &targetStatusTemp);
+    protobuf_deserialize_targetInfo(msg_tinfo, &targetInfoTemp);
 
     sensorData->version = sensorVersionTemp;
     sensorData->sStatus = sensorStatusTemp;
     sensorData->tStatus = targetStatusTemp;
     sensorData->tInfo = targetInfoTemp;
+    sensorData->tInfoSize = (uint8_t)msg->tinfosize;
 
     sensor_data_message__free_unpacked(msg,NULL);
-}
-
-void sensorVersionToProtobuf(SensorVersion *sensorVersion, SensorVersionMessage *msg)
-{
-    msg->datatype = sensorVersion->dataType;
-    msg->result = sensorVersion->result;
-    msg->master = sensorVersion->master;
-    msg->second = sensorVersion->second;
-    msg->step = sensorVersion->step;
-}
-
-void protobufToSensorVersion(SensorVersionMessage *msg, SensorVersion *sensorVersion)
-{
-    sensorVersion->dataType = msg->datatype;
-    sensorVersion->result = msg->result;
-    sensorVersion->master = msg->master;
-    sensorVersion->second = msg->second;
-    sensorVersion->step = msg->step;
-}
-
-void sensorStatusToProtobuf(SensorStatus *sensorStatus, SensorStatusMessage *msg)
-{
-    msg->actl_mode = sensorStatus->actl_mode;
-    msg->rollcount = sensorStatus->rollcount;
-    msg->cfgstatus = sensorStatus->cfgStatus;
-}
-
-void protobufToSensorStatus(SensorStatusMessage *msg, SensorStatus *sensorStatus)
-{
-    sensorStatus->actl_mode = msg->actl_mode;
-    sensorStatus->rollcount = msg->rollcount;
-    sensorStatus->cfgStatus = msg->cfgstatus;
-}
-
-void targetStatusToProtobuf(TargetStatus *targetStatus, TargetStatusMessage *msg)
-{
-    msg->nooftarget = targetStatus->noOfTarget;
-    msg->rollcount = targetStatus->rollcount;
-}
-
-void protobufToTargetStatus(TargetStatusMessage *msg, TargetStatus *targetStatus)
-{
-    targetStatus->noOfTarget = msg->nooftarget;
-    targetStatus->rollcount = msg->rollcount;
-}
-
-void targetInfoToProtobuf(TargetInfo *targetInfo, TargetInfoMessage *msg)
-{
-    msg->index = targetInfo->index;
-    msg->rcs = targetInfo->rcs;
-    msg->range = targetInfo->range;
-    msg->azimuth = targetInfo->azimuth;
-    msg->vrel = targetInfo->vrel;
-    msg->rollcount = targetInfo->rollCount;
-    msg->snr = targetInfo->SNR;
-}
-
-void protobufToTargetInfo(TargetInfoMessage *msg, TargetInfo *targetInfo)
-{
-    targetInfo->index = msg->index;
-    targetInfo->rcs = msg->rcs;
-    targetInfo->range = msg->range;
-    targetInfo->azimuth = msg->azimuth;
-    targetInfo->vrel = msg->vrel;
-    targetInfo->rollCount = msg->rollcount;
-    targetInfo->SNR = msg->snr;
 }

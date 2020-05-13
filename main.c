@@ -1,7 +1,7 @@
 #include "config.h"
 #include "data.h"
-#include "sp70c-data-handle.h"
-#include "string.h"
+//#include "sp70c-data-handle.h"
+//#include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,7 +37,22 @@ void generateData(SensorData* sensorData_ptr)
 
 void printByHexa(SensorData* sd)
 {
-	printf("struct by hexa :");
+	printf("Sensor Version by hexa :");
+	for (int index =0; index<sizeof(SensorVersion); index++) {
+		printf(" %02x", ((char *)&sd->version)[index]);
+	}
+	printf("\n");
+	printf("Sensor Status by hexa :");
+	for (int index =0; index<sizeof(SensorStatus); index++) {
+		printf(" %02x", ((char *)&sd->sStatus)[index]);
+	}
+	printf("\n");
+	printf("Target Status by hexa :");
+	for (int index =0; index<sizeof(TargetStatus); index++) {
+		printf(" %02x", ((char *)&sd->tStatus)[index]);
+	}
+	printf("\n");
+	printf("Target Info by hexa :");
 	for (int index =0; index<sizeof(TargetInfo); index++) {
 		printf(" %02x", ((char *)&sd->tInfo)[index]);
 	}
@@ -47,11 +62,8 @@ void printByHexa(SensorData* sd)
 int verification(SensorData* sd1, SensorData* sd2)
 {
 	int err=0;
-
-/* 	printf("Print data by hexa :\n");
-	printByHexa(sd1);
-	printByHexa(sd2);  */
-
+	//printByHexa(sd1);
+	//printByHexa(sd2); 
 	err+= memcmp(sd1, sd2, sizeof(SensorData));
 	return err;
 }
@@ -162,14 +174,14 @@ int main()
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
-	void* result;
+	
 	for (int i = 0; i < DATA_TESTED; i++) {
-		
+		void* result;
 		cborc.serialize(cborc.context, sensorData, &result);
 		cborc.deserialize(cborc.context, result, &sensorDataTemp);
-		
+		cborc.freeobject(cborc.context, result);
 	}
-	//cborc.freeobject(cborc.context, result);
+	
 
 	if (clock_gettime(clk_id, &stop) == -1) {
 		perror("clock gettime start");
@@ -239,6 +251,8 @@ int main()
 #endif // BENCH_XDR
 
 #ifdef BENCH_PROTOBUF
+//protoc-c --c_out=. sensordata.proto
+
     uint8_t buf[1024];      // Buffer to store serialized data
     uint8_t *buf_ptr = buf;             
     size_t length;          // Length of serialized data
@@ -253,9 +267,9 @@ int main()
 
 	for (int i = 0; i < DATA_TESTED; i++) {
         // Encode
-        length = parse_to_protobuf(&sensorData, buf_ptr); 
+        length = protobuf_serialize_sensorData(&sensorData, buf_ptr); 
         //Decode
-        protobuf_to_sensorData(buf_ptr, &sensorDataTemp, length);
+        protobuf_deserialize_sensorData(buf_ptr, &sensorDataTemp, length);
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {

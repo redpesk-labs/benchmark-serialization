@@ -87,10 +87,11 @@ struct  _SensorDataMessage
   SensorStatusMessage *sensorstatus;
   TargetStatusMessage *targetstatus;
   TargetInfoMessage *targetinfo;
+  uint32_t tinfosize;
 };
 #define SENSOR_DATA_MESSAGE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&sensor_data_message__descriptor) \
-    , NULL, NULL, NULL, NULL }
+    , NULL, NULL, NULL, NULL, 0 }
 
 
 /* SensorVersionMessage methods */

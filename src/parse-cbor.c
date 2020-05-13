@@ -194,10 +194,10 @@ struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum option 
 
 	switch (opt) {
     case ARRAY:
-        out = cbor_new_definite_array(3);
-		addArrayCbor_uint8(out, input.actl_mode, 0);
-		addArrayCbor_uint8(out, input.cfgStatus, 1);
-		addArrayCbor_uint8(out, input.rollcount, 2);
+        out = cbor_move(cbor_new_definite_array(3));
+		addArrayCbor_uint8(cbor_move(out), input.actl_mode, 0);
+		addArrayCbor_uint8(cbor_move(out), input.cfgStatus, 1);
+		addArrayCbor_uint8(cbor_move(out), input.rollcount, 2);
         break;
     case MAP:
         out = cbor_new_definite_map(3);
@@ -249,13 +249,13 @@ struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus input, enum option 
     switch (opt) {
         case ARRAY :
             out = cbor_new_definite_array(2);
-			addArrayCbor_uint8(out, input.noOfTarget, 0);
-			addArrayCbor_uint8(out, input.rollcount, 1);
+			addArrayCbor_uint8(cbor_move(out), input.noOfTarget, 0);
+			addArrayCbor_uint8(cbor_move(out), input.rollcount, 1);
             break;
         case MAP :
             out = cbor_new_definite_map(2);
-			addMapCbor_uint8(out, input.noOfTarget, "NoOfTarget");
-			addMapCbor_uint8(out, input.rollcount, "Rollcount");
+			addMapCbor_uint8(cbor_move(out), input.noOfTarget, "NoOfTarget");
+			addMapCbor_uint8(cbor_move(out), input.rollcount, "Rollcount");
             break;
 		default :
 			break;      
@@ -299,13 +299,13 @@ struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum option opt)
     switch (opt) {
         case ARRAY :
             out = cbor_new_definite_array(7);
-            addArrayCbor_int16(out, input.azimuth, 0);
-            addArrayCbor_uint8(out, input.index, 1);
-            addArrayCbor_float(out, input.range, 2);
-            addArrayCbor_float(out, input.rcs, 3);
-            addArrayCbor_uint8(out, input.rollCount, 4);
-            addArrayCbor_uint8(out, input.SNR, 5);
-            addArrayCbor_float(out, input.vrel, 6);
+            addArrayCbor_int16(cbor_move(out), input.azimuth, 0);
+            addArrayCbor_uint8(cbor_move(out), input.index, 1);
+            addArrayCbor_float(cbor_move(out), input.range, 2);
+            addArrayCbor_float(cbor_move(out), input.rcs, 3);
+            addArrayCbor_uint8(cbor_move(out), input.rollCount, 4);
+            addArrayCbor_uint8(cbor_move(out), input.SNR, 5);
+            addArrayCbor_float(cbor_move(out), input.vrel, 6);
             break;
         case MAP :
 			out = cbor_new_definite_map(7);
@@ -372,10 +372,10 @@ struct cbor_item_t* cbor_serialize_SensorData(SensorData input, enum option opt)
 	switch (opt) {
 	case ARRAY :
 		out = cbor_new_definite_array(5);
-		cbor_array_set(out, 0, cbor_move(cbor_serialize_SensorVersion(input.version, opt)));
-		cbor_array_set(out, 1, cbor_move(cbor_serialize_SensorStatus(input.sStatus, opt)));
-		cbor_array_set(out, 2, cbor_move(cbor_serialize_TargetStatus(input.tStatus, opt)));
-		cbor_array_set(out, 3, cbor_move(cbor_serialize_TargetInfo(input.tInfo, opt)));
+		cbor_array_set(out, 0, cbor_serialize_SensorVersion(input.version, opt));
+		cbor_array_set(out, 1, cbor_serialize_SensorStatus(input.sStatus, opt));
+		cbor_array_set(out, 2, cbor_serialize_TargetStatus(input.tStatus, opt));
+		cbor_array_set(out, 3, cbor_serialize_TargetInfo(input.tInfo, opt));
 		addArrayCbor_uint8(out, input.tInfoSize, 4);
 		break;
 
@@ -475,8 +475,8 @@ int cborc_print(void* ctx, void* data)
 /// @param[in] data Serialized data to free.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int cborc_freeobject(void* ctx, void* data)
-{
-	if (data) cbor_decref((struct cbor_item_t **)data);
+{		
+	if (data) cbor_intermediate_decref((struct cbor_item_t *)data);
 	return EXIT_SUCCESS;
 }
 
@@ -489,7 +489,10 @@ int cborc_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	enum option opt = *((int *)ctx);
-	*output = cbor_serialize_SensorData(input, opt);
+	*output = (cbor_serialize_SensorData(input, opt));
+
+	//cbor_decref((cbor_item_t **)output);
+	
 	return EXIT_SUCCESS;
 }
 

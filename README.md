@@ -15,19 +15,13 @@ It will take the SP70C data example.
 
 ### data receive
 
-It will generate data possibly sent by a SP70C sensor:
-
-`0xaa 0xaa 0x0a 0x06 0x01 0x11 0x00 0x00 0x00 0x00 0x00 0x00 0x55 0x55 0xaa 0xaa 0x0b 0x07 0x01 0x02 0x00 0x00 0x00 0x00 0x00 0x00 0x55 0x55 0xaa 0xaa 0x0c 0x07 0x01 0x6b 0x01 0x86 0x2a 0x02 0xbf 0x79 0x55 0x55`
-
-### data parse
-
-Then it will parse data into a structure of SP70C data:
+It will generate data possibly sent by a SP70C sensor into a structure of SP70C data:
 
 | SensorData struct         | SensorVersion struct | SensorStatus struct | TargetStatus struct | TargetInfo struct |
 | ------------------------- |--------------------- | ------------------- | ------------------- | ----------------- |
 |typedef struct<br/> {<br/>**SensorVersion** version;<br/>**SensorStatus** sStatus;<br/> **TargetStatus** tStatus; <br/> **TargetInfo** *tInfo; <br/> uint8_t tInfoSize; <br/> } SensorData;|typedef struct<br/>{<br/>uint8_t dataType;<br/>bool result;<br/>uint8_t master;<br/>uint8_t second;<br/>uint8_t step;<br/>}SensorVersion;|typedef struct<br/>{<br/>uint8_t actl_mode;<br/>uint8_t rollcount;<br/>uint8_t cfgStatus;<br/>}SensorStatus;|typedef struct<br/>{<br/>uint8_t noOfTarget;<br/>uint8_t rollcount;<br/>}TargetStatus;|typedef struct<br/>{<br/>uint8_t  index;<br/>float  rcs;<br/>float range;<br/>int16_t  azimuth;<br/>float vrel;<br/>uint8_t  rollCount;<br/>int8_t  SNR;<br/>}TargetInfo;|
 
-And store `DATA_TESTED` times the same value in a buffer. It will be our input test vector for the benchmark.
+And it will test `DATA_TESTED` times the same value . It will be our input test vector for the benchmark.
 
 ### serialization
 

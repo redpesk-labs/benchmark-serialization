@@ -34,4 +34,5 @@ message SensorDataMessage {
     required SensorStatusMessage sensorStatus = 2;
     required TargetStatusMessage targetStatus = 3;
     required TargetInfoMessage targetInfo = 4;
+    required uint32 tinfosize = 5;
 }
