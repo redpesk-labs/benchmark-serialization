@@ -4,6 +4,5 @@
 #include "serializer.h"
 #include <cbor.h>
 
-
 void cborc_get_serializer(Serializer*);
 

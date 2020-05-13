@@ -213,23 +213,21 @@ int main()
 	XDR* my_xdr_ptr = &my_xdr;
 	char buffer_xdr[40 * 32];
 	unsigned long len = 40 * 32;
+	xdrmem_create(my_xdr_ptr, buffer_xdr, len, XDR_ENCODE); 
 
-	xdrmem_create(my_xdr_ptr, buffer_xdr, len, XDR_ENCODE);
+	Serializer xdr;
+	memset(&xdr, 0, sizeof(xdr));
+	xdr_get_serializer(&xdr);
 
+	//void* result;
+	//result = (void **)my_xdr_ptr;
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
 	for (int i = 0; i < DATA_TESTED; i++) {
-
-		my_xdr_ptr->x_op = XDR_ENCODE;
-		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(&sensorData, my_xdr_ptr);
-
-		my_xdr_ptr->x_op = XDR_DECODE;
-		xdr_setpos(my_xdr_ptr, 0);
-		xdr_sensorData(&sensorDataTemp, my_xdr_ptr);
-
+		xdr.serialize(xdr.context, sensorData, (void **)my_xdr_ptr);
+		xdr.deserialize(xdr.context, my_xdr_ptr, &sensorDataTemp);
 	}
 	if (clock_gettime(clk_id, &stop) == -1) {
 		perror("clock gettime start");
