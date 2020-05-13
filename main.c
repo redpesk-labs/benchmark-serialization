@@ -2,8 +2,6 @@
 #include "data.h"
 //#include "sp70c-data-handle.h"
 //#include "string.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #define TIME_RESOLUTION 1000000000ULL
 
@@ -250,24 +248,30 @@ int main()
 #ifdef BENCH_PROTOBUF
 //protoc-c --c_out=. sensordata.proto
 
-    uint8_t buf[1024];      // Buffer to store serialized data
-    uint8_t *buf_ptr = buf;             
+    uint8_t buf[1024];      // Buffer to store serialized data            
     size_t length;          // Length of serialized data
-    SensorDataMessage *msg;
 	uint64_t result_time_protobuf;
 	int err_protobuf = 0;
 
+	Serializer protobuf;
+	memset(&protobuf, 0, sizeof(protobuf));
+	protobuf_get_serializer(&protobuf);
+	protobuf.context = &length;
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
 
+	void *result = buf;
 	for (int i = 0; i < DATA_TESTED; i++) {
+		protobuf.serialize(protobuf.context, sensorData,(void **)result);
+		protobuf.deserialize(protobuf.context, result, &sensorDataTemp);
+		/*
         // Encode
         length = protobuf_serialize_sensorData(&sensorData, buf_ptr); 
         //Decode
         protobuf_deserialize_sensorData(buf_ptr, &sensorDataTemp, length);
-		
+		*/
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {
