@@ -1,30 +1,34 @@
 cmake_minimum_required(VERSION 3.10)
 
-option(BENCH_JSON			"Enable json-c benchmark" OFF)
-option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" OFF)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+option(BENCH_JSON			"Enable json-c benchmark" ON)
+option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
 option(BENCH_FASTJSON		"Enable fastJson benchmark" ON)
-option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark" OFF)
-option(BENCH_JSONCPP		"Enable josncpp lib of nlohmann" OFF)
-option(BENCH_CBOR			"Enable cbor benchmark" OFF)
-option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" OFF)
-option(BENCH_XDR			"Enable xdr benchmark" OFF)
-option(BENCH_PROTOBUF		"Enable protobuf benchmark" OFF)
+option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark" ON)
+option(BENCH_JSONCPP		"Enable josncpp lib of nlohmann" ON)
+option(BENCH_CBOR			"Enable cbor benchmark" ON)
+option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" ON)
+option(BENCH_XDR			"Enable xdr benchmark" ON)
+option(BENCH_PROTOBUF		"Enable protobuf benchmark" ON)
 option(BENCH_DEBUG			"Enable debug infos" OFF)
 
 # set the project name
 project(benchmark)
 
-	# ---------- Add the main executable target -------------------------------
-	add_executable(benchmark
-		main.c
-		#src/sp70c-data-handle.c
-	)
-
-	target_include_directories(benchmark PRIVATE "${PROJECT_SOURCE_DIR}/include" )
-	target_compile_features(benchmark PRIVATE c_std_11)
 
 	# ---------- json-c enabled -----------------------------------------------
 	if (BENCH_JSON)
+
+		add_executable(benchmark_jsonc
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_jsonc PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_jsonc PRIVATE c_std_11)
+
 		find_path(JSONC_INCLUDE_DIRS json.h
 			HINTS ${JSONC_INSTALL_DIR} $ENV{JSONC_INSTALL_DIR}
 			PATH_SUFFIXES "include" "json-c" "include/json-c"
@@ -46,19 +50,28 @@ project(benchmark)
 			message(STATUS "json-c's library found: ${JSONC_LIBRARIES}")
 		endif()
 
-		target_compile_definitions(benchmark PRIVATE BENCH_JSON)
-		target_include_directories(benchmark PRIVATE "${JSONC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark PRIVATE "${JSONC_LIBRARIES}")
-		target_sources(benchmark PRIVATE "src/parse-jsonc.c")
+		target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON)
+		target_include_directories(benchmark_jsonc PRIVATE "${JSONC_INCLUDE_DIRS}")
+		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}")
+		target_sources(benchmark_jsonc PRIVATE "src/parse-jsonc.c")
 
 		if (BENCH_JSON_ARRAY)
-			target_compile_definitions(benchmark PRIVATE BENCH_JSON_ARRAY)
+			target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON_ARRAY)
 		endif()
 
 	endif()
 
-		# ---------- FastJson enabled -----------------------------------------------
-		if (BENCH_FASTJSON)
+	# ---------- FastJson enabled -----------------------------------------------
+	if (BENCH_FASTJSON)
+
+		add_executable(benchmark_fastjson
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_fastjson PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_fastjson PRIVATE c_std_11)
+
 		find_path(FASTJSON_INCLUDE_DIRS json.h
 			HINTS ${FASTJSON_INSTALL_DIR} $ENV{FASTJSON_INSTALL_DIR}
 			PATH_SUFFIXES "include" "libfastjson" "include/libfastjson"
@@ -80,18 +93,28 @@ project(benchmark)
 			message(STATUS "fastjson's library found: ${FASTJSON_LIBRARIES}")
 		endif()
 
-		target_compile_definitions(benchmark PRIVATE BENCH_FASTJSON)
-		target_include_directories(benchmark PRIVATE "${FASTJSON_INCLUDE_DIRS}")
-		target_link_libraries(benchmark PRIVATE "${FASTJSON_LIBRARIES}")
-		target_sources(benchmark PRIVATE "src/parse-fastjson.c")
+		target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON)
+		target_include_directories(benchmark_fastjson PRIVATE "${FASTJSON_INCLUDE_DIRS}")
+		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}")
+		target_sources(benchmark_fastjson PRIVATE "src/parse-fastjson.c")
 
 		if (BENCH_FASTJSON_ARRAY)
-			target_compile_definitions(benchmark PRIVATE BENCH_FASTJSON_ARRAY)
+			target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON_ARRAY)
 		endif()
 
 	endif()
+
 	# ---------- json-cpp nlohmann enabled -----------------------------------------------
 	if (BENCH_JSONCPP)
+
+		add_executable(benchmark_jsoncpp
+			main.cpp
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_jsoncpp PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_jsoncpp PRIVATE c_std_11)
+
 		find_path(JSONCPP_INCLUDE_DIRS json.hpp
 			HINTS ${JSONCPP_INSTALL_DIR} $ENV{JSONCPP_INSTALL_DIR}
 			PATH_SUFFIXES "include" "include/nlohmann"
@@ -102,7 +125,7 @@ project(benchmark)
 			message(STATUS "nlohmann/json's header file found: ${JSONCPP_INCLUDE_DIRS}")
 		endif()
 
-		set(CMAKE_PREFIX_PATH "/usr/lib/cmake";${CMAKE_PREFIX_PATH})		
+		set(CMAKE_PREFIX_PATH "/usr/lib/cmake" ${CMAKE_PREFIX_PATH})		
 		find_package(nlohmann_json REQUIRED)
 
 		# find_library(JSONCPP_LIBRARIES
@@ -116,17 +139,25 @@ project(benchmark)
 		# 	message(STATUS "nlohmann/json's library found: ${JSONCPP_LIBRARIES}")
 		# endif()
 
-		target_compile_definitions(benchmark PRIVATE BENCH_JSONCPP)
-		target_include_directories(benchmark PRIVATE "${JSONCPP_INCLUDE_DIRS}")
+		target_compile_definitions(benchmark_jsoncpp PRIVATE BENCH_JSONCPP)
+		#target_include_directories(benchmark PRIVATE "${JSONCPP_INCLUDE_DIRS}")
 		#target_link_libraries(benchmark PRIVATE "${JSONCPP_LIBRARIES}")
-		target_link_libraries(benchmark PRIVATE nlohmann_json)
-		target_sources(benchmark PRIVATE "src/parse-jsoncpp.cpp")
+		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json)
+		target_sources(benchmark_jsoncpp PRIVATE "src/parse-jsoncpp.cpp")
 
 	endif()
 
-
 	# ---------- cbor enabled -------------------------------------------------
 	if (BENCH_CBOR)
+
+		add_executable(benchmark_cbor
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_cbor PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_cbor PRIVATE c_std_11)
+
 		find_path(CBOR_INCLUDE_DIRS cbor.h
 			HINTS ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
 			PATH_SUFFIXES "include" "cbor" "include/cbor"
@@ -148,24 +179,42 @@ project(benchmark)
 			message(STATUS "cbor's library found: ${CBOR_LIBRARIES}")
 		endif()
 
-		target_compile_definitions(benchmark PRIVATE BENCH_CBOR)
-		target_include_directories(benchmark PRIVATE "${CBOR_INCLUDE_DIRS}")
-		target_link_libraries(benchmark PRIVATE "${CBOR_LIBRARIES}")
-		target_sources(benchmark PRIVATE src/parse-cbor.c)
+		target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR)
+		target_include_directories(benchmark_cbor PRIVATE "${CBOR_INCLUDE_DIRS}")
+		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}")
+		target_sources(benchmark_cbor PRIVATE src/parse-cbor.c)
 
 		if (BENCH_CBOR_ARRAY)
-			target_compile_definitions(benchmark PRIVATE BENCH_CBOR_ARRAY)
+			target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR_ARRAY)
 		endif()
 	endif()
 
 	# ---------- xdr enabled --------------------------------------------------
 	if (BENCH_XDR)
-		target_compile_definitions(benchmark PRIVATE BENCH_XDR)
-		target_sources(benchmark PRIVATE src/parse-xdr.c)
+
+		add_executable(benchmark_xdr
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_xdr PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_xdr PRIVATE c_std_11)
+
+		target_compile_definitions(benchmark_xdr PRIVATE BENCH_XDR)
+		target_sources(benchmark_xdr PRIVATE src/parse-xdr.c)
 	endif()
 
 	# ---------- protobuf enabled --------------------------------------------------
 	if (BENCH_PROTOBUF)
+
+		add_executable(benchmark_protobuf
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_protobuf PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_protobuf PRIVATE c_std_11)
+
 		find_path(PROTOBUFC_INCLUDE_DIRS protobuf-c.h
 			HINTS ${PROTOBUFC_INSTALL_DIR} $ENV{PROTOBUFCC_INSTALL_DIR}
 			PATH_SUFFIXES "include" "protobuf-c" "include/protobuf-c"
@@ -187,14 +236,23 @@ project(benchmark)
 			message(STATUS "protobuf-c's library found: ${PROTOBUFC_LIBRARIES}")
 		endif()
 
-		target_compile_definitions(benchmark PRIVATE BENCH_PROTOBUF)
-		target_include_directories(benchmark PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark PRIVATE "${PROTOBUFC_LIBRARIES}")
-		target_sources(benchmark PRIVATE "sensordata.pb-c.c")
-		target_sources(benchmark PRIVATE "src/parse-protobuf.c")
+		target_compile_definitions(benchmark_protobuf PRIVATE BENCH_PROTOBUF)
+		target_include_directories(benchmark_protobuf PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
+		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}")
+		target_sources(benchmark_protobuf PRIVATE "sensordata.pb-c.c")
+		target_sources(benchmark_protobuf PRIVATE "src/parse-protobuf.c")
 	endif()
 
 	# ---------- debug enabled ------------------------------------------------
 	if (BENCH_DEBUG)
-		target_compile_definitions(benchmark PRIVATE BENCH_DEBUG)
+
+		add_executable(benchmark_debug
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_debug PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_compile_features(benchmark_debug PRIVATE c_std_11)
+
+		target_compile_definitions(benchmark_debug PRIVATE BENCH_DEBUG)
 	endif()
