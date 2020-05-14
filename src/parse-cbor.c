@@ -443,15 +443,16 @@ int cbor_deserialize_SensorData(struct cbor_item_t *input, SensorData* output, e
 
 // ---------- Serializer interface --------------------------------------------
 
-/// @brief Initialize a context for JSON serialisation
+/// @brief Initialize a context for cbor serialisation
 /// @param[in] ctx Context object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int cborc_init(void* ctx)
 {
+
 	return EXIT_SUCCESS;
 }
 
-/// @brief Cleanup a context of JSON serialisation.
+/// @brief Cleanup a context of cbor serialisation.
 /// @param[in] ctx Context object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int cborc_cleanup(void* ctx)

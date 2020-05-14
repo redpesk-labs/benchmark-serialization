@@ -1,102 +1,127 @@
 #include "parse-xdr.h"
 
+/// @brief Serialize a SensorVersion object using xdr, if xdr->s_op=ENCODE.
+/// @brief Deserialize a SensorVersion object using xdr, if xdr->s_op=DECODE.
+/// @param[in/out] sensorVersion 
+/// @param[out/out] xdr 
+/// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_sensorVersion(XDR* xdr, SensorVersion* sensorVersion)
 {
 	bool_t temp = sensorVersion->result;
 	if (!xdr_uint8_t(xdr, &sensorVersion->dataType)) {
-		return 1;
+		return EXIT_FAILURE;
 	}
 	if (!xdr_bool(xdr, &temp)) {
-		return 1;
+		return EXIT_FAILURE;
 	}
 	if (!xdr_uint8_t(xdr, &sensorVersion->master))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_uint8_t(xdr, &sensorVersion->second))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_uint8_t(xdr, &sensorVersion->step))
-		return 1;
+		return EXIT_FAILURE;
 
 	if (xdr->x_op == XDR_DECODE) {
 		sensorVersion->result = temp;
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
+/// @brief Serialize a SensorStatus object using xdr, if xdr->s_op=ENCODE.
+/// @brief Deserialize a SensorStatus object using xdr, if xdr->s_op=DECODE.
+/// @param[in/out] sensorStatus 
+/// @param[out/out] xdr 
+/// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_sensorStatus(XDR* xdr, SensorStatus* sensorStatus)
 {
 	if (!xdr_uint8_t(xdr, &sensorStatus->actl_mode))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_uint8_t(xdr, &sensorStatus->rollcount))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_uint8_t(xdr, &sensorStatus->cfgStatus))
-		return 1;
-	return 0;
+		return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
+/// @brief Serialize a TargetStatus object using xdr, if xdr->s_op=ENCODE.
+/// @brief Deserialize a TargetStatus object using xdr, if xdr->s_op=DECODE.
+/// @param[in/out] targetStatus 
+/// @param[out/out] xdr 
+/// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_targetStatus(XDR* xdr, TargetStatus* targetStatus)
 {
 	if (!xdr_uint8_t(xdr, &targetStatus->noOfTarget))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_uint8_t(xdr, &targetStatus->rollcount))
-		return 1;
-	return 0;
+		return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
+/// @brief Serialize a TargetInfo object using xdr, if xdr->s_op=ENCODE.
+/// @brief Deserialize a TargetInfo object using xdr, if xdr->s_op=DECODE.
+/// @param[in/out] targetInfo 
+/// @param[out/out] xdr 
+/// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_targetInfo(XDR* xdr, TargetInfo* targetInfo)
 {
 	if (!xdr_uint8_t(xdr, &targetInfo->index))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_float(xdr, &targetInfo->rcs))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_float(xdr, &targetInfo->range))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_int16_t(xdr, &targetInfo->azimuth))
-		return 1;
+		return EXIT_FAILURE;
 
 	if (!xdr_float(xdr, &targetInfo->vrel))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_uint8_t(xdr, &targetInfo->rollCount))
-		return 1;
+		return EXIT_FAILURE;
 	if (!xdr_int8_t(xdr, &targetInfo->SNR))
-		return 1;
+		return EXIT_FAILURE;
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
+/// @brief Serialize a SensorData object using xdr, if xdr->s_op=ENCODE.
+/// @brief Deserialize a SensorData object using xdr, if xdr->s_op=DECODE.
+/// @param[in/out] sensorData 
+/// @param[out/out] xdr 
+/// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_sensorData(SensorData* sensorData, XDR* xdr)
 {
 	if (xdr_sensorVersion(xdr, &sensorData->version)) {
 		printf("Error during parsing Sensor Version\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	if (xdr_sensorStatus(xdr, &sensorData->sStatus)) {
 		printf("Error during parsing Sensor Status\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 		
 	if (xdr_targetStatus(xdr, &sensorData->tStatus)) {
 		printf("Error during parsing Target Status\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 		
 	if (xdr_targetInfo(xdr, &sensorData->tInfo)) {
 		printf("Error during parsing TargetInfo\n");
-		return 1;
+		return EXIT_FAILURE;
 	}	
 
 	if (!xdr_uint8_t(xdr, &sensorData->tInfoSize)) {
 		printf("Error during parsing target InfoSize\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 // ---------- Serializer interface --------------------------------------------
 
-/// @brief Initialize a context for JSON serialisation
+/// @brief Initialize a context for xdr serialisation
 /// @param[in] ctx Context object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_init(void* ctx)
@@ -105,7 +130,7 @@ int xdr_init(void* ctx)
 	return EXIT_SUCCESS;
 }
 
-/// @brief Cleanup a context of JSON serialisation.
+/// @brief Cleanup a context of xdr serialisation.
 /// @param[in] ctx Context object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_cleanup(void* ctx)
@@ -162,7 +187,7 @@ int xdr_deserialize(void* ctx, void* input, SensorData* output)
 	return xdr_sensorData(output, ((XDR *)input));
 }
 
-/// @brief Get the cbor serializer.
+/// @brief Get the xdr serializer.
 /// @param[out] s The serializer.
 void xdr_get_serializer(Serializer* s)
 {

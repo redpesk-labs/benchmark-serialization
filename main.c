@@ -5,6 +5,8 @@
 
 #define TIME_RESOLUTION 1000000000ULL
 
+/// @brief fill a SensorData object.
+/// @param[out] senorData_ptr The pointer to save data generated.
 void generateData(SensorData* sensorData_ptr)
 {
 	//parseRawBuffer(sensorData_ptr);
@@ -33,6 +35,8 @@ void generateData(SensorData* sensorData_ptr)
 	sensorData_ptr->tInfoSize = 1;
 }
 
+/// @brief Print byte to byte data into SensorData object.
+/// @param[in] sd SensorData object to print.
 void printByHexa(SensorData* sd)
 {
 	printf("Sensor Version by hexa :");
@@ -57,6 +61,10 @@ void printByHexa(SensorData* sd)
 	printf("\n");
 }
 
+/// @brief compare 2 SensorData objects with memcmp.
+/// @param[in] sd1 First SensorData object to compare.
+/// @param[in] sd2 Second SensorData object to compare.
+/// @retval err The number of err catch by memcmp.
 int verification(SensorData* sd1, SensorData* sd2)
 {
 	int err=0;
@@ -66,6 +74,9 @@ int verification(SensorData* sd1, SensorData* sd2)
 	return err;
 }
 
+/// @brief Print result of a specific bench.
+/// @param[in] err The number of erreur happend during a bench.
+/// @param[in] time Thee time during a bench.
 void printResult(int err, uint64_t time)
 {
 	if (err == 0) {
@@ -79,6 +90,8 @@ void printResult(int err, uint64_t time)
 	printf("\n\n");
 }
 
+/// @brief Main function for the bench.
+/// @retval @c EXIT_SUCCESS or @c EXIT_FAILURE
 int main()
 {
 	// Allocate memory 
@@ -123,10 +136,10 @@ int main()
 	}
 
 	for (int i = 0; i < DATA_TESTED; i++) {
-		void* result;
-		json.serialize(json.context, sensorData, &result);
-		json.deserialize(json.context, result, &sensorDataTemp);
-		json.freeobject(json.context, result);
+		void* result_json;
+		json.serialize(json.context, sensorData, &result_json);
+		json.deserialize(json.context, result_json, &sensorDataTemp);
+		json.freeobject(json.context, result_json);
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {
@@ -168,15 +181,17 @@ int main()
 		option_cbor = ARRAY;	
 #endif
 	cborc.context = &option_cbor;
+	cborc.init(cborc.context);
+
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
-	void* result;
+	void* result_cbor;
 	for (int i = 0; i < DATA_TESTED; i++) {
-		cborc.serialize(cborc.context, sensorData, &result);
-		cborc.deserialize(cborc.context, result, &sensorDataTemp);
-		cborc.freeobject(cborc.context, result);
+		cborc.serialize(cborc.context, sensorData, &result_cbor);
+		cborc.deserialize(cborc.context, result_cbor, &sensorDataTemp);
+		cborc.freeobject(cborc.context, result_cbor);
 	}
 	
 
@@ -262,10 +277,10 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	void *result = buf;
+	void *result_protobuf = buf;
 	for (int i = 0; i < DATA_TESTED; i++) {
-		protobuf.serialize(protobuf.context, sensorData,(void **)result);
-		protobuf.deserialize(protobuf.context, result, &sensorDataTemp);
+		protobuf.serialize(protobuf.context, sensorData,(void **)result_protobuf);
+		protobuf.deserialize(protobuf.context, result_protobuf, &sensorDataTemp);
 		/*
         // Encode
         length = protobuf_serialize_sensorData(&sensorData, buf_ptr); 
@@ -350,5 +365,5 @@ int main()
 
 
 #endif //BENCH_DEBUG
-	return 0;
+	return EXIT_SUCCESS;
 }
