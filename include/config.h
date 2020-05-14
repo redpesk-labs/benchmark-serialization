@@ -9,6 +9,14 @@
 #include "parse-jsonc.h"
 #endif
 
+#ifdef BENCH_FASTJSON
+#include "parse-fastjson.h"
+#endif
+
+#if BENCH_JSONCPP
+#include "parse-jsoncpp.hpp"
+#endif
+
 #ifdef BENCH_CBOR
 #include "parse-cbor.h"
 #endif

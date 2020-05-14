@@ -113,8 +113,6 @@ int main()
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
 	printf("data tested : %i\n\n", (int)DATA_TESTED);
 
-	
-
 #ifdef BENCH_JSON
 	// Initiate result values
 	uint64_t result_time_json;
@@ -158,7 +156,7 @@ int main()
 		err_json++;
 	}
 
-	printf("# JSON ");
+	printf("# JSON-C ");
 #ifdef BENCH_JSON_ARRAY	
 		printf("Array ");	
 #endif
@@ -166,6 +164,58 @@ int main()
 	printResult(err_json, result_time_json);
 
 #endif // BENCH_JSON
+
+#ifdef BENCH_FASTJSON
+	// Initiate result values
+	uint64_t result_time_fastjson;
+	int err_fastjson = 0;
+	int option_fastjson = MAP;
+
+	Serializer fastjson;
+	memset(&fastjson, 0, sizeof(fastjson));
+	fastjson_get_serializer(&fastjson);
+
+	#ifdef BENCH_FASTJSON_ARRAY	
+		option_fastjson = ARRAY;
+	#endif
+
+	fastjson.context = &option_fastjson;
+	if (clock_gettime(clk_id, &start) == -1) {
+		perror("clock gettime start");
+		exit(EXIT_FAILURE);
+	}
+
+	for (int i = 0; i < DATA_TESTED; i++) {
+		void* result_fastjson;
+		fastjson.serialize(fastjson.context, sensorData, &result_fastjson);
+		fastjson.deserialize(fastjson.context, result_fastjson, &sensorDataTemp);
+		fastjson.freeobject(fastjson.context, result_fastjson);
+	}
+
+	if (clock_gettime(clk_id, &stop) == -1) {
+		perror("clock gettime stop");
+		exit(EXIT_FAILURE);
+	}
+
+	fastjson.cleanup(fastjson.context);
+
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
+	result_time_fastjson = timer_stop - timer_start;
+
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_fastjson++;
+	}
+
+	printf("# FASTJSON ");
+#ifdef BENCH_FASTJSON_ARRAY	
+		printf("Array ");	
+#endif
+	printf(":\n");
+	printResult(err_fastjson, result_time_fastjson);
+
+#endif // BENCH_FASTJSON
 
 #ifdef BENCH_CBOR 
 	// Initiate result values
@@ -181,7 +231,7 @@ int main()
 		option_cbor = ARRAY;	
 #endif
 	cborc.context = &option_cbor;
-	cborc.init(cborc.context);
+	//cborc.init(cborc.context);
 
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");

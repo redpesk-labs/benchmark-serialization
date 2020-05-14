@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
-option(BENCH_JSON			"Enable json-c benchmark" ON)
-option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
-option(BENCH_CBOR			"Enable cbor benchmark" ON)
-option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" ON)
-option(BENCH_XDR			"Enable xdr benchmark" ON)
-option(BENCH_PROTOBUF		"Enable protobuf benchmark" ON)
+option(BENCH_JSON			"Enable json-c benchmark" OFF)
+option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" OFF)
+option(BENCH_FASTJSON		"Enable fastJson benchmark" ON)
+option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark" OFF)
+option(BENCH_JSONCPP		"Enable josncpp lib of nlohmann" OFF)
+option(BENCH_CBOR			"Enable cbor benchmark" OFF)
+option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" OFF)
+option(BENCH_XDR			"Enable xdr benchmark" OFF)
+option(BENCH_PROTOBUF		"Enable protobuf benchmark" OFF)
 option(BENCH_DEBUG			"Enable debug infos" OFF)
 
 # set the project name
@@ -54,6 +57,72 @@ project(benchmark)
 
 	endif()
 
+		# ---------- FastJson enabled -----------------------------------------------
+		if (BENCH_FASTJSON)
+		find_path(FASTJSON_INCLUDE_DIRS json.h
+			HINTS ${FASTJSON_INSTALL_DIR} $ENV{FASTJSON_INSTALL_DIR}
+			PATH_SUFFIXES "include" "libfastjson" "include/libfastjson"
+		)
+		if (NOT DEFINED FASTJSON_INCLUDE_DIRS OR "${FASTJSON_INCLUDE_DIRS}" STREQUAL "FASTJSON_INCLUDE_DIRS-NOTFOUND")
+			message(FATAL_ERROR "fastjson's header file (json.h) was not found!")
+		else()
+			message(STATUS "fastjson-c's header file found: ${FASTJSON_INCLUDE_DIRS}")
+		endif()
+
+		find_library(FASTJSON_LIBRARIES
+			NAMES fastjson libfastjson
+			HINTS ${FASTJSON_INSTALL_DIR} $ENV{FASTJSON_INSTALL_DIR}
+			PATH_SUFFIXES "lib"
+		)
+		if (NOT DEFINED FASTJSON_LIBRARIES OR "${FASTJSON_LIBRARIES}" STREQUAL "FASTJSON_LIBRARIES-NOTFOUND")
+			message(FATAL_ERROR "fastjson's library was not found!")
+		else()
+			message(STATUS "fastjson's library found: ${FASTJSON_LIBRARIES}")
+		endif()
+
+		target_compile_definitions(benchmark PRIVATE BENCH_FASTJSON)
+		target_include_directories(benchmark PRIVATE "${FASTJSON_INCLUDE_DIRS}")
+		target_link_libraries(benchmark PRIVATE "${FASTJSON_LIBRARIES}")
+		target_sources(benchmark PRIVATE "src/parse-fastjson.c")
+
+		if (BENCH_FASTJSON_ARRAY)
+			target_compile_definitions(benchmark PRIVATE BENCH_FASTJSON_ARRAY)
+		endif()
+
+	endif()
+	# ---------- json-cpp nlohmann enabled -----------------------------------------------
+	if (BENCH_JSONCPP)
+		find_path(JSONCPP_INCLUDE_DIRS json.hpp
+			HINTS ${JSONCPP_INSTALL_DIR} $ENV{JSONCPP_INSTALL_DIR}
+			PATH_SUFFIXES "include" "include/nlohmann"
+		)
+		if (NOT DEFINED JSONCPP_INCLUDE_DIRS OR "${JSONCPP_INCLUDE_DIRS}" STREQUAL "JSONCPP_INCLUDE_DIRS-NOTFOUND")
+			message(FATAL_ERROR "nlohmann/json's header file (json.hpp) was not found!")
+		else()
+			message(STATUS "nlohmann/json's header file found: ${JSONCPP_INCLUDE_DIRS}")
+		endif()
+
+		set(CMAKE_PREFIX_PATH "/usr/lib/cmake";${CMAKE_PREFIX_PATH})		
+		find_package(nlohmann_json REQUIRED)
+
+		# find_library(JSONCPP_LIBRARIES
+		# 	NAMES nlohmann libnlohmann
+		# 	HINTS ${JSONC_INSTALL_DIR} $ENV{JSONC_INSTALL_DIR} "/usr/lib/cmake"
+		# 	PATH_SUFFIXES "lib"
+		# )
+		# if (NOT DEFINED JSONCPP_LIBRARIES OR "${JSONCPP_LIBRARIES}" STREQUAL "JSONCPP_LIBRARIES-NOTFOUND")
+		# 	message(FATAL_ERROR "nlohmann/json's library was not found!")
+		# else()
+		# 	message(STATUS "nlohmann/json's library found: ${JSONCPP_LIBRARIES}")
+		# endif()
+
+		target_compile_definitions(benchmark PRIVATE BENCH_JSONCPP)
+		target_include_directories(benchmark PRIVATE "${JSONCPP_INCLUDE_DIRS}")
+		#target_link_libraries(benchmark PRIVATE "${JSONCPP_LIBRARIES}")
+		target_link_libraries(benchmark PRIVATE nlohmann_json)
+		target_sources(benchmark PRIVATE "src/parse-jsoncpp.cpp")
+
+	endif()
 
 
 	# ---------- cbor enabled -------------------------------------------------

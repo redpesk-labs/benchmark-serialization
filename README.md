@@ -99,3 +99,4 @@ libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)  
 
 libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor) `apt install libcbor-dev`
 
+lib nlohman/lson: [https://github.com/nlohmann/json](https://github.com/nlohmann/json) `sudo apt install nlohmann-json-dev`
