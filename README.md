@@ -4,7 +4,7 @@ The aim's project has to compare different data serialization between :
 
     1.JSON with JSON-c (in Array and Map)
     2.JSON with FASTJSON (in Array and Map)
-    3.Json with nlohmann/json libcpp (in MAP) /!\ --- crash because of leak memory --- /!\
+    3.Json with nlohmann/json libcpp (in MAP)
     4.CBOR (in Array and Map)
     5.XDR
     6.protobuf
@@ -85,6 +85,10 @@ Here is the list of different options to configure the bench :
         Data : OK
         Time during the serialization: 2517.455459 ms
 
+    # JSON-CPP :
+        Data : OK
+        Time during the serialization: 34840.732209 ms
+
     # CBOR ARRAY:
         Data : OK
         Time during the serialization: 2044.524197 ms
@@ -103,4 +107,4 @@ libjsonc: [https://github.com/json-c/json-c](https://github.com/json-c/json-c)  
 
 libcbor: [https://github.com/PJK/libcbor](https://github.com/PJK/libcbor) `apt install libcbor-dev`
 
-lib nlohman/lson: [https://github.com/nlohmann/json](https://github.com/nlohmann/json) `sudo apt install nlohmann-json-dev`
+lib nlohman/json: [https://github.com/nlohmann/json](https://github.com/nlohmann/json) `sudo apt install nlohmann-json-dev`
