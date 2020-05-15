@@ -2,10 +2,10 @@
 
 The aim's project has to compare different data serialization between :
 
-    1.JSON in map
-    2.JSON in Array
-    3.CBOR in map
-    4.CBOR in Array
+    1.JSON with JSON-c (in Array and Map)
+    2.JSON with FASTJSON (in Array and Map)
+    3.Json with nlohmann/json libcpp (in MAP) /!\ --- crash because of leak memory --- /!\
+    4.CBOR (in Array and Map)
     5.XDR
     6.protobuf
 
@@ -27,7 +27,7 @@ And it will test `DATA_TESTED` times the same value . It will be our input test 
 
 After that it will test all different serializations and de-serializations. We use the **MONOTONIC CLOCK** to calculate the time passed in each case. Before to print the result, it will **verify** if all data is well serialized.
 
-To have a significant bench, it is recommended to create a binary for each serialization techno.
+To have a significant bench, it will create a binary for each serialization techno. In this case, each lib will not interface with another.
 
 ## How use it
 
@@ -39,11 +39,11 @@ create a build folder:
     cd build
     cmake [-DBENCH_OPTION=ON] ..
     make
-    ./benchmark
+    ./benchmark_<serialization>
 
 You can also use Valgrind to have a profiling:
 
-    valgrind --tool=callgrind ./benchmark
+    valgrind --tool=callgrind ./benchmark_<serialization>
 
 ### -DOPTION
 
@@ -51,10 +51,13 @@ Here is the list of different options to configure the bench :
 
     1. -DBENCH_JSON=ON
     2. -DBENCH_JSON=ON -DBENCH_JSON_ARRAY=ON
-    3. -DBENCH_CBOR=ON
-    4. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
-    5. -DBENCH_XDR=ON
-    6. -DBENCH_PROTOBUF=ON
+    3. -DBENCH_FASTJSON=ON
+    4. -DBENCH_FASTJSON=ON -DBENCH_FASTJSON_ARRAY=ON
+    5. -DBENCH_JSONCPP=ON
+    6. -DBENCH_CBOR=ON
+    7. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
+    8. -DBENCH_XDR=ON
+    9. -DBENCH_PROTOBUF=ON
 
 ## RESULT EXAMPLE
 
@@ -62,36 +65,37 @@ Here is the list of different options to configure the bench :
 
     data tested : 1000000
 
-    # JSON MAP:
+    # JSON-C :
         Data : OK
-        Time during the serialization: 4352.010288 ms
+        Time during the serialization: 4830.279633 ms
 
-
-    # JSON ARRAY :
+    # FASTJSON :
         Data : OK
-        Time during the serialization: 1711.330259 ms
+        Time during the serialization: 4325.356560 ms
 
-
-    # CBOR MAP:
+    # CBOR:
         Data : OK
-        Time during the serialization: 3100.252335 ms
+        Time during the serialization: 3329.877594 ms
 
+    # JSON-C Array :
+        Data : OK
+        Time during the serialization: 1738.954999 ms
+
+    # FASTJSON Array :
+        Data : OK
+        Time during the serialization: 2517.455459 ms
 
     # CBOR ARRAY:
         Data : OK
-        Time during the serialization: 3016.003068 ms
-
+        Time during the serialization: 2044.524197 ms
 
     # PROTOBUF :
         Data : OK
-        Time during the serialization: 1451.426229 ms
-
+        Time during the serialization: 1531.751197 ms
 
     # XDR :
         Data : OK
-        Time during the serialization: 313.980669 ms
-
-
+        Time during the serialization: 346.656860 ms
 
 ## Note
 
