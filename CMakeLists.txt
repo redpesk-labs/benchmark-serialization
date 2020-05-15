@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BENCH_JSON			"Enable json-c benchmark" ON)
+option(BENCH_JSON			"Enable json-c benchmark" OFF)
 option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
 option(BENCH_FASTJSON		"Enable fastJson benchmark" ON)
 option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark" ON)

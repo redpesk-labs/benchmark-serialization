@@ -113,6 +113,38 @@ int main()
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
 	printf("data tested : %i\n\n", (int)DATA_TESTED);
 
+	/* Reference in C */
+
+	int result_time_ref=0;
+	int err_ref=0;
+	char* buffer_ref;
+	memset(&buffer_ref, 0, sizeof(sensorData));
+	if (clock_gettime(clk_id, &start) == -1) {
+		perror("clock gettime start");
+		exit(EXIT_FAILURE);
+	}
+
+	for (int i = 0; i < DATA_TESTED; i++) {
+		// copy data to send
+		memcpy(&buffer_ref, &sensorData, sizeof(SensorData));
+		//copy data received
+		memcpy(&sensorDataTemp, &buffer_ref, sizeof(SensorData));
+	}
+
+	if (clock_gettime(clk_id, &stop) == -1) {
+		perror("clock gettime stop");
+		exit(EXIT_FAILURE);
+	}
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_ref++;
+	}
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
+	result_time_ref = timer_stop - timer_start;
+	printf("# Reference C: \n");
+	printResult(err_ref, result_time_ref);
+
 #ifdef BENCH_JSON
 	// Initiate result values
 	uint64_t result_time_json;
