@@ -3,7 +3,7 @@
 #define NUMBER_PORT				1
 #define PARSING_BUFFER_SIZE		14
 
-#define DATA_TESTED				100000
+#define DATA_TESTED				1000000
 
 #ifdef BENCH_JSON
 #include "parse-jsonc.h"
@@ -15,6 +15,10 @@
 
 #if BENCH_JSONCPP
 #include "parse-jsoncpp.hpp"
+#endif
+
+#if BENCH_JSONCUSTOM
+#include "parse-jsoncustom.h"
 #endif
 
 #ifdef BENCH_CBOR

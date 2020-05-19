@@ -244,7 +244,6 @@ int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output, 
 struct json_object* jsonc_serialize_SensorData(SensorData input, enum option opt)
 {
 	json_object* out;
-
 	if (opt == ARRAY) {
 		out = json_object_new_array();
 		json_object_array_add(out, jsonc_serialize_SensorVersion(input.version, opt));

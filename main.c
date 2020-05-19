@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 	result_time_ref = timer_stop - timer_start;
 	printf("# Reference C: \n");
 	printResult(err_ref, result_time_ref);
-
+	memset(&sensorDataTemp, 0, sizeof(SensorData));
 
 
 #ifdef BENCH_JSON
@@ -249,6 +249,49 @@ int main(int argc, char* argv[])
 	printResult(err_fastjson, result_time_fastjson);
 
 #endif // BENCH_FASTJSON
+
+#ifdef BENCH_JSONCUSTOM
+
+	uint64_t result_time_jsoncustom;
+	int err_jsoncustom = 0;
+
+	Serializer jsoncustom;
+	memset(&jsoncustom, 0, sizeof(jsoncustom));
+	jsoncustom_get_serializer(&jsoncustom);
+
+	if (clock_gettime(clk_id, &start) == -1) {
+		perror("clock gettime start");
+		exit(EXIT_FAILURE);
+	}
+	
+	for (int i = 0; i < DATA_TESTED; i++) {
+		void* result_jsoncustom;
+		jsoncustom.serialize(jsoncustom.context, sensorData, &result_jsoncustom);
+		jsoncustom.deserialize(jsoncustom.context, result_jsoncustom, &sensorDataTemp);
+		jsoncustom.freeobject(jsoncustom.context, result_jsoncustom);
+	}
+
+	if (clock_gettime(clk_id, &stop) == -1) {
+		perror("clock gettime stop");
+		exit(EXIT_FAILURE);
+	}
+
+	jsoncustom.cleanup(jsoncustom.context);
+
+	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
+	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
+	result_time_jsoncustom = timer_stop - timer_start;
+
+	if (verification(&sensorData, &sensorDataTemp)) {
+		printf("output differs from input\n");
+		err_jsoncustom++;
+	}
+
+	printf("# JSONCUSTOM ");
+	printf(":\n");
+	printResult(err_jsoncustom, result_time_jsoncustom);
+
+#endif // BENCH_JSONCUSTOM
 
 #ifdef BENCH_CBOR 
 	// Initiate result values

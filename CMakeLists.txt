@@ -3,16 +3,17 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BENCH_JSON			"Enable json-c benchmark" ON)
-option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
-option(BENCH_FASTJSON		"Enable fastJson benchmark" ON)
-option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark" ON)
-option(BENCH_JSONCPP		"Enable jsoncpp lib of nlohmann" ON)
-option(BENCH_CBOR			"Enable cbor benchmark" ON)
-option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" ON)
-option(BENCH_XDR			"Enable xdr benchmark" ON)
-option(BENCH_PROTOBUF		"Enable protobuf benchmark" ON)
-option(BENCH_DEBUG			"Enable debug infos" OFF)
+option(BENCH_JSON			"Enable json-c benchmark" 					ON)
+option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" 		ON)
+option(BENCH_FASTJSON		"Enable fastJson benchmark" 				ON)
+option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark"	ON)
+option(BENCH_JSONCPP		"Enable jsoncpp lib of nlohmann" 			ON)
+option(BENCH_JSONCUSTOM		"Enable json representation"				ON)
+option(BENCH_CBOR			"Enable cbor benchmark" 					ON)
+option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" 		ON)
+option(BENCH_XDR			"Enable xdr benchmark" 						ON)
+option(BENCH_PROTOBUF		"Enable protobuf benchmark" 				ON)
+option(BENCH_DEBUG			"Enable debug infos" 						OFF)
 
 # set the project name
 project(benchmark)
@@ -24,7 +25,7 @@ project(benchmark)
 		add_executable(benchmark_jsonc
 			main.c
 			bench_conf/bench-conf.c
-			test/option-timer.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -137,6 +138,21 @@ project(benchmark)
 		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json pthread)
 		target_sources(benchmark_jsoncpp PRIVATE "wrap_jsoncpp/src/parse-jsoncpp.cpp")
 
+	endif()
+
+	# ---------- json custom enabled --------------------------------------------------
+	if (BENCH_JSONCUSTOM)
+
+		add_executable(benchmark_jsoncustom
+			main.c
+			#src/sp70c-data-handle.c
+		)
+
+		target_include_directories(benchmark_jsoncustom PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_jsoncustom/inc")
+		target_compile_features(benchmark_jsoncustom PRIVATE c_std_11)
+		target_link_libraries(benchmark_jsoncustom PRIVATE pthread)
+		target_compile_definitions(benchmark_jsoncustom PRIVATE BENCH_JSONCUSTOM)
+		target_sources(benchmark_jsoncustom PRIVATE "wrap_jsoncustom/src/parse-jsoncustom.c")
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------
