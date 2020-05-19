@@ -8,6 +8,17 @@
 
 #define TIME_RESOLUTION 1000000000ULL
 
+sem_t mutex;
+int fd[2];
+
+typedef struct
+{
+	Serializer serializer;
+	SensorData* data;
+	SensorData* dataTemp;
+}Data_Thread;
+
+
 /// @brief fill a SensorData object.
 /// @param[out] senorData_ptr The pointer to save data generated.
 void generateData(SensorData* sensorData_ptr)
@@ -93,9 +104,27 @@ void printResult(int err, uint64_t time)
 	printf("\n\n");
 }
 
+static void* serialize(void* data)
+{
+	int index;
+	for (index = 0; index<DATA_TESTED; index++) {
+		//sem_wait(&mutex);
+		void* result;
+		((Data_Thread* )data)->serializer.serialize(((Data_Thread* )data)->serializer.context, *((Data_Thread* )data)->data, &result);
+		//sem_post(&mutex);
+	}
+	printf("join\n");
+}
+
+void* deserialize(Data_Thread data)
+{	
+	((Data_Thread* )data)->serializer.deserialize(((Data_Thread* )data)->serializer.context, result, ((Data_Thread* )data)->dataTemp);
+	((Data_Thread* )data)->serializer.freeobject(((Data_Thread* )data)->serializer.context, result);
+}
+
 /// @brief Main function for the bench.
 /// @retval @c EXIT_SUCCESS or @c EXIT_FAILURE
-int main(int argc, char* argv[])
+int main()
 {
 	// Allocate memory 
 	SensorData sensorData;
@@ -110,8 +139,25 @@ int main(int argc, char* argv[])
 	uint64_t timer_stop;
 	clk_id = CLOCK_MONOTONIC;
 
+	// Initiate 2 threads, for emission and reception
+	pthread_t thread_emission;
+	pthread_t thread_reception;
+
+	//Initiate the semaphore
+	sem_init(&mutex, 0, 1);
+
 	//Generate data to parse
 	generateData(&sensorData);
+
+	//Prepare data for threads
+ 	Data_Thread data_serialize;
+	memset(&data_serialize, 0, sizeof(data_serialize));
+	data_serialize.data = &sensorData;
+	data_serialize.dataTemp = &sensorDataTemp;
+	
+ 	Data_Thread data_deserialize;
+	memset(&data_deserialize, 0, sizeof(data_deserialize));
+	data_deserialize.data = &sensorDataTemp;  
 
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
 	printf("data tested : %i\n\n", (int)DATA_TESTED);
@@ -123,7 +169,7 @@ int main(int argc, char* argv[])
 	char* buffer_ref;
 	memset(&buffer_ref, 0, sizeof(sensorData));
 	
- 	if (clock_gettime(clk_id, &start) == -1) {
+/* 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
@@ -147,35 +193,49 @@ int main(int argc, char* argv[])
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_ref = timer_stop - timer_start;
 	printf("# Reference C: \n");
-	printResult(err_ref, result_time_ref);
+	printResult(err_ref, result_time_ref); */
 
 
 
-#ifdef BENCH_JSON
+//#ifdef BENCH_JSON
 	// Initiate result values
 	uint64_t result_time_json;
 	int err_json = 0;
 	int option = MAP;
 
 	Serializer json;
-	memset(&json, 0, sizeof(json));
-	jsonc_get_serializer(&json);
+	memset(&data_serialize.serializer, 0, sizeof(json));
+	memset(&data_deserialize.serializer, 0, sizeof(json));
+
+	jsonc_get_serializer(&data_serialize.serializer);
+	jsonc_get_serializer(&data_deserialize.serializer);
 
 	#ifdef BENCH_JSON_ARRAY	
 		option = ARRAY;
 	#endif
 
-	json.context = &option;
+	//json.context = &option;
+	data_serialize.serializer.context = &option;
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
- 	for (int i = 0; i < DATA_TESTED; i++) {
+	ret = pthread_create(&thread_emission, NULL, serialize, &data_serialize);
+	if(ret){
+		perror("pthread_create");
+	}
+	ret = pthread_create(&thread_reception, NULL, deserialize, &data_deserialize);
+	if(ret){
+		perror("pthread_create");
+	}
+/* 	for (int i = 0; i < DATA_TESTED; i++) {
 		void* result_json;
 		json.serialize(json.context, sensorData, &result_json);
 		json.deserialize(json.context, result_json, &sensorDataTemp);
 		json.freeobject(json.context, result_json);
-	} 
+	} */
+	pthread_join(thread_emission, NULL);
+	pthread_join(thread_reception, NULL);
 	if (clock_gettime(clk_id, &stop) == -1) {
 		perror("clock gettime stop");
 		exit(EXIT_FAILURE);
@@ -196,7 +256,7 @@ int main(int argc, char* argv[])
 	printf(":\n");
 	printResult(err_json, result_time_json);
 
-#endif // BENCH_JSON
+//#endif // BENCH_JSON
 
 #ifdef BENCH_FASTJSON
 	// Initiate result values

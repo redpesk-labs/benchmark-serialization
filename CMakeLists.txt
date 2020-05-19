@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BENCH_JSON			"Enable json-c benchmark" OFF)
+option(BENCH_JSON			"Enable json-c benchmark" ON)
 option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" ON)
 option(BENCH_FASTJSON		"Enable fastJson benchmark" ON)
 option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark" ON)
@@ -23,10 +23,15 @@ project(benchmark)
 
 		add_executable(benchmark_jsonc
 			main.c
+			bench_conf/bench-conf.c
+			test/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_jsonc PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_jsonc PRIVATE 
+			"${PROJECT_SOURCE_DIR}/include" 
+			"${PROJECT_SOURCE_DIR}/wrap_jsonc/inc"
+		)
 		target_compile_features(benchmark_jsonc PRIVATE c_std_11)
 
 		find_path(JSONC_INCLUDE_DIRS json.h
@@ -52,8 +57,8 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON)
 		target_include_directories(benchmark_jsonc PRIVATE "${JSONC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}")
-		target_sources(benchmark_jsonc PRIVATE "src/parse-jsonc.c")
+		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}" pthread)
+		target_sources(benchmark_jsonc PRIVATE "wrap_jsonc/src/parse-jsonc.c")
 
 		if (BENCH_JSON_ARRAY)
 			target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON_ARRAY)
@@ -69,7 +74,7 @@ project(benchmark)
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_fastjson PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_fastjson PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_fastjson/inc")
 		target_compile_features(benchmark_fastjson PRIVATE c_std_11)
 
 		find_path(FASTJSON_INCLUDE_DIRS json.h
@@ -95,8 +100,8 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON)
 		target_include_directories(benchmark_fastjson PRIVATE "${FASTJSON_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}")
-		target_sources(benchmark_fastjson PRIVATE "src/parse-fastjson.c")
+		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}" pthread)
+		target_sources(benchmark_fastjson PRIVATE "wrap_fastjson/src/parse-fastjson.c")
 
 		if (BENCH_FASTJSON_ARRAY)
 			target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON_ARRAY)
@@ -112,7 +117,7 @@ project(benchmark)
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_jsoncpp PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_jsoncpp PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_jsoncpp/inc")
 		target_compile_features(benchmark_jsoncpp PRIVATE c_std_11)
 
 		find_path(JSONCPP_INCLUDE_DIRS json.hpp
@@ -128,22 +133,9 @@ project(benchmark)
 		set(CMAKE_PREFIX_PATH "/usr/lib/cmake" ${CMAKE_PREFIX_PATH})		
 		find_package(nlohmann_json REQUIRED)
 
-		# find_library(JSONCPP_LIBRARIES
-		# 	NAMES nlohmann libnlohmann
-		# 	HINTS ${JSONC_INSTALL_DIR} $ENV{JSONC_INSTALL_DIR} "/usr/lib/cmake"
-		# 	PATH_SUFFIXES "lib"
-		# )
-		# if (NOT DEFINED JSONCPP_LIBRARIES OR "${JSONCPP_LIBRARIES}" STREQUAL "JSONCPP_LIBRARIES-NOTFOUND")
-		# 	message(FATAL_ERROR "nlohmann/json's library was not found!")
-		# else()
-		# 	message(STATUS "nlohmann/json's library found: ${JSONCPP_LIBRARIES}")
-		# endif()
-
 		target_compile_definitions(benchmark_jsoncpp PRIVATE BENCH_JSONCPP)
-		#target_include_directories(benchmark PRIVATE "${JSONCPP_INCLUDE_DIRS}")
-		#target_link_libraries(benchmark PRIVATE "${JSONCPP_LIBRARIES}")
-		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json)
-		target_sources(benchmark_jsoncpp PRIVATE "src/parse-jsoncpp.cpp")
+		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json pthread)
+		target_sources(benchmark_jsoncpp PRIVATE "wrap_jsoncpp/src/parse-jsoncpp.cpp")
 
 	endif()
 
@@ -155,7 +147,7 @@ project(benchmark)
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_cbor PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_cbor PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_cbor/inc")
 		target_compile_features(benchmark_cbor PRIVATE c_std_11)
 
 		find_path(CBOR_INCLUDE_DIRS cbor.h
@@ -181,8 +173,8 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR)
 		target_include_directories(benchmark_cbor PRIVATE "${CBOR_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}")
-		target_sources(benchmark_cbor PRIVATE src/parse-cbor.c)
+		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}" pthread)
+		target_sources(benchmark_cbor PRIVATE "wrap_cbor/src/parse-cbor.c")
 
 		if (BENCH_CBOR_ARRAY)
 			target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR_ARRAY)
@@ -197,11 +189,11 @@ project(benchmark)
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_xdr PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_xdr PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_xdr/inc")
 		target_compile_features(benchmark_xdr PRIVATE c_std_11)
-
+		target_link_libraries(benchmark_xdr PRIVATE pthread)
 		target_compile_definitions(benchmark_xdr PRIVATE BENCH_XDR)
-		target_sources(benchmark_xdr PRIVATE src/parse-xdr.c)
+		target_sources(benchmark_xdr PRIVATE "wrap_xdr/src/parse-xdr.c")
 	endif()
 
 	# ---------- protobuf enabled --------------------------------------------------
@@ -212,7 +204,7 @@ project(benchmark)
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_protobuf PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_protobuf PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_protobuf/inc")
 		target_compile_features(benchmark_protobuf PRIVATE c_std_11)
 
 		find_path(PROTOBUFC_INCLUDE_DIRS protobuf-c.h
@@ -238,9 +230,9 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_protobuf PRIVATE BENCH_PROTOBUF)
 		target_include_directories(benchmark_protobuf PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}")
+		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}" pthread)
 		target_sources(benchmark_protobuf PRIVATE "sensordata.pb-c.c")
-		target_sources(benchmark_protobuf PRIVATE "src/parse-protobuf.c")
+		target_sources(benchmark_protobuf PRIVATE "wrap_protobuf/src/parse-protobuf.c")
 	endif()
 
 	# ---------- debug enabled ------------------------------------------------
@@ -253,6 +245,6 @@ project(benchmark)
 
 		target_include_directories(benchmark_debug PRIVATE "${PROJECT_SOURCE_DIR}/include" )
 		target_compile_features(benchmark_debug PRIVATE c_std_11)
-
+		target_link_libraries(benchmark_debug PRIVATE pthread)
 		target_compile_definitions(benchmark_debug PRIVATE BENCH_DEBUG)
 	endif()

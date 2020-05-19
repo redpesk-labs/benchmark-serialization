@@ -6,11 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 enum option
 {
 	MAP, 
 	ARRAY,
 };
+
+
 
 typedef struct 
 {

@@ -126,7 +126,6 @@ int xdr_sensorData(SensorData* sensorData, XDR* xdr)
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int xdr_init(void* ctx)
 {
-	// Nothing to do
 	return EXIT_SUCCESS;
 }
 
