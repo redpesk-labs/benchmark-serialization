@@ -59,6 +59,14 @@ Here is the list of different options to configure the bench :
     8. -DBENCH_XDR=ON
     9. -DBENCH_PROTOBUF=ON
 
+### OPTION MAIN
+
+Different possible option are able:
+
+    1. --d=<NUMBER OF DATA> : to run with a custom data number
+    2. --t : to run a benchmark showing the time during the parsing
+    3. --c : to run a benchmark showing the percentage of CPU taken during the parsing
+
 ## RESULT EXAMPLE
 
     ====== BENCHMARKING DATA SERIALIZATION ====== 
