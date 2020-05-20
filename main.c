@@ -1,7 +1,7 @@
 #include "bench.h"
 #include "bench-option.h"
 
-int DATA_TESTED = 100;
+int DATA_TESTED = 1000000;
 /// @brief fill a SensorData object.
 /// @param[out] senorData_ptr The pointer to save data generated.
 void generateData(SensorData* sensorData_ptr)
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
 
 	if (config->timer) benchOptionTimer(sensorData, sensorDataTemp);
-	if (config->cpu) printf("Option charge cpu chosen\n");
+	if (config->cpu) printf("Option charge cpu chosen : --- SOON AVAILABLE ---\n");
 
 	free(config);
 
