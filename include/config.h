@@ -16,8 +16,8 @@
 #include "parse-jsoncpp.hpp"
 #endif
 
-#if BENCH_JSONCUSTOM
-#include "parse-jsoncustom.h"
+#if BENCH_JSONSTRING
+#include "parse-jsonstring.h"
 #endif
 
 #ifdef BENCH_CBOR

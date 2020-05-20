@@ -202,14 +202,14 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 
 #endif // BENCH_FASTJSON
 
-#ifdef BENCH_JSONCUSTOM
+#ifdef BENCH_JSONSTRING
 
-	uint64_t result_time_jsoncustom;
-	int err_jsoncustom = 0;
+	uint64_t result_time_jsonstring;
+	int err_jsonstring = 0;
 
-	Serializer jsoncustom;
-	memset(&jsoncustom, 0, sizeof(jsoncustom));
-	jsoncustom_get_serializer(&jsoncustom);
+	Serializer jsonstring;
+	memset(&jsonstring, 0, sizeof(jsonstring));
+	jsonstring_get_serializer(&jsonstring);
 
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
@@ -217,10 +217,10 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	}
 	
 	for (int i = 0; i < DATA_TESTED; i++) {
-		void* result_jsoncustom;
-		jsoncustom.serialize(jsoncustom.context, sensorData, &result_jsoncustom);
-		jsoncustom.deserialize(jsoncustom.context, result_jsoncustom, &sensorDataTemp);
-		jsoncustom.freeobject(jsoncustom.context, result_jsoncustom);
+		void* result_jsonstring;
+		jsonstring.serialize(jsonstring.context, sensorData, &result_jsonstring);
+		jsonstring.deserialize(jsonstring.context, result_jsonstring, &sensorDataTemp);
+		jsonstring.freeobject(jsonstring.context, result_jsonstring);
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {
@@ -228,22 +228,22 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 		exit(EXIT_FAILURE);
 	}
 
-	jsoncustom.cleanup(jsoncustom.context);
+	jsonstring.cleanup(jsonstring.context);
 
 	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_jsoncustom = timer_stop - timer_start;
+	result_time_jsonstring = timer_stop - timer_start;
 
 	if (verification(&sensorData, &sensorDataTemp)) {
 		printf("output differs from input\n");
-		err_jsoncustom++;
+		err_jsonstring++;
 	}
 
-	printf("# JSONCUSTOM ");
+	printf("# jsonstring ");
 	printf(":\n");
-	printResult(err_jsoncustom, result_time_jsoncustom);
+	printResult(err_jsonstring, result_time_jsonstring);
 
-#endif // BENCH_JSONCUSTOM
+#endif // BENCH_JSONSTRING
 
 #ifdef BENCH_CBOR 
 	// Initiate result values

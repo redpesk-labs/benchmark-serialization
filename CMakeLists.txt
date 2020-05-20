@@ -8,7 +8,7 @@ option(BENCH_JSON_ARRAY		"Enable json-c option array benchmark" 		ON)
 option(BENCH_FASTJSON		"Enable fastJson benchmark" 				ON)
 option(BENCH_FASTJSON_ARRAY "Enable fastjson option array benchmark"	ON)
 option(BENCH_JSONCPP		"Enable jsoncpp lib of nlohmann" 			ON)
-option(BENCH_JSONCUSTOM		"Enable json representation"				ON)
+option(BENCH_JSONSTRING		"Enable json string representation"			ON)
 option(BENCH_CBOR			"Enable cbor benchmark" 					ON)
 option(BENCH_CBOR_ARRAY		"Enable cbor option array benchmark" 		ON)
 option(BENCH_XDR			"Enable xdr benchmark" 						ON)
@@ -151,25 +151,25 @@ project(benchmark)
 
 	endif()
 
-	# ---------- json custom enabled --------------------------------------------------
-	if (BENCH_JSONCUSTOM)
+	# ---------- json string enabled --------------------------------------------------
+	if (BENCH_JSONSTRING)
 
-		add_executable(benchmark_jsoncustom
+		add_executable(benchmark_jsonstring
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_jsoncustom PRIVATE 
+		target_include_directories(benchmark_jsonstring PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_jsoncustom/inc" 
+									"${PROJECT_SOURCE_DIR}/wrap_jsonstring/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option")
-		target_compile_features(benchmark_jsoncustom PRIVATE c_std_11)
-		target_link_libraries(benchmark_jsoncustom PRIVATE pthread)
-		target_compile_definitions(benchmark_jsoncustom PRIVATE BENCH_JSONCUSTOM)
-		target_sources(benchmark_jsoncustom PRIVATE "wrap_jsoncustom/src/parse-jsoncustom.c")
+		target_compile_features(benchmark_jsonstring PRIVATE c_std_11)
+		target_link_libraries(benchmark_jsonstring PRIVATE pthread)
+		target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING)
+		target_sources(benchmark_jsonstring PRIVATE "wrap_jsonstring/src/parse-jsonstring.c")
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------

@@ -1,10 +1,10 @@
-#include "parse-jsoncustom.h"
+#include "parse-jsonstring.h"
 #include "mjson.h"
 
 /// @brief Serialize a SensorVersion object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsoncustom_serialize_SensorVersion(SensorVersion input)
+char* jsonstring_serialize_SensorVersion(SensorVersion input)
 {
     char *output;
     int elements = 5;
@@ -18,7 +18,7 @@ char* jsoncustom_serialize_SensorVersion(SensorVersion input)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsoncustom_deserialize_SensorVersion(const char* input, int length, SensorVersion* output)
+int jsonstring_deserialize_SensorVersion(const char* input, int length, SensorVersion* output)
 {
     double temp = 0;
 
@@ -44,7 +44,7 @@ int jsoncustom_deserialize_SensorVersion(const char* input, int length, SensorVe
 /// @brief Serialize a SensorStatus object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsoncustom_serialize_SensorStatus(SensorStatus input)
+char* jsonstring_serialize_SensorStatus(SensorStatus input)
 {
     char *output;
     int elements = 3;
@@ -58,7 +58,7 @@ char* jsoncustom_serialize_SensorStatus(SensorStatus input)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsoncustom_deserialize_SensorStatus(const char* input, int length, SensorStatus* output)
+int jsonstring_deserialize_SensorStatus(const char* input, int length, SensorStatus* output)
 {
     double temp = 0;
 
@@ -78,7 +78,7 @@ int jsoncustom_deserialize_SensorStatus(const char* input, int length, SensorSta
 /// @brief Serialize a TargetStatus object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsoncustom_serialize_TargetStatus(TargetStatus input)
+char* jsonstring_serialize_TargetStatus(TargetStatus input)
 {
     char *output;
     int elements = 2;
@@ -92,7 +92,7 @@ char* jsoncustom_serialize_TargetStatus(TargetStatus input)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsoncustom_deserialize_TargetStatus(const char* input, int length, TargetStatus* output)
+int jsonstring_deserialize_TargetStatus(const char* input, int length, TargetStatus* output)
 {
     double temp = 0;
 
@@ -109,7 +109,7 @@ int jsoncustom_deserialize_TargetStatus(const char* input, int length, TargetSta
 /// @brief Serialize a TargetInfo object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsoncustom_serialize_TargetInfo(TargetInfo input)
+char* jsonstring_serialize_TargetInfo(TargetInfo input)
 {
     char *output;
     int elements = 7;
@@ -123,7 +123,7 @@ char* jsoncustom_serialize_TargetInfo(TargetInfo input)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsoncustom_deserialize_TargetInfo(const char* input, int length, TargetInfo* output)
+int jsonstring_deserialize_TargetInfo(const char* input, int length, TargetInfo* output)
 {
     double temp = 0;
 
@@ -155,13 +155,13 @@ int jsoncustom_deserialize_TargetInfo(const char* input, int length, TargetInfo*
 /// @brief Serialize a SensorData object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsoncustom_serialize_SensorData(SensorData input)
+char* jsonstring_serialize_SensorData(SensorData input)
 {
     int elements = 5;
-    char* sVersion_element = jsoncustom_serialize_SensorVersion(input.version);
-    char* sStatus_element = jsoncustom_serialize_SensorStatus(input.sStatus);
-    char* tStatus_element = jsoncustom_serialize_TargetStatus(input.tStatus);
-    char* tInfo_element = jsoncustom_serialize_TargetInfo(input.tInfo);
+    char* sVersion_element = jsonstring_serialize_SensorVersion(input.version);
+    char* sStatus_element = jsonstring_serialize_SensorStatus(input.sStatus);
+    char* tStatus_element = jsonstring_serialize_TargetStatus(input.tStatus);
+    char* tInfo_element = jsonstring_serialize_TargetInfo(input.tInfo);
     char* output;
     output = malloc(sizeof(&sVersion_element) + sizeof(&sStatus_element) + sizeof(&tStatus_element) + sizeof(&tInfo_element) + elements*SIZE_KEY_MAX);
     sprintf(output, "{ \"sensorversion\" :%s, \"sensorstatus\" :%s, \"targetstatus\" :%s, \"targetinfo\" :%s, \"targetinfosize\" :%u}",
@@ -181,7 +181,7 @@ char* jsoncustom_serialize_SensorData(SensorData input)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsoncustom_deserialize_SensorData(char* input, SensorData* output)
+int jsonstring_deserialize_SensorData(char* input, SensorData* output)
 {   
     int length = 0;
     while(input[length] != '\0') length++;
@@ -190,16 +190,16 @@ int jsoncustom_deserialize_SensorData(char* input, SensorData* output)
     double temp;
 
     mjson_find(input, length,"$.sensorversion", &p, &n);
-    if(jsoncustom_deserialize_SensorVersion(p, n, &output->version)) return EXIT_FAILURE;
+    if(jsonstring_deserialize_SensorVersion(p, n, &output->version)) return EXIT_FAILURE;
 
     mjson_find(input, length,"$.sensorstatus", &p, &n);
-    if(jsoncustom_deserialize_SensorStatus(p, n, &output->sStatus)) return EXIT_FAILURE;
+    if(jsonstring_deserialize_SensorStatus(p, n, &output->sStatus)) return EXIT_FAILURE;
 
     mjson_find(input, length,"$.targetstatus", &p, &n);
-    if(jsoncustom_deserialize_TargetStatus(p, n, &output->tStatus)) return EXIT_FAILURE;
+    if(jsonstring_deserialize_TargetStatus(p, n, &output->tStatus)) return EXIT_FAILURE;
 
     mjson_find(input, length,"$.targetinfo", &p, &n);
-    if(jsoncustom_deserialize_TargetInfo(p, n, &output->tInfo)) return EXIT_FAILURE;
+    if(jsonstring_deserialize_TargetInfo(p, n, &output->tInfo)) return EXIT_FAILURE;
 
     if (!mjson_get_number(input, length, "$.targetinfosize", &temp)) return EXIT_FAILURE;
     output->tInfoSize = (uint8_t) temp;
@@ -211,7 +211,7 @@ int jsoncustom_deserialize_SensorData(char* input, SensorData* output)
 /// @brief Initialize a context for cbor serialisation
 /// @param[in] ctx Context object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncustom_init(void* ctx)
+int jsonstring_init(void* ctx)
 {
 
 	return EXIT_SUCCESS;
@@ -220,7 +220,7 @@ int jsoncustom_init(void* ctx)
 /// @brief Cleanup a context of cbor serialisation.
 /// @param[in] ctx Context object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncustom_cleanup(void* ctx)
+int jsonstring_cleanup(void* ctx)
 {
 	// Nothing to do
 	return EXIT_SUCCESS;
@@ -230,7 +230,7 @@ int jsoncustom_cleanup(void* ctx)
 /// @param[in] ctx Context object.
 /// @param[in] data Serialized data to print.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncustom_print(void* ctx, void* data)
+int jsonstring_print(void* ctx, void* data)
 {
 	if (!data) return EXIT_FAILURE;
     printf("%s\n", (char* )data);
@@ -241,7 +241,7 @@ int jsoncustom_print(void* ctx, void* data)
 /// @param[in] ctx Context object.
 /// @param[in] data Serialized data to free.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncustom_freeobject(void* ctx, void* data)
+int jsonstring_freeobject(void* ctx, void* data)
 {		
 	if (data) {
         free(data);
@@ -254,10 +254,10 @@ int jsoncustom_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncustom_serialize(void* ctx, SensorData input, void** output)
+int jsonstring_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
-	*output = jsoncustom_serialize_SensorData(input);	
+	*output = jsonstring_serialize_SensorData(input);	
 	return EXIT_SUCCESS;
 }
 
@@ -267,24 +267,24 @@ int jsoncustom_serialize(void* ctx, SensorData input, void** output)
 /// @param[in] input Data to deserialize.
 /// @param[out] output Deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncustom_deserialize(void* ctx, void* input, SensorData* output)
+int jsonstring_deserialize(void* ctx, void* input, SensorData* output)
 {
 	if (!input || !output) return EXIT_FAILURE;
-	return jsoncustom_deserialize_SensorData((char *)input, output);
+	return jsonstring_deserialize_SensorData((char *)input, output);
 }
 
-/// @brief Get the jsoncustom serializer.
+/// @brief Get the jsonstring serializer.
 /// @param[out] s The serializer.
-void jsoncustom_get_serializer(Serializer* s)
+void jsonstring_get_serializer(Serializer* s)
 {
 	if (s)
 	{
 		s->context		= NULL;
-		s->init			= jsoncustom_init;
-		s->cleanup		= jsoncustom_cleanup;
-		s->print		= jsoncustom_print;
-		s->freeobject	= jsoncustom_freeobject;
-		s->serialize	= jsoncustom_serialize;
-		s->deserialize	= jsoncustom_deserialize;
+		s->init			= jsonstring_init;
+		s->cleanup		= jsonstring_cleanup;
+		s->print		= jsonstring_print;
+		s->freeobject	= jsonstring_freeobject;
+		s->serialize	= jsonstring_serialize;
+		s->deserialize	= jsonstring_deserialize;
 	}
 }
