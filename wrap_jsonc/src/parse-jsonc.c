@@ -4,7 +4,7 @@
 /// @brief Serialize a SensorVersion object using json-c.
 /// @param[in] sv The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv, enum option opt)
+struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv, enum Option_t opt)
 {
 	struct json_object* out;
 	if (opt == ARRAY) {
@@ -29,7 +29,7 @@ struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv, enum option 
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* output, enum option opt)
+int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* output, enum Option_t opt)
 {
 
 	if (opt == ARRAY) {
@@ -67,7 +67,7 @@ int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* ou
 /// @brief Serialize a SensorStatus object using json-c.
 /// @param[in] ss The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss, enum option opt)
+struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss, enum Option_t opt)
 {
 	struct json_object* out;
 
@@ -90,7 +90,7 @@ struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss, enum option op
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_SensorStatus(struct json_object* input, SensorStatus* output, enum option opt)
+int jsonc_deserialize_SensorStatus(struct json_object* input, SensorStatus* output, enum Option_t opt)
 {
 
 	if (opt == ARRAY) {
@@ -117,7 +117,7 @@ int jsonc_deserialize_SensorStatus(struct json_object* input, SensorStatus* outp
 /// @brief Serialize a TargetStatus object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts, enum option opt)
+struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts, enum Option_t opt)
 {
 	struct json_object* out;
 
@@ -142,7 +142,7 @@ struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts, enum option op
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* output, enum option opt)
+int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* output, enum Option_t opt)
 {
 
 	if (opt == ARRAY) {
@@ -164,7 +164,7 @@ int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* outp
 /// @brief Serialize a TargetInfo object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti, enum option opt)
+struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti, enum Option_t opt)
 {
 	struct json_object* out;
 
@@ -195,7 +195,7 @@ struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti, enum option opt)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output, enum option opt)
+int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output, enum Option_t opt)
 {
 
 	if (opt == ARRAY) {
@@ -241,7 +241,7 @@ int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output, 
 /// @brief Serialize a SensorData object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorData(SensorData input, enum option opt)
+struct json_object* jsonc_serialize_SensorData(SensorData input, enum Option_t opt)
 {
 	json_object* out;
 	if (opt == ARRAY) {
@@ -267,7 +267,7 @@ struct json_object* jsonc_serialize_SensorData(SensorData input, enum option opt
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsonc_deserialize_SensorData(struct json_object* input, SensorData* output, enum option opt)
+int jsonc_deserialize_SensorData(struct json_object* input, SensorData* output, enum Option_t opt)
 {
 
 	if (opt == ARRAY) {
@@ -346,7 +346,7 @@ int jsonc_freeobject(void* ctx, void* data)
 int jsonc_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
-	enum option opt = *((int *)ctx);
+	enum Option_t opt = *((int *)ctx);
 	*output = jsonc_serialize_SensorData(input, opt);
 	return EXIT_SUCCESS;
 }
@@ -360,7 +360,7 @@ int jsonc_serialize(void* ctx, SensorData input, void** output)
 int jsonc_deserialize(void* ctx, void* input, SensorData* output)
 {
 	if (!input || !output) return EXIT_FAILURE;
-	enum option opt = *((int *)ctx);
+	enum Option_t opt = *((int *)ctx);
 	return jsonc_deserialize_SensorData((struct json_object*)input, output, opt);
 }
 

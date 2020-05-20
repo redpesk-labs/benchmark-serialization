@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 
-enum option
+enum Option_t
 {
 	MAP, 
 	ARRAY,

@@ -32,6 +32,8 @@ project(benchmark)
 		target_include_directories(benchmark_jsonc PRIVATE 
 			"${PROJECT_SOURCE_DIR}/include" 
 			"${PROJECT_SOURCE_DIR}/wrap_jsonc/inc"
+			"${PROJECT_SOURCE_DIR}/bench_conf"
+			"${PROJECT_SOURCE_DIR}/bench_option"
 		)
 		target_compile_features(benchmark_jsonc PRIVATE c_std_11)
 
@@ -72,10 +74,16 @@ project(benchmark)
 
 		add_executable(benchmark_fastjson
 			main.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_fastjson PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_fastjson/inc")
+		target_include_directories(benchmark_fastjson PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrap_fastjson/inc" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_fastjson PRIVATE c_std_11)
 
 		find_path(FASTJSON_INCLUDE_DIRS json.h
@@ -115,10 +123,13 @@ project(benchmark)
 
 		add_executable(benchmark_jsoncpp
 			main.cpp
-			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_jsoncpp PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_jsoncpp/inc")
+		target_include_directories(benchmark_jsoncpp PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrap_jsoncpp/inc" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_jsoncpp PRIVATE c_std_11)
 
 		find_path(JSONCPP_INCLUDE_DIRS json.hpp
@@ -145,10 +156,16 @@ project(benchmark)
 
 		add_executable(benchmark_jsoncustom
 			main.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_jsoncustom PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_jsoncustom/inc")
+		target_include_directories(benchmark_jsoncustom PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrap_jsoncustom/inc" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_jsoncustom PRIVATE c_std_11)
 		target_link_libraries(benchmark_jsoncustom PRIVATE pthread)
 		target_compile_definitions(benchmark_jsoncustom PRIVATE BENCH_JSONCUSTOM)
@@ -160,10 +177,16 @@ project(benchmark)
 
 		add_executable(benchmark_cbor
 			main.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_cbor PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_cbor/inc")
+		target_include_directories(benchmark_cbor PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrap_cbor/inc" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_cbor PRIVATE c_std_11)
 
 		find_path(CBOR_INCLUDE_DIRS cbor.h
@@ -202,10 +225,16 @@ project(benchmark)
 
 		add_executable(benchmark_xdr
 			main.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_xdr PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_xdr/inc")
+		target_include_directories(benchmark_xdr PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrap_xdr/inc" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_xdr PRIVATE c_std_11)
 		target_link_libraries(benchmark_xdr PRIVATE pthread)
 		target_compile_definitions(benchmark_xdr PRIVATE BENCH_XDR)
@@ -217,10 +246,16 @@ project(benchmark)
 
 		add_executable(benchmark_protobuf
 			main.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_protobuf PRIVATE "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/wrap_protobuf/inc")
+		target_include_directories(benchmark_protobuf PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrap_protobuf/inc" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_protobuf PRIVATE c_std_11)
 
 		find_path(PROTOBUFC_INCLUDE_DIRS protobuf-c.h
@@ -256,10 +291,15 @@ project(benchmark)
 
 		add_executable(benchmark_debug
 			main.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
 			#src/sp70c-data-handle.c
 		)
 
-		target_include_directories(benchmark_debug PRIVATE "${PROJECT_SOURCE_DIR}/include" )
+		target_include_directories(benchmark_debug PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option")
 		target_compile_features(benchmark_debug PRIVATE c_std_11)
 		target_link_libraries(benchmark_debug PRIVATE pthread)
 		target_compile_definitions(benchmark_debug PRIVATE BENCH_DEBUG)

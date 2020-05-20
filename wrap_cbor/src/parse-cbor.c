@@ -127,7 +127,7 @@ inline void addArrayCbor_bool	(cbor_item_t* cborMap, bool value, int index)		{ t
 /// @brief Serialize a SensorVersion object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion input, enum option opt)
+struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion input, enum Option_t opt)
 {
 	struct cbor_item_t* out;
     switch (opt){
@@ -161,7 +161,7 @@ struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion input, enum optio
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int cbor_deserialize_SensorVersion(struct cbor_item_t* input, SensorVersion* output, enum option opt)
+int cbor_deserialize_SensorVersion(struct cbor_item_t* input, SensorVersion* output, enum Option_t opt)
 {
     struct cbor_pair *cborPairTmp ;
     switch (opt) {
@@ -189,7 +189,7 @@ int cbor_deserialize_SensorVersion(struct cbor_item_t* input, SensorVersion* out
 /// @brief Serialize a SensorStatus object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum option opt)
+struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum Option_t opt)
 {
 	cbor_item_t* out;
 
@@ -217,7 +217,7 @@ struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum option 
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int cbor_deserialize_SensorStatus(struct cbor_item_t* input, SensorStatus* output, enum option opt)
+int cbor_deserialize_SensorStatus(struct cbor_item_t* input, SensorStatus* output, enum Option_t opt)
 {
     struct cbor_pair *cborPairTmp ;
 
@@ -243,7 +243,7 @@ int cbor_deserialize_SensorStatus(struct cbor_item_t* input, SensorStatus* outpu
 /// @brief Serialize a TargetInfo object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus input, enum option opt)
+struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus input, enum Option_t opt)
 {
 	cbor_item_t *out;
 
@@ -270,7 +270,7 @@ struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus input, enum option 
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int cbor_deserialize_TargetStatus(struct cbor_item_t* input, TargetStatus* output, enum option opt)
+int cbor_deserialize_TargetStatus(struct cbor_item_t* input, TargetStatus* output, enum Option_t opt)
 {
 	struct cbor_pair *cborPairTmp;
 
@@ -294,7 +294,7 @@ int cbor_deserialize_TargetStatus(struct cbor_item_t* input, TargetStatus* outpu
 /// @brief Serialize a TargetInfo object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum option opt)
+struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum Option_t opt)
 {
     cbor_item_t *out;
 
@@ -331,7 +331,7 @@ struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum option opt)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int cbor_deserialize_TargetInfo(struct cbor_item_t* input, TargetInfo* output, enum option opt)
+int cbor_deserialize_TargetInfo(struct cbor_item_t* input, TargetInfo* output, enum Option_t opt)
 {
     struct cbor_pair *cborPairTmp;
 
@@ -366,7 +366,7 @@ int cbor_deserialize_TargetInfo(struct cbor_item_t* input, TargetInfo* output, e
 /// @brief Serialize a SensorData object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_SensorData(SensorData input, enum option opt)
+struct cbor_item_t* cbor_serialize_SensorData(SensorData input, enum Option_t opt)
 {
 
 	cbor_item_t* out;
@@ -413,7 +413,7 @@ struct cbor_item_t* cbor_serialize_SensorData(SensorData input, enum option opt)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int cbor_deserialize_SensorData(struct cbor_item_t *input, SensorData* output, enum option opt)
+int cbor_deserialize_SensorData(struct cbor_item_t *input, SensorData* output, enum Option_t opt)
 {
     struct cbor_pair *temp;
 
@@ -490,7 +490,7 @@ int cborc_freeobject(void* ctx, void* data)
 int cborc_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
-	enum option opt = *((int *)ctx);
+	enum Option_t opt = *((int *)ctx);
 	*output = (cbor_serialize_SensorData(input, opt));	
 	return EXIT_SUCCESS;
 }
@@ -504,7 +504,7 @@ int cborc_serialize(void* ctx, SensorData input, void** output)
 int cborc_deserialize(void* ctx, void* input, SensorData* output)
 {
 	if (!input || !output) return EXIT_FAILURE;
-	enum option opt = *((int *)ctx);
+	enum Option_t opt = *((int *)ctx);
 	return cbor_deserialize_SensorData((struct cbor_item_t *)input, output, opt);
 }
 

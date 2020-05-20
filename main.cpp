@@ -2,7 +2,7 @@
 #include "data.h"
 
 #include <iostream>
-
+int DATA_TESTED = 1000000;
 #define TIME_RESOLUTION 1000000000ULL
 
 /// @brief fill a SensorData object.

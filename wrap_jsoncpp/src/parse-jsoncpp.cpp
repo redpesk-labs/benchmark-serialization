@@ -89,7 +89,7 @@ namespace sensordata {
 /// @brief Serialize a SensorData object using jsoncpp.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-void jsoncpp_serialize_SensorData(SensorData input, json *out, enum option opt)
+void jsoncpp_serialize_SensorData(SensorData input, json *out, enum Option_t opt)
 {
 	if (opt == ARRAY) {
 	} else {            
@@ -101,7 +101,7 @@ void jsoncpp_serialize_SensorData(SensorData input, json *out, enum option opt)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
-int jsoncpp_deserialize_SensorData(json& input, SensorData* output, enum option opt)
+int jsoncpp_deserialize_SensorData(json& input, SensorData* output, enum Option_t opt)
 {
 	if (opt == ARRAY) {
 	} else {
@@ -161,7 +161,7 @@ int jsoncpp_freeobject(void* ctx, void* data)
 int jsoncpp_serialize(void* ctx, SensorData input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
-	enum option opt = *((option *)ctx);
+	enum Option_t opt = *((Option_t *)ctx);
 	jsoncpp_serialize_SensorData(input,(json *)output, opt);
 	return EXIT_SUCCESS;
 }
@@ -175,7 +175,7 @@ int jsoncpp_serialize(void* ctx, SensorData input, void** output)
 int jsoncpp_deserialize(void* ctx, void* input, SensorData* output)
 {
 	if (!input || !output) return EXIT_FAILURE;
-	enum option opt = *((option *)ctx);
+	enum Option_t opt = *((Option_t *)ctx);
 	jsoncpp_deserialize_SensorData(*(json *)input, output, opt);
 	return EXIT_SUCCESS;
 }
