@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
 
 	if (config->timer) benchOptionTimer(sensorData, sensorDataTemp);
-	if (config->cpu) printf("Option charge cpu chosen : --- SOON AVAILABLE ---\n");
+	if (config->cpu) benchOptionCpu(sensorData, sensorDataTemp, config->freq);
 
 	free(config);
 

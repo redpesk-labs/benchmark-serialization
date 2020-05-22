@@ -26,6 +26,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -76,6 +77,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -158,6 +160,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -179,6 +182,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -227,6 +231,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -248,6 +253,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 
@@ -293,6 +299,7 @@ project(benchmark)
 			main.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
+			bench_option/option-cpu.c
 			#src/sp70c-data-handle.c
 		)
 

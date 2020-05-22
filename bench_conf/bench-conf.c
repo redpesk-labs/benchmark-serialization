@@ -6,7 +6,7 @@
 static struct option options[] = {
 	{"data",    required_argument,  0,  'd' },
 	{"timer",   optional_argument,  0,  't' },
-	{"cpu",     optional_argument,  0,  'c' },
+	{"cpu",     required_argument,  0,  'c' },
 	{0,         0,                  0,  0 }
 };
 
@@ -34,6 +34,7 @@ benchConfigT* benchParseArgs(int argc, char* argv[])
 
 			case 'c' :
 				config->cpu = 1;
+				config->freq = atoi(optarg);
 				break;
 			
 			default :
