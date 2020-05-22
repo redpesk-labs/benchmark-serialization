@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stddef.h>
 #include "data.h"
 #include "serializer.h"
 

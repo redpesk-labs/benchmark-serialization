@@ -71,7 +71,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	int result_time_ref=0;
 	int err_ref=0;
 	int ret;
-	char* buffer_ref;
+	char buffer_ref[1024];
 	memset(&buffer_ref, 0, sizeof(sensorData));
 	
  	if (clock_gettime(clk_id, &start) == -1) {
@@ -386,4 +386,5 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 #if BENCH_DEBUG
 
 #endif //BENCH_DEBUG
+
 }

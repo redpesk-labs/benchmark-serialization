@@ -169,7 +169,7 @@ project(benchmark)
 		target_compile_features(benchmark_jsonstring PRIVATE c_std_11)
 		target_link_libraries(benchmark_jsonstring PRIVATE pthread)
 		target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING)
-		target_sources(benchmark_jsonstring PRIVATE "wrap_jsonstring/src/parse-jsonstring.c")
+		target_sources(benchmark_jsonstring PRIVATE "wrap_jsonstring/src/parse-jsonstring.c" "wrap_jsonstring/src/mjson.c")
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------
