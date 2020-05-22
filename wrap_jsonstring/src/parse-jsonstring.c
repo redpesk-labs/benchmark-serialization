@@ -50,7 +50,7 @@ char* jsonstring_serialize_SensorVersion(SensorVersion input)
     return output;
 }
 
- /// @brief Deserialize a SensorVersion object using json representation.
+/// @brief Deserialize a SensorVersion object using json representation.
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE
@@ -139,6 +139,10 @@ char* jsonstring_serialize_SensorData(SensorData input)
     free(tInfo_element);
     return output;
 }
+
+/// @brief Cast a sensorversion_t to a SensorVersion.
+/// @param[in] input The object to cast.
+/// @param[out] output Thecasted object.
 void jsonstring_cast_SensorVersion(SensorVersion* output, struct sensorversion_t input)
 {
     output->dataType = (uint8_t)input.dataType;
@@ -147,17 +151,29 @@ void jsonstring_cast_SensorVersion(SensorVersion* output, struct sensorversion_t
     output->second = (uint8_t)input.second;
     output->step = (uint8_t)input.step;
 }
+
+/// @brief Cast a sensorstatus_t to a SensorStatus.
+/// @param[in] input The object to cast.
+/// @param[out] output Thecasted object.
 void jsonstring_cast_SensorStatus(SensorStatus* output, struct sensorstatus_t input)
 {
     output->actl_mode = (uint8_t)input.actl_mode;
     output->cfgStatus = (uint8_t)input.cfgStatus;
     output->rollcount = (uint8_t)input.rollcount;
 }
+
+/// @brief Cast a targetstatus_t to a TargetStatus.
+/// @param[in] input The object to cast.
+/// @param[out] output Thecasted object.
 void jsonstring_cast_TargetStatus(TargetStatus* output, struct targetstatus_t input)
 {
     output->noOfTarget = (uint8_t)input.noOfTarget;
     output->rollcount = (uint8_t)input.rollcount;
 }
+
+/// @brief Cast a targetinfo_t to a TargetInfo.
+/// @param[in] input The object to cast.
+/// @param[out] output Thecasted object.
 void jsonstring_cast_TargetInfo(TargetInfo* output, struct targetinfo_t input)
 {
     output->index = (uint8_t)input.index;
@@ -169,6 +185,9 @@ void jsonstring_cast_TargetInfo(TargetInfo* output, struct targetinfo_t input)
     output->SNR = (int8_t)input.snr;
 }
 
+/// @brief Cast a sensordata_t to a SensorData.
+/// @param[in] input The object to cast.
+/// @param[out] output Thecasted object.
 void jsonstring_cast_SensorData(SensorData* output, struct sensordata_t input)
 {
     jsonstring_cast_SensorVersion(&output->version, input.sv[0]);
