@@ -57,8 +57,8 @@ void printResult(int err, uint64_t time)
 
 int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 {
-    printf("option Timer\n\n");
-	printf("data tested : %i\n\n", DATA_TESTED);
+    printf("option:\t\t CPU\n");
+	printf("data tested :\t %i struct C\n", DATA_TESTED);
 
 	/* Initiate values for our clock */
 	struct timespec start, stop;

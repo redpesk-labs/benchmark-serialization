@@ -18,6 +18,28 @@ option(BENCH_DEBUG			"Enable debug infos" 						OFF)
 # set the project name
 project(benchmark)
 
+# Lib and include for statgrab 
+find_path(STATGRAB_INCLUDE_DIRS statgrab.h
+	HINTS ${STATGRAB_INSTALL_DIR} $ENV{STATGRAB_INSTALL_DIR}
+	PATH_SUFFIXES "include" "statgrab" "include/statgrab"
+)
+if (NOT DEFINED STATGRAB_INCLUDE_DIRS OR "${STATGRAB_INCLUDE_DIRS}" STREQUAL "STATGRAB_INCLUDE_DIRS-NOTFOUND")
+	message(FATAL_ERROR "statgrab's header file (statgrab.h) was not found!")
+else()
+	message(STATUS "statgrab's header file found: ${JSONC_INCLUDE_DIRS}")
+endif()
+
+find_library(STATGRAB_LIBRARIES
+	NAMES statgrab libstatgrab
+	HINTS ${STATGRAB_INSTALL_DIR} $ENV{STATGRAB_INSTALL_DIR}
+	PATH_SUFFIXES "lib"
+)
+if (NOT DEFINED STATGRAB_LIBRARIES OR "${STATGRAB_LIBRARIES}" STREQUAL "STATGRAB_LIBRARIES-NOTFOUND")
+	message(FATAL_ERROR "statgrab's library was not found!")
+else()
+	message(STATUS "statgrab's library found: ${STATGRAB_LIBRARIES}")
+endif()
+
 
 	# ---------- json-c enabled -----------------------------------------------
 	if (BENCH_JSON)
@@ -35,6 +57,7 @@ project(benchmark)
 			"${PROJECT_SOURCE_DIR}/wrap_jsonc/inc"
 			"${PROJECT_SOURCE_DIR}/bench_conf"
 			"${PROJECT_SOURCE_DIR}/bench_option"
+			"${STATGRAB_INCLUDE_DIRS}"
 		)
 		target_compile_features(benchmark_jsonc PRIVATE c_std_11)
 
@@ -61,7 +84,7 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON)
 		target_include_directories(benchmark_jsonc PRIVATE "${JSONC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}" pthread)
+		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_jsonc PRIVATE "wrap_jsonc/src/parse-jsonc.c")
 
 		if (BENCH_JSON_ARRAY)
@@ -85,7 +108,8 @@ project(benchmark)
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrap_fastjson/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_fastjson PRIVATE c_std_11)
 
 		find_path(FASTJSON_INCLUDE_DIRS json.h
@@ -111,7 +135,7 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON)
 		target_include_directories(benchmark_fastjson PRIVATE "${FASTJSON_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}" pthread)
+		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_fastjson PRIVATE "wrap_fastjson/src/parse-fastjson.c")
 
 		if (BENCH_FASTJSON_ARRAY)
@@ -131,7 +155,8 @@ project(benchmark)
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrap_jsoncpp/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_jsoncpp PRIVATE c_std_11)
 
 		find_path(JSONCPP_INCLUDE_DIRS json.hpp
@@ -148,7 +173,7 @@ project(benchmark)
 		find_package(nlohmann_json REQUIRED)
 
 		target_compile_definitions(benchmark_jsoncpp PRIVATE BENCH_JSONCPP)
-		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json pthread)
+		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json "${STATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_jsoncpp PRIVATE "wrap_jsoncpp/src/parse-jsoncpp.cpp")
 
 	endif()
@@ -168,9 +193,10 @@ project(benchmark)
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrap_jsonstring/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_jsonstring PRIVATE c_std_11)
-		target_link_libraries(benchmark_jsonstring PRIVATE pthread)
+		target_link_libraries(benchmark_jsonstring PRIVATE "${STATGRAB_LIBRARIES}" pthread)
 		target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING)
 		target_sources(benchmark_jsonstring PRIVATE "wrap_jsonstring/src/parse-jsonstring.c" "wrap_jsonstring/src/mjson.c")
 	endif()
@@ -190,7 +216,8 @@ project(benchmark)
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrap_cbor/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_cbor PRIVATE c_std_11)
 
 		find_path(CBOR_INCLUDE_DIRS cbor.h
@@ -216,7 +243,7 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR)
 		target_include_directories(benchmark_cbor PRIVATE "${CBOR_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}" pthread)
+		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_cbor PRIVATE "wrap_cbor/src/parse-cbor.c")
 
 		if (BENCH_CBOR_ARRAY)
@@ -239,9 +266,10 @@ project(benchmark)
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrap_xdr/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_xdr PRIVATE c_std_11)
-		target_link_libraries(benchmark_xdr PRIVATE pthread)
+		target_link_libraries(benchmark_xdr PRIVATE "${STATGRAB_LIBRARIES}" pthread)
 		target_compile_definitions(benchmark_xdr PRIVATE BENCH_XDR)
 		target_sources(benchmark_xdr PRIVATE "wrap_xdr/src/parse-xdr.c")
 	endif()
@@ -261,7 +289,8 @@ project(benchmark)
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrap_protobuf/inc" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_protobuf PRIVATE c_std_11)
 
 		find_path(PROTOBUFC_INCLUDE_DIRS protobuf-c.h
@@ -287,7 +316,7 @@ project(benchmark)
 
 		target_compile_definitions(benchmark_protobuf PRIVATE BENCH_PROTOBUF)
 		target_include_directories(benchmark_protobuf PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}" pthread)
+		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_protobuf PRIVATE "sensordata.pb-c.c")
 		target_sources(benchmark_protobuf PRIVATE "wrap_protobuf/src/parse-protobuf.c")
 	endif()
@@ -306,8 +335,9 @@ project(benchmark)
 		target_include_directories(benchmark_debug PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option")
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_debug PRIVATE c_std_11)
-		target_link_libraries(benchmark_debug PRIVATE pthread)
+		target_link_libraries(benchmark_debug PRIVATE "${STATGRAB_LIBRARIES}" pthread)
 		target_compile_definitions(benchmark_debug PRIVATE BENCH_DEBUG)
 	endif()
