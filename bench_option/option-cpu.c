@@ -44,8 +44,8 @@ void percentageResult(int dataSerialized, int dataParsed, float cpu)
 {
 	if (dataSerialized != 100 || dataParsed != 100) {
 		printf("\tData : NOK\n");
-		printf("\tpercentage f data serialized: %i %%\n", dataSerialized);
-		printf("\tpercentage f data parsed: %i %%\n", dataParsed);
+		printf("\tpercentage of data serialized: %i %%\n", dataSerialized);
+		printf("\tpercentage of data parsed: %i %%\n", dataParsed);
 	}
 	else {
 		printf("\tData: OK\n");
@@ -56,6 +56,7 @@ void percentageResult(int dataSerialized, int dataParsed, float cpu)
 
 static void* serialize(void* input)
 {    
+    int svalue;
     ((thdata*) input)->count = 0;
     while (!isFinished)
     {  
@@ -67,7 +68,10 @@ static void* serialize(void* input)
         usleep(1);
         
     }
-    //printf("No more data to serialized\n");
+    sem_getvalue(&mutexParse, &svalue);
+    if(!svalue) {
+        sem_post(&mutexParse);
+    }
     pthread_exit(EXIT_SUCCESS);
 }
 
@@ -76,12 +80,10 @@ void* parse(void* input)
     ((thdata*) input)->count = 0;
     while (!isFinished) {
         sem_wait(&mutexParse);
-        //printf("Data to parse received\n");
         memcpy(((thdata*) input)->data, ((thdata*) input)->buffer, sizeof(SensorData));
         ((thdata*) input)->count++;
         
     }
-    //printf("No more data to parse\n");
     pthread_exit(EXIT_SUCCESS);
 }
 
