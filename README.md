@@ -5,9 +5,10 @@ The aim's project has to compare different data serialization between :
     1.JSON with JSON-c (in Array and Map)
     2.JSON with FASTJSON (in Array and Map)
     3.Json with nlohmann/json libcpp (in MAP)
-    4.CBOR (in Array and Map)
-    5.XDR
-    6.protobuf
+    4.Json in this string representation
+    5.CBOR (in Array and Map)
+    6.XDR
+    7.protobuf
 
 It will take the SP70C data example.
 
@@ -54,18 +55,19 @@ Here is the list of different options to configure the bench :
     3. -DBENCH_FASTJSON=ON
     4. -DBENCH_FASTJSON=ON -DBENCH_FASTJSON_ARRAY=ON
     5. -DBENCH_JSONCPP=ON
-    6. -DBENCH_CBOR=ON
-    7. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
-    8. -DBENCH_XDR=ON
-    9. -DBENCH_PROTOBUF=ON
+    6. -DBENCH_JSONSTRING=ON
+    7. -DBENCH_CBOR=ON
+    8. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
+    9. -DBENCH_XDR=ON
+    10. -DBENCH_PROTOBUF=ON
 
 ### OPTION MAIN
 
 Different possible option are able:
 
-    1. --d=<NUMBER OF DATA> : to run with a custom data number
-    2. --t : to run a benchmark showing the time during the parsing
-    3. --c : to run a benchmark showing the percentage of CPU taken during the parsing
+    1. --d=<NUMBER OF DATA>             : to run with a custom data number
+    2. --t                              : to run a benchmark showing the time during the parsing
+    3. --c=<FREQUENCE in nanosecond>    : to run a benchmark showing the percentage of CPU taken during the parsing
 
 ## RESULT EXAMPLE
 
