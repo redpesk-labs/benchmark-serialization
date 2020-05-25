@@ -59,13 +59,13 @@ static void* serialize(void* input)
     ((thdata*) input)->count = 0;
     while (!isFinished)
     {  
-        if (!sem_trywait(&mutexData)) {
-            //printf("Data to serialize received\n");
-            memcpy(((thdata*) input)->buffer, ((thdata*) input)->data, sizeof(SensorData));
-            ((thdata*) input)->count ++;
-            sem_post(&mutexParse);
-            usleep(1);
-        }
+        sem_wait(&mutexData);
+        //printf("Data to serialize received\n");
+        memcpy(((thdata*) input)->buffer, ((thdata*) input)->data, sizeof(SensorData));
+        ((thdata*) input)->count ++;
+        sem_post(&mutexParse);
+        usleep(1);
+        
     }
     //printf("No more data to serialized\n");
     pthread_exit(EXIT_SUCCESS);
@@ -75,46 +75,13 @@ void* parse(void* input)
 {	
     ((thdata*) input)->count = 0;
     while (!isFinished) {
-         if(!sem_trywait(&mutexParse) ){
-            //printf("Data to parse received\n");
-            memcpy(((thdata*) input)->data, ((thdata*) input)->buffer, sizeof(SensorData));
-            ((thdata*) input)->count++;
-        }  
+        sem_wait(&mutexParse);
+        //printf("Data to parse received\n");
+        memcpy(((thdata*) input)->data, ((thdata*) input)->buffer, sizeof(SensorData));
+        ((thdata*) input)->count++;
+        
     }
     //printf("No more data to parse\n");
-    pthread_exit(EXIT_SUCCESS);
-}
-
-void* cpu_percentage() 
-{
-    float cpu_percents_init;
-    double percentage = 0;
-    double count = 0;
-
-    /* Initiate value for stats proc */
-    size_t entries;
-    memset(&entries, 0, sizeof(size_t));
-    sg_cpu_percents* cpu_percents = malloc(sizeof(sg_cpu_percents));
-    memset(cpu_percents, 0, sizeof(sg_cpu_percents));
-    sg_cpu_percent_source cps;
-    memset(&cps, 0, sizeof(sg_cpu_percent_source));
-    sg_init(1);	
-
-    /* Take the percentage of CPU before the serailization */
-    //cpu_percents_init = (sg_get_cpu_percents_of(cps, &entries))->user;
-
-    while(!isFinished) {
-        entries = 0;
-        cps = 0;
-        cpu_percents = sg_get_cpu_percents_of(cps, &entries);
-        percentage += cpu_percents->user;
-        printf(" - %f%%\n", cpu_percents->user);
-        count ++;
-        usleep(1000);
-    }
-    printf("Percentage Init: %f\n", cpu_percents_init);
-    printf("Percentage: %f during : %f count\n", percentage/count, count);
-    sg_shutdown();
     pthread_exit(EXIT_SUCCESS);
 }
 
@@ -141,7 +108,6 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     memset(cpu_stats, 0, sizeof(sg_cpu_stats));
     sg_cpu_percent_source cps;
     memset(&cps, 0, sizeof(sg_cpu_percent_source));
-    sg_init(1);	
 
 	/* Initiate 2 threads, for emission and reception */
 	pthread_t thread_emission;
@@ -171,6 +137,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 		perror("pthread_reception_create");
 	}
 
+    sg_init(1);	
     cpu_stats = sg_get_cpu_stats(&entries);
     isFinished = false;
     for (index=0; index<DATA_TESTED; index++) {
@@ -178,6 +145,10 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
         usleep(freq);
     }
     isFinished = true;
+    sem_getvalue(&mutexData, &ret);
+    if (!ret){
+        sem_post(&mutexData);
+    }
     cpu_stats = sg_get_cpu_stats_diff(&entries);
     percentage = (sg_get_cpu_percents_r(cpu_stats, &entries))->user;
     sg_shutdown();
