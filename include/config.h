@@ -3,6 +3,7 @@
 #define NUMBER_PORT				1
 #define PARSING_BUFFER_SIZE		14
 
+#include "parse-c.h"
 
 #ifdef BENCH_JSON
 #include "parse-jsonc.h"

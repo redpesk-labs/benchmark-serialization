@@ -46,15 +46,16 @@ endif()
 
 		add_executable(benchmark_jsonc
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_jsonc PRIVATE 
 			"${PROJECT_SOURCE_DIR}/include" 
-			"${PROJECT_SOURCE_DIR}/wrap_jsonc/inc"
+			"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+			"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsonc"
 			"${PROJECT_SOURCE_DIR}/bench_conf"
 			"${PROJECT_SOURCE_DIR}/bench_option"
 			"${STATGRAB_INCLUDE_DIRS}"
@@ -85,7 +86,7 @@ endif()
 		target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON)
 		target_include_directories(benchmark_jsonc PRIVATE "${JSONC_INCLUDE_DIRS}")
 		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_jsonc PRIVATE "wrap_jsonc/src/parse-jsonc.c")
+		target_sources(benchmark_jsonc PRIVATE "wrappers/wrap_jsonc/parse-jsonc.c")
 
 		if (BENCH_JSON_ARRAY)
 			target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON_ARRAY)
@@ -98,15 +99,16 @@ endif()
 
 		add_executable(benchmark_fastjson
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_fastjson PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_fastjson/inc" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_fastjson" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")
@@ -136,7 +138,7 @@ endif()
 		target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON)
 		target_include_directories(benchmark_fastjson PRIVATE "${FASTJSON_INCLUDE_DIRS}")
 		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_fastjson PRIVATE "wrap_fastjson/src/parse-fastjson.c")
+		target_sources(benchmark_fastjson PRIVATE "wrappers/wrap_fastjson/parse-fastjson.c")
 
 		if (BENCH_FASTJSON_ARRAY)
 			target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON_ARRAY)
@@ -153,7 +155,8 @@ endif()
 
 		target_include_directories(benchmark_jsoncpp PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_jsoncpp/inc" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsoncpp" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")
@@ -174,7 +177,7 @@ endif()
 
 		target_compile_definitions(benchmark_jsoncpp PRIVATE BENCH_JSONCPP)
 		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json "${STATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_jsoncpp PRIVATE "wrap_jsoncpp/src/parse-jsoncpp.cpp")
+		target_sources(benchmark_jsoncpp PRIVATE "wrappers/wrap_jsoncpp/parse-jsoncpp.cpp")
 
 	endif()
 
@@ -183,22 +186,23 @@ endif()
 
 		add_executable(benchmark_jsonstring
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_jsonstring PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_jsonstring/inc" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsonstring" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_jsonstring PRIVATE c_std_11)
 		target_link_libraries(benchmark_jsonstring PRIVATE "${STATGRAB_LIBRARIES}" pthread)
 		target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING)
-		target_sources(benchmark_jsonstring PRIVATE "wrap_jsonstring/src/parse-jsonstring.c" "wrap_jsonstring/src/mjson.c")
+		target_sources(benchmark_jsonstring PRIVATE "wrappers/wrap_jsonstring/parse-jsonstring.c" "wrappers/wrap_jsonstring/mjson.c")
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------
@@ -206,15 +210,16 @@ endif()
 
 		add_executable(benchmark_cbor
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_cbor PRIVATE 
-									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_cbor/inc" 
+									"${PROJECT_SOURCE_DIR}/include"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_cbor" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")
@@ -244,7 +249,7 @@ endif()
 		target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR)
 		target_include_directories(benchmark_cbor PRIVATE "${CBOR_INCLUDE_DIRS}")
 		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_cbor PRIVATE "wrap_cbor/src/parse-cbor.c")
+		target_sources(benchmark_cbor PRIVATE "wrappers/wrap_cbor/parse-cbor.c")
 
 		if (BENCH_CBOR_ARRAY)
 			target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR_ARRAY)
@@ -256,22 +261,23 @@ endif()
 
 		add_executable(benchmark_xdr
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_xdr PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_xdr/inc" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_xdr" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_xdr PRIVATE c_std_11)
 		target_link_libraries(benchmark_xdr PRIVATE "${STATGRAB_LIBRARIES}" pthread)
 		target_compile_definitions(benchmark_xdr PRIVATE BENCH_XDR)
-		target_sources(benchmark_xdr PRIVATE "wrap_xdr/src/parse-xdr.c")
+		target_sources(benchmark_xdr PRIVATE "wrappers/wrap_xdr/parse-xdr.c")
 	endif()
 
 	# ---------- protobuf enabled --------------------------------------------------
@@ -279,15 +285,16 @@ endif()
 
 		add_executable(benchmark_protobuf
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_protobuf PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrap_protobuf/inc" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_protobuf" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")
@@ -318,7 +325,7 @@ endif()
 		target_include_directories(benchmark_protobuf PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
 		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}" "${STATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_protobuf PRIVATE "sensordata.pb-c.c")
-		target_sources(benchmark_protobuf PRIVATE "wrap_protobuf/src/parse-protobuf.c")
+		target_sources(benchmark_protobuf PRIVATE "wrappers/wrap_protobuf/parse-protobuf.c")
 	endif()
 
 	# ---------- debug enabled ------------------------------------------------
@@ -326,14 +333,15 @@ endif()
 
 		add_executable(benchmark_debug
 			main.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
-			#src/sp70c-data-handle.c
 		)
 
 		target_include_directories(benchmark_debug PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${STATGRAB_INCLUDE_DIRS}")

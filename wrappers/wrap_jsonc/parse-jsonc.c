@@ -259,7 +259,6 @@ struct json_object* jsonc_serialize_SensorData(SensorData input, enum Option_t o
 		json_object_object_add(out, "tInfo", jsonc_serialize_TargetInfo(input.tInfo, opt));
 		json_object_object_add(out, "tInfoSize", json_object_new_int(input.tInfoSize));
 	}
-
 	return out;
 }
 
@@ -359,7 +358,15 @@ int jsonc_serialize(void* ctx, SensorData input, void** output)
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int jsonc_deserialize(void* ctx, void* input, SensorData* output)
 {
-	if (!input || !output) return EXIT_FAILURE;
+	if (!output){
+		printf("Output not valid\n");
+		return EXIT_FAILURE;
+	}
+	if (!input){
+		printf("Input not valid\n");
+		return EXIT_FAILURE;
+	}
+	//if (!input || !output) return EXIT_FAILURE;
 	enum Option_t opt = *((int *)ctx);
 	return jsonc_deserialize_SensorData((struct json_object*)input, output, opt);
 }

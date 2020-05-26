@@ -9,11 +9,16 @@ bool isFinished;
 
 typedef struct str_thdata
 {
-    SensorData* data;
-    char* buffer;
-    int count;
+    Serializer* s;
+    SensorData* dataToSerialize;
+    SensorData* dataSerialized;
+    void* buffer;
+    int countSerialize;
+    int countParse;
 } thdata;
 
+/// @brief Print process stats, usefull for debug.
+/// @param[in] proc_stats The project stat of the library statgrab.
 int show_proc_stats(sg_process_stats* proc_stats)
 {
     printf("process name: %s\n",     proc_stats->process_name);
@@ -34,6 +39,8 @@ int show_proc_stats(sg_process_stats* proc_stats)
 
     printf("nice: %i\n",             proc_stats->nice);
     printf("state: %i\n",            (int) proc_stats->state);
+
+    return EXIT_SUCCESS;
 }
 
 /// @brief Print result of a specific bench.
@@ -54,51 +61,63 @@ void percentageResult(int dataSerialized, int dataParsed, float cpu)
 	printf("\n\n");
 }
 
+/// @brief thread function to serialize data
+/// @param[in] input, pthread_data
 static void* serialize(void* input)
 {    
     int svalue;
-    ((thdata*) input)->count = 0;
+    ((thdata*) input)->countSerialize = 0;
+    Serializer *s = ((thdata* )input)->s;
+    SensorData data = *((thdata*) input)->dataToSerialize;
+    void* result;
     while (!isFinished)
     {  
         sem_wait(&mutexData);
-        //printf("Data to serialize received\n");
-        memcpy(((thdata*) input)->buffer, ((thdata*) input)->data, sizeof(SensorData));
-        ((thdata*) input)->count ++;
+        /* Serialization of the data */
+        ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, &result);
+        ((thdata*) input)->countSerialize ++;
+        (((thdata*) input)->buffer) = (char* )result;
         sem_post(&mutexParse);
         usleep(1);
         
     }
-    sem_getvalue(&mutexParse, &svalue);
-    if(!svalue) {
-        sem_post(&mutexParse);
-    }
+
+    //((thdata* )input)->s->freeobject(((thdata* )input)->s->context, &result);
     pthread_exit(EXIT_SUCCESS);
 }
 
+/// @brief thread function to parse data
+/// @param[in] input, pthread_data
 void* parse(void* input)
 {	
-    ((thdata*) input)->count = 0;
+    ((thdata*) input)->countParse = 0;
+    Serializer* s = ((thdata* )input)->s;
+    void* data = ((thdata*) input)->buffer;
     while (!isFinished) {
         sem_wait(&mutexParse);
-        memcpy(((thdata*) input)->data, ((thdata*) input)->buffer, sizeof(SensorData));
-        ((thdata*) input)->count++;
-        
+        /* Parsing of he data */
+        ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
+        ((thdata*) input)->countParse++; 
+        ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
     }
+    
     pthread_exit(EXIT_SUCCESS);
 }
 
+/// @brief Main function of the cpu percentage option
+/// @param[in] sensorData data, to serialized
+/// @param[in] sensorDataTemp, Data to parse
 int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 {
     int ret;
     int index;
     int resultParse;
     int resultSerialize;
-    thdata dataToSerialize;
-    thdata dataToParse;
+    thdata dataThread;
 
     printf("option:\t\t CPU\n");
 	printf("data tested :\t %i struct C\n", DATA_TESTED);
-	printf("frequency :\t %i ns\n\n", freq);
+	printf("frequency :\t %i µs\n\n", freq);
 
     float percentage = 0;
     double count = 0;
@@ -106,8 +125,9 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     /* Initiate value for stats proc */
     size_t entries;
     memset(&entries, 0, sizeof(size_t));
-    sg_cpu_stats* cpu_stats = malloc(sizeof(sg_cpu_stats));
-    memset(cpu_stats, 0, sizeof(sg_cpu_stats));
+    sg_cpu_stats* cpu_stats ;
+    sg_cpu_percents* cpu_percents;
+    //memset(cpu_stats, 0, sizeof(sg_cpu_stats));
     sg_cpu_percent_source cps;
     memset(&cps, 0, sizeof(sg_cpu_percent_source));
 
@@ -119,26 +139,33 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 	sem_init(&mutexParse, 0, 0);
     sem_init(&mutexData, 0, 0);
 
-	/* Reference in C */
+    /***************************************************/
+    /****************REFERENCE C************************/
+
 	char buffer_ref[1024];
-	memset(&buffer_ref, 0, sizeof(sensorData));
+	memset(&buffer_ref, 0, sizeof(buffer_ref));
+
+    Serializer c;
+	memset(&c, 0, sizeof(c));
+	c_get_serializer(&c);
 
     /* Initiate data to thread */
-    dataToSerialize.buffer = buffer_ref;
-    dataToSerialize.data = &sensorData;
-    dataToParse.buffer = buffer_ref;
-    dataToParse.data = &sensorDataTemp;
+    dataThread.s = &c;
+    dataThread.buffer = buffer_ref;
+    dataThread.dataToSerialize = &sensorData;
+    dataThread.dataSerialized = &sensorDataTemp;
 
     /* Thread creation */
-	ret = pthread_create(&thread_emission, NULL, serialize, (void*) &dataToSerialize);
+	ret = pthread_create(&thread_emission, NULL, serialize, (void*) &dataThread);
 	if(ret){
 		perror("pthread_emission_create");
 	}
-	ret = pthread_create(&thread_reception, NULL, parse, (void*) &dataToParse);
+	ret = pthread_create(&thread_reception, NULL, parse, (void*) &dataThread);
 	if(ret){
 		perror("pthread_reception_create");
 	}
 
+    /* catch cpu percentage during 2 process */
     sg_init(1);	
     cpu_stats = sg_get_cpu_stats(&entries);
     isFinished = false;
@@ -147,28 +174,110 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
         usleep(freq);
     }
     isFinished = true;
-    sem_getvalue(&mutexData, &ret);
-    if (!ret){
-        sem_post(&mutexData);
-    }
     cpu_stats = sg_get_cpu_stats_diff(&entries);
-    percentage = (sg_get_cpu_percents_r(cpu_stats, &entries))->user;
+    cpu_percents = sg_get_cpu_percents_r(cpu_stats, &entries);
+    percentage = cpu_percents->user;
+    sg_free_mem_stats(cpu_percents);
     sg_shutdown();
 
 
     /* Wait thread to finish */   
+/*     pthread_join(thread_emission, NULL);
+    pthread_join(thread_reception, NULL); */
+    pthread_cancel(thread_emission);
     pthread_join(thread_emission, NULL);
+    pthread_cancel(thread_reception);
     pthread_join(thread_reception, NULL);
+    //free(dataThread.buffer);
+    //dataThread.s->freeobject(dataThread.s->context, dataThread.buffer);
+    /* Verification of parsing data */
+    if (memcmp(&sensorData, &sensorDataTemp, sizeof(SensorData))) printf("Error copy\n");
+	memset(&sensorDataTemp, 0, sizeof(SensorData));
+
+    /* Print Result */
+    resultSerialize = (int) (dataThread.countSerialize*100)/DATA_TESTED;
+    resultParse = (int) (dataThread.countParse*100)/DATA_TESTED;
+    printf("# REFERENCE C :\n");
+    percentageResult(resultSerialize, resultParse, percentage);
+
+    /***************************************************/
+    /********************JSON C*************************/
+
+    #ifdef BENCH_JSON
+	int option_parse = MAP;
+    char buffer[2048];
+	memset(&buffer, 0, sizeof(buffer));
+
+	
+
+	Serializer json;
+	memset(&json, 0, sizeof(json));
+	jsonc_get_serializer(&json);
+
+	#ifdef BENCH_JSON_ARRAY	
+		option_parse = ARRAY;
+	#endif
+	json.context = &option_parse;
+
+        /* Initiate data to thread */
+    dataThread.s = &json;
+    dataThread.buffer = buffer;
+    dataThread.dataToSerialize = &sensorData;
+    dataThread.dataSerialized = &sensorDataTemp;
+
+
+
+    /* Thread creation */
+    isFinished = false;
+	sem_init(&mutexParse, 0, 0);
+    sem_init(&mutexData, 0, 0);
+
+	ret = pthread_create(&thread_emission, NULL, serialize, (void*) &dataThread);
+	if(ret){
+		perror("pthread_emission_create");
+	}
+	ret = pthread_create(&thread_reception, NULL, parse, (void*) &dataThread);
+	if(ret){
+		perror("pthread_reception_create");
+	}
+
+    /* catch cpu percentage during 2 process */
+    sg_init(1);	
+    cpu_stats = sg_get_cpu_stats(&entries);
+    for (index=0; index<DATA_TESTED; index++) {
+        sem_post(&mutexData);
+        usleep(freq);
+		/* json.freeobject(json.context, dataToParse.buffer) */;
+    }
+    isFinished = true;
+    cpu_stats = sg_get_cpu_stats_diff(&entries);
+    cpu_percents = sg_get_cpu_percents_r(cpu_stats, &entries);
+    percentage = cpu_percents->user;
+    sg_free_mem_stats(cpu_percents);
+    sg_shutdown();
+
+    /* Wait thread to finish */   
+    pthread_cancel(thread_emission);
+    pthread_join(thread_emission, NULL);
+    pthread_cancel(thread_reception);
+    pthread_join(thread_reception, NULL);
+
+    //dataThread.s->freeobject(dataThread.s->context, dataThread.buffer);
 
     /* Verification of parsing data */
     if (memcmp(&sensorData, &sensorDataTemp, sizeof(SensorData))) printf("Error copy\n");
 	memset(&sensorDataTemp, 0, sizeof(SensorData));
 
     /* Print Result */
-    resultSerialize = (int) (dataToSerialize.count*100)/DATA_TESTED;
-    resultParse = (int) (dataToParse.count*100)/DATA_TESTED;
-    printf("# REFERENCE C :\n");
+    resultSerialize = (int) (dataThread.countSerialize*100)/DATA_TESTED;
+    resultParse = (int) (dataThread.countParse*100)/DATA_TESTED;
+	printf("# JSON-C ");
+#ifdef BENCH_JSON_ARRAY	
+		printf("Array ");	
+#endif
+	printf(":\n");
     percentageResult(resultSerialize, resultParse, percentage);
+#endif // BENCH_JSON
 
     return EXIT_SUCCESS;
 }
