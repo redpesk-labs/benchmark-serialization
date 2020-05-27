@@ -19,7 +19,7 @@ char* c_serialize_SensorData(SensorData input)
 int c_deserialize_SensorData(char* input, SensorData* output)
 {
     memcpy(output, input, sizeof(SensorData));
-	free(input);
+	//free(input);
     return EXIT_SUCCESS;
 }
 
@@ -60,7 +60,7 @@ int c_print(void* ctx, void* data)
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int c_freeobject(void* ctx, void* data)
 {		
-	if (data) /*free(data)*/;
+	if (data) free(data);
 	return EXIT_SUCCESS;
 }
 
