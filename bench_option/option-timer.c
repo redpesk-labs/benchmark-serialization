@@ -206,10 +206,17 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 
 	uint64_t result_time_jsonstring;
 	int err_jsonstring = 0;
+	int option_parse_jsonstring = MAP;
 
 	Serializer jsonstring;
 	memset(&jsonstring, 0, sizeof(jsonstring));
 	jsonstring_get_serializer(&jsonstring);
+	
+	#ifdef BENCH_JSONSTRING_ARRAY	
+		option_parse_jsonstring = ARRAY;
+	#endif
+
+	jsonstring.context = &option_parse_jsonstring;
 
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
@@ -239,7 +246,10 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 		err_jsonstring++;
 	}
 
-	printf("# jsonstring ");
+	printf("# jsonstring ");	
+	#ifdef BENCH_JSONSTRING_ARRAY	
+		printf("array ");
+	#endif
 	printf(":\n");
 	printResult(err_jsonstring, result_time_jsonstring);
 

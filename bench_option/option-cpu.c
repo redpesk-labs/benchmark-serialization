@@ -5,12 +5,14 @@ extern int DATA_TESTED;
 
 sem_t mutexParse;
 sem_t mutexData;
+sem_t mutexEndParse;;
 bool isFinished;
 bool is_xdr;
 bool is_protobuf;
 char buffer[2048];
+char bufferRef[2048];
 
-pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 
 typedef struct str_thdata
 {
@@ -91,6 +93,7 @@ static void* serialize(void* input)
         if (state != 0)
             perror("pthread_setcancellation");
         // Wait data available
+        sem_wait(&mutexEndParse);
         sem_wait(&mutexData);
         // Set cancellation Enable
         state = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
@@ -98,21 +101,16 @@ static void* serialize(void* input)
             perror("pthread_setcancellation");
 
         /* Serialization of the data */
-            pthread_mutex_lock(&mut);
-            if (is_xdr || is_protobuf) {
-                ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, (((thdata*) input)->buffer));
-            }else {
-                ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, &(((thdata*) input)->buffer));
-            }
-            pthread_mutex_unlock(&mut);
-
+        //pthread_mutex_lock(&mut);
+        if (is_xdr || is_protobuf) {
+            ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, (((thdata*) input)->buffer));
+        }else {
+            ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, &(((thdata*) input)->buffer));
+        }
         ((thdata*) input)->countSerialize ++;
-        sem_getvalue(&mutexParse, &semVal);
-        if (semVal == 0)
-            sem_post(&mutexParse);
-        
-
-        usleep(1);     
+        //pthread_mutex_unlock(&mut);
+        sem_post(&mutexParse);
+        usleep(1);  
     }
     pthread_exit(EXIT_SUCCESS);
 }
@@ -142,12 +140,14 @@ void* parse(void* input)
         if (state != 0)
             perror("pthread_setcancellation");
         /* Parsing of he data */
-            pthread_mutex_lock(&mut);
-            ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
-            ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
-            pthread_mutex_unlock(&mut);
+        //pthread_mutex_lock(&mut);
+        ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
+        ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
+        //pthread_mutex_unlock(&mut);
+        sem_post(&mutexEndParse);
+        usleep(1);
         ((thdata*) input)->countParse++;
-    }
+    }    
     
     pthread_exit(EXIT_SUCCESS);
 }
@@ -160,7 +160,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     printf("option:\t\t CPU\n");
 	printf("data tested :\t %i struct C\n", DATA_TESTED);
 	printf("freq chosen :\t %i µs\n\n", freq);
-	memset(&buffer, 0, sizeof(buffer));
+    memset(&bufferRef, 0, sizeof(bufferRef));
 
     int ret;
     int index;
@@ -191,6 +191,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 	/* Initiate the semaphore mutex */
 	sem_init(&mutexParse, 0, 0);
     sem_init(&mutexData, 0, 0);
+    sem_init(&mutexEndParse, 0, 1);
 
     /***************************************************/
     /****************REFERENCE C************************/
@@ -200,10 +201,11 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 
     /* Initiate data to thread */
     dataThread.s = &c;
-    dataThread.buffer = buffer;
+    dataThread.buffer = bufferRef;
     dataThread.dataToSerialize = &sensorData;
     dataThread.dataSerialized = &sensorDataTemp;
 
+    isFinished = false;
     /* Thread creation */
 	ret = pthread_create(&thread_emission, NULL, serialize, (void*) &dataThread);
 	if(ret){
@@ -217,12 +219,11 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     /* catch cpu percentage during 2 process */
     sg_init(1);	
     cpu_stats = sg_get_cpu_stats(&entries);
-    isFinished = false;
-    for (index=0; index<DATA_TESTED-1; index++) {
         sem_post(&mutexData);
+    for (index=1; index<DATA_TESTED; index++) {
         usleep(freq);
+        sem_post(&mutexData);
     }
-    sem_post(&mutexData);
     isFinished = true;
     cpu_stats = sg_get_cpu_stats_diff(&entries);
     cpu_percents = sg_get_cpu_percents_r(cpu_stats, &entries);
@@ -232,25 +233,17 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 
 
     state = pthread_cancel(thread_emission);
-    // if (state != 0)
-    //     perror("pthread cancelled emission");
     /* Wait thread to finish */   
     state = pthread_join(thread_emission, &res);
     if (state != 0)
         perror("pthread join");
-//    if (res == PTHREAD_CANCELED)
-//        printf("thread emission was cancelled\n");
     state = pthread_join(thread_emission, NULL);
 
     state = pthread_cancel(thread_reception);
-    // if (state != 0)
-    //     perror("pthread cancelled reception");
     /* Wait thread to finish */   
     state = pthread_join(thread_reception, &res);
     if (state != 0)
         perror("thread join");
-//    if (res == PTHREAD_CANCELED)
-//        printf("thread reception was cancelled\n");
     state = pthread_join(thread_reception, NULL);
 
     /* Verification of parsing data */
@@ -265,6 +258,8 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 
     /***************************************************/
     /********************TECHNO TO TEST*****************/
+
+	memset(&buffer, 0, sizeof(buffer));
 
     #ifdef BENCH_JSON
 	int option_parse = MAP;	
@@ -311,7 +306,9 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 	Serializer jsonstring;
 	memset(&jsonstring, 0, sizeof(jsonstring));
 	jsonstring_get_serializer(&jsonstring);
-
+    #ifdef BENCH_JSONSTRING_ARRAY	
+		option_parse = ARRAY;	
+    #endif
 	jsonstring.context = &option_parse;
 
     /* Initiate data to thread */
@@ -411,17 +408,15 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 
     /* Wait/inform emission thread to finish */
     state = pthread_cancel(thread_emission);
-    state = pthread_join(thread_emission, &res);
+    state = pthread_join(thread_emission, NULL);
     if (state != 0)
         perror("pthread join");
-    state = pthread_join(thread_emission, NULL);
 
     /* Wait/inform emission thread to finish */
     state = pthread_cancel(thread_reception);
-    state = pthread_join(thread_reception, &res);
-    if (state != 0)
-        perror("thread join");
     state = pthread_join(thread_reception, NULL);
+    if (state != 0)
+        perror("thread join"); 
 
     /* Verification of parsing data */
     if (memcmp(&sensorData, &sensorDataTemp, sizeof(SensorData))) printf("Error copy\n");
@@ -449,6 +444,9 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 
     #ifdef BENCH_JSONSTRING
 	printf("# JSONSTRING ");
+    #ifdef BENCH_JSONSTRING_ARRAY	
+		printf("Array ");
+	#endif
 	printf(":\n");
     #endif // BENCH_JSONSTRING
 
