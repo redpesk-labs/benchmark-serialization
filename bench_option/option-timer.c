@@ -103,249 +103,53 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 
 
 	
-#ifdef BENCH_JSON
+
 	// Initiate result values
-	uint64_t result_time_json;
-	int err_json = 0;
+	uint64_t result_time;
+	int err = 0;	
+	Serializer s;
+	memset(&s, 0, sizeof(s));
 	int option_parse = MAP;
-
-	Serializer json;
-	memset(&json, 0, sizeof(json));
-	jsonc_get_serializer(&json);
-
+#ifdef BENCH_JSON
+	jsonc_get_serializer(&s);
 	#ifdef BENCH_JSON_ARRAY	
 		option_parse = ARRAY;
 	#endif
-
-	json.context = &option_parse;
-	if (clock_gettime(clk_id, &start) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
- 	for (int i = 0; i < DATA_TESTED; i++) {
-		void* result_json;
-		json.serialize(json.context, sensorData, &result_json);
-		json.deserialize(json.context, result_json, &sensorDataTemp);
-		json.freeobject(json.context, result_json);
-	} 
-	if (clock_gettime(clk_id, &stop) == -1) {
-		perror("clock gettime stop");
-		exit(EXIT_FAILURE);
-	}
-	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
-	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_json = timer_stop - timer_start;
-
-	if (verification(&sensorData, &sensorDataTemp)) {
-		printf("output differs from input\n");
-		err_json++;
-	}
-
-	printf("# JSON-C ");
-#ifdef BENCH_JSON_ARRAY	
-		printf("Array ");	
-#endif
-	printf(":\n");
-	printResult(err_json, result_time_json);
-
+	s.context = &option_parse;
 #endif // BENCH_JSON
 
 #ifdef BENCH_FASTJSON
-	// Initiate result values
-	uint64_t result_time_fastjson;
-	int err_fastjson = 0;
-	int option_parse_fastjson = MAP;
-
-	Serializer fastjson;
-	memset(&fastjson, 0, sizeof(fastjson));
-	fastjson_get_serializer(&fastjson);
-
+	fastjson_get_serializer(&s);
 	#ifdef BENCH_FASTJSON_ARRAY	
-		option_parse_fastjson = ARRAY;
+		option_parse = ARRAY;
 	#endif
-
-	fastjson.context = &option_parse_fastjson;
-	if (clock_gettime(clk_id, &start) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
-
-	for (int i = 0; i < DATA_TESTED; i++) {
-		void* result_fastjson;
-		fastjson.serialize(fastjson.context, sensorData, &result_fastjson);
-		fastjson.deserialize(fastjson.context, result_fastjson, &sensorDataTemp);
-		fastjson.freeobject(fastjson.context, result_fastjson);
-	}
-
-	if (clock_gettime(clk_id, &stop) == -1) {
-		perror("clock gettime stop");
-		exit(EXIT_FAILURE);
-	}
-
-	fastjson.cleanup(fastjson.context);
-
-	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
-	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_fastjson = timer_stop - timer_start;
-
-	if (verification(&sensorData, &sensorDataTemp)) {
-		printf("output differs from input\n");
-		err_fastjson++;
-	}
-
-	printf("# FASTJSON ");
-#ifdef BENCH_FASTJSON_ARRAY	
-		printf("Array ");	
-#endif
-	printf(":\n");
-	printResult(err_fastjson, result_time_fastjson);
-
-#endif // BENCH_FASTJSON
+	s.context = &option_parse;
+#endif //BENCH_FAST_JSON
 
 #ifdef BENCH_JSONSTRING
-
-	uint64_t result_time_jsonstring;
-	int err_jsonstring = 0;
-	int option_parse_jsonstring = MAP;
-
-	Serializer jsonstring;
-	memset(&jsonstring, 0, sizeof(jsonstring));
-	jsonstring_get_serializer(&jsonstring);
-	
+	jsonstring_get_serializer(&s);
 	#ifdef BENCH_JSONSTRING_ARRAY	
-		option_parse_jsonstring = ARRAY;
+		option_parse = ARRAY;
 	#endif
+	s.context = &option_parse;
+#endif //BENCH_FAST_JSON
 
-	jsonstring.context = &option_parse_jsonstring;
-
-	if (clock_gettime(clk_id, &start) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
-	
-	for (int i = 0; i < DATA_TESTED; i++) {
-		void* result_jsonstring;
-		jsonstring.serialize(jsonstring.context, sensorData, &result_jsonstring);
-		jsonstring.deserialize(jsonstring.context, result_jsonstring, &sensorDataTemp);
-		jsonstring.freeobject(jsonstring.context, result_jsonstring);
-	}
-
-	if (clock_gettime(clk_id, &stop) == -1) {
-		perror("clock gettime stop");
-		exit(EXIT_FAILURE);
-	}
-
-	jsonstring.cleanup(jsonstring.context);
-
-	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
-	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_jsonstring = timer_stop - timer_start;
-
-	if (verification(&sensorData, &sensorDataTemp)) {
-		printf("output differs from input\n");
-		err_jsonstring++;
-	}
-
-	printf("# jsonstring ");	
-	#ifdef BENCH_JSONSTRING_ARRAY	
-		printf("array ");
+#ifdef BENNCH_CBOR
+	cborc_get_serializer(&s);
+	#ifdef BENCH_CBOR_ARRAY	
+		option_parse = ARRAY;
 	#endif
-	printf(":\n");
-	printResult(err_jsonstring, result_time_jsonstring);
-
-#endif // BENCH_JSONSTRING
-
-#ifdef BENCH_CBOR 
-	// Initiate result values
-	uint64_t result_time_cbor;
-	int err_cbor = 0;
-	int option_parse_cbor = MAP;
-
-	Serializer cborc;
-	memset(&cborc, 0, sizeof(cborc));
-	cborc_get_serializer(&cborc);
-	
-#ifdef BENCH_CBOR_ARRAY	
-		option_parse_cbor = ARRAY;	
-#endif
-	cborc.context = &option_parse_cbor;
-	//cborc.init(cborc.context);
-
-	if (clock_gettime(clk_id, &start) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
-	void* result_cbor;
-	for (int i = 0; i < DATA_TESTED; i++) {
-		cborc.serialize(cborc.context, sensorData, &result_cbor);
-		cborc.deserialize(cborc.context, result_cbor, &sensorDataTemp);
-		cborc.freeobject(cborc.context, result_cbor);
-	}
-	
-
-	if (clock_gettime(clk_id, &stop) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
-
-	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
-	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_cbor = timer_stop - timer_start;
-
-	if (verification(&sensorData, &sensorDataTemp)) {
-		printf("output differs from input\n");
-		err_cbor++;
-	}
-	printf("# CBOR");
-#ifdef BENCH_CBOR_ARRAY	
-		printf(" Array");	
-#endif
-	printf(":\n");
-	printResult(err_cbor, result_time_cbor);
-
+	s.context = &option_parse;
 #endif // BENCH_CBOR
 
 #ifdef BENCH_XDR
-	// Initiate result values
-	uint64_t result_time_xdr;
-	int err_xdr = 0;
-
 	XDR my_xdr;
-	XDR* my_xdr_ptr = &my_xdr;
+	XDR* result = &my_xdr;
 	char buffer_xdr[40 * 32];
 	unsigned long len = 40 * 32;
-	xdrmem_create(my_xdr_ptr, buffer_xdr, len, XDR_ENCODE); 
+	xdrmem_create(result, buffer_xdr, len, XDR_ENCODE); 
 
-	Serializer xdr;
-	memset(&xdr, 0, sizeof(xdr));
-	xdr_get_serializer(&xdr);
-
-	//void* result;
-	//result = (void **)my_xdr_ptr;
-	if (clock_gettime(clk_id, &start) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
-	for (int i = 0; i < DATA_TESTED; i++) {
-		xdr.serialize(xdr.context, sensorData, (void **)my_xdr_ptr);
-		xdr.deserialize(xdr.context, my_xdr_ptr, &sensorDataTemp);
-	}
-	if (clock_gettime(clk_id, &stop) == -1) {
-		perror("clock gettime start");
-		exit(EXIT_FAILURE);
-	}
-
-	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
-	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_xdr = timer_stop - timer_start;
-
-	if (verification(&sensorData, &sensorDataTemp)) {
-		printf("output differs from input\n");
-		err_xdr++;
-	}
-	printf("# XDR :\n");
-	printResult(err_xdr, result_time_xdr);
-
+	xdr_get_serializer(&s);
 #endif // BENCH_XDR
 
 #ifdef BENCH_PROTOBUF
@@ -353,45 +157,79 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 
     uint8_t buf[1024];      // Buffer to store serialized data            
     size_t length;          // Length of serialized data
-	uint64_t result_time_protobuf;
-	int err_protobuf = 0;
+	protobuf_get_serializer(&s);
+	s.context = &length;
+	void* result = buf;
+#endif
 
-	Serializer protobuf;
-	memset(&protobuf, 0, sizeof(protobuf));
-	protobuf_get_serializer(&protobuf);
-	protobuf.context = &length;
+
 	if (clock_gettime(clk_id, &start) == -1) {
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
+ 	for (int i = 0; i < DATA_TESTED; i++) {
+		#if defined(BENCH_XDR) || defined(BENCH_PROTOBUF)
+		s.serialize(s.context, sensorData, (void **)result);
+		s.deserialize(s.context, result, &sensorDataTemp);
+		#else
+		void* result;
+		s.serialize(s.context, sensorData, &result);
+		s.deserialize(s.context, result, &sensorDataTemp);
+		s.freeobject(s.context, result);
+		#endif
 
-	void *result_protobuf = buf;
-	for (int i = 0; i < DATA_TESTED; i++) {
-		protobuf.serialize(protobuf.context, sensorData,(void **)result_protobuf);
-		protobuf.deserialize(protobuf.context, result_protobuf, &sensorDataTemp);
-		/*
-        // Encode
-        length = protobuf_serialize_sensorData(&sensorData, buf_ptr); 
-        //Decode
-        protobuf_deserialize_sensorData(buf_ptr, &sensorDataTemp, length);
-		*/
-	}
-
+	} 
 	if (clock_gettime(clk_id, &stop) == -1) {
-		perror("clock gettime start");
+		perror("clock gettime stop");
 		exit(EXIT_FAILURE);
 	}
 	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
-	result_time_protobuf = timer_stop - timer_start;
+	result_time = timer_stop - timer_start;
 
 	if (verification(&sensorData, &sensorDataTemp)) {
 		printf("output differs from input\n");
-		err_protobuf++;
+		err++;
 	}
-	printf("# PROTOBUF :\n");
-	printResult(err_protobuf, result_time_protobuf);
-#endif //BENCH_PROTOBUF
+
+#ifdef BENCH_JSON
+	printf("## JSON-C ");
+	#ifdef BENCH_JSON_ARRAY	
+			printf("Array ");	
+	#endif
+#endif
+
+#ifdef BENCH_FASTJSON
+	printf("## FASTJSON ");
+	#ifdef BENCH_FASTJSON_ARRAY	
+		printf("Array ");	
+	#endif
+#endif
+
+#ifdef BENCH_JSONSTRING
+	printf("## JSONSTRING ");	
+	#ifdef BENCH_JSONSTRING_ARRAY	
+		printf("array ");
+	#endif
+#endif
+
+#ifdef BENCH_CBOR
+	printf("## CBOR ");	
+	#ifdef BENCH_CBOR_ARRAY	
+		printf("array ");
+	#endif
+#endif
+
+#ifdef BENCH_XDR
+	printf("## XDR");
+#endif
+
+#ifdef BENCH_PROTOBUF
+	printf("## PROTOBUF ");
+#endif
+
+	printf(":\n");
+	printResult(err, result_time);
 
 #if BENCH_DEBUG
 

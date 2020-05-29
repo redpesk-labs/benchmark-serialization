@@ -130,10 +130,11 @@ int main()
 		perror("clock gettime start");
 		exit(EXIT_FAILURE);
 	}
+	// TEST 
 	void* result_json;
+	//nlohmann:json result_json = new nlohman::json();
 	memset(&result_json, 0, sizeof(nlohmann::json));
 	for (int i = 0; i < DATA_TESTED; i++) {
-		
 		jsoncpp.serialize(jsoncpp.context, sensorData, &result_json);
 		jsoncpp.deserialize(jsoncpp.context, &result_json, &sensorDataTemp);
 		jsoncpp.freeobject(jsoncpp.context, &result_json);
