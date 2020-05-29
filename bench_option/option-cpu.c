@@ -83,7 +83,7 @@ static void* serialize(void* input)
     // Initialize data to serialize
     ((thdata*) input)->countSerialize = 0;
     Serializer *s = ((thdata* )input)->s;
-    SensorData data = *((thdata*) input)->dataToSerialize;
+    SensorData* data = ((thdata*) input)->dataToSerialize;
     void* result;
 
     while (!isFinished)

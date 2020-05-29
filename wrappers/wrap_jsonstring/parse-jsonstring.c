@@ -125,7 +125,7 @@ int jsonstring_serialize_TargetInfo(TargetInfo *input, int opt, char *output, in
 /// @param[in] input The object to serialize..
 /// @param[in] opt serialization option (MAP / ARRAY).
 /// @return The serialized result.
-char* jsonstring_serialize_SensorData(SensorData input, int opt)
+char* jsonstring_serialize_SensorData(SensorData* input, int opt)
 {
     static const char *strings[2][6] = {
         { "[[", "],[", "],[", "],[", "],", "]" },
@@ -140,31 +140,31 @@ char* jsonstring_serialize_SensorData(SensorData input, int opt)
     r = snprintf(&output[count], (size_t)(size - count), strings[idx][0]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
-    r = jsonstring_serialize_SensorVersion(&input.version, opt, &output[count], (size_t)(size - count));
+    r = jsonstring_serialize_SensorVersion(&input->version, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
     r = snprintf(&output[count], (size_t)(size - count), strings[idx][1]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
-    r = jsonstring_serialize_SensorStatus(&input.sStatus, opt, &output[count], (size_t)(size - count));
+    r = jsonstring_serialize_SensorStatus(&input->sStatus, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
     r = snprintf(&output[count], (size_t)(size - count), strings[idx][2]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
-    r = jsonstring_serialize_TargetStatus(&input.tStatus, opt, &output[count], (size_t)(size - count));
+    r = jsonstring_serialize_TargetStatus(&input->tStatus, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
     r = snprintf(&output[count], (size_t)(size - count), strings[idx][3]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
-    r = jsonstring_serialize_TargetInfo(&input.tInfo, opt, &output[count], (size_t)(size - count));
+    r = jsonstring_serialize_TargetInfo(&input->tInfo, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
     r = snprintf(&output[count], (size_t)(size - count), strings[idx][4]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
-    r = snprintf(&output[count], (size_t)(size - count), "%u", input.tInfoSize);
+    r = snprintf(&output[count], (size_t)(size - count), "%u", input->tInfoSize);
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
     r = snprintf(&output[count], (size_t)(size - count), strings[idx][5]);
@@ -177,58 +177,58 @@ char* jsonstring_serialize_SensorData(SensorData input, int opt)
 /// @brief Cast a sensorversion_t to a SensorVersion.
 /// @param[in] input The object to cast.
 /// @param[out] output Thecasted object.
-void jsonstring_cast_SensorVersion(SensorVersion* output, struct sensorversion_t input)
+void jsonstring_cast_SensorVersion(SensorVersion* output, struct sensorversion_t* input)
 {
-    output->dataType = (uint8_t)input.dataType;
-    output->result = (bool)input.result;
-    output->master = (uint8_t)input.master;
-    output->second = (uint8_t)input.second;
-    output->step = (uint8_t)input.step;
+    output->dataType = (uint8_t)input->dataType;
+    output->result = (bool)input->result;
+    output->master = (uint8_t)input->master;
+    output->second = (uint8_t)input->second;
+    output->step = (uint8_t)input->step;
 }
 
 /// @brief Cast a sensorstatus_t to a SensorStatus.
 /// @param[in] input The object to cast.
 /// @param[out] output Thecasted object.
-void jsonstring_cast_SensorStatus(SensorStatus* output, struct sensorstatus_t input)
+void jsonstring_cast_SensorStatus(SensorStatus* output, struct sensorstatus_t* input)
 {
-    output->actl_mode = (uint8_t)input.actl_mode;
-    output->cfgStatus = (uint8_t)input.cfgStatus;
-    output->rollcount = (uint8_t)input.rollcount;
+    output->actl_mode = (uint8_t)input->actl_mode;
+    output->cfgStatus = (uint8_t)input->cfgStatus;
+    output->rollcount = (uint8_t)input->rollcount;
 }
 
 /// @brief Cast a targetstatus_t to a TargetStatus.
 /// @param[in] input The object to cast.
 /// @param[out] output Thecasted object.
-void jsonstring_cast_TargetStatus(TargetStatus* output, struct targetstatus_t input)
+void jsonstring_cast_TargetStatus(TargetStatus* output, struct targetstatus_t* input)
 {
-    output->noOfTarget = (uint8_t)input.noOfTarget;
-    output->rollcount = (uint8_t)input.rollcount;
+    output->noOfTarget = (uint8_t)input->noOfTarget;
+    output->rollcount = (uint8_t)input->rollcount;
 }
 
 /// @brief Cast a targetinfo_t to a TargetInfo.
 /// @param[in] input The object to cast.
 /// @param[out] output Thecasted object.
-void jsonstring_cast_TargetInfo(TargetInfo* output, struct targetinfo_t input)
+void jsonstring_cast_TargetInfo(TargetInfo* output, struct targetinfo_t* input)
 {
-    output->index = (uint8_t)input.index;
-    output->rcs = (float)input.rcs;
-    output->range = (float)input.range;
-    output->azimuth = (int16_t)input.azimuth;
-    output->vrel = (float)input.vrel;
-    output->rollCount = (uint8_t)input.rollcount;
-    output->SNR = (int8_t)input.snr;
+    output->index = (uint8_t)input->index;
+    output->rcs = (float)input->rcs;
+    output->range = (float)input->range;
+    output->azimuth = (int16_t)input->azimuth;
+    output->vrel = (float)input->vrel;
+    output->rollCount = (uint8_t)input->rollcount;
+    output->SNR = (int8_t)input->snr;
 }
 
 /// @brief Cast a sensordata_t to a SensorData.
 /// @param[in] input The object to cast.
 /// @param[out] output Thecasted object.
-void jsonstring_cast_SensorData(SensorData* output, struct sensordata_t input)
+void jsonstring_cast_SensorData(SensorData* output, struct sensordata_t* input)
 {
-    jsonstring_cast_SensorVersion(&output->version, input.sv[0]);
-    jsonstring_cast_SensorStatus(&output->sStatus, input.ss[0]);
-    jsonstring_cast_TargetStatus(&output->tStatus, input.ts[0]);
-    jsonstring_cast_TargetInfo(&output->tInfo, input.ti[0]);
-    output->tInfoSize = (uint8_t)input.tis;
+    jsonstring_cast_SensorVersion(&output->version, input->sv);
+    jsonstring_cast_SensorStatus(&output->sStatus, input->ss);
+    jsonstring_cast_TargetStatus(&output->tStatus, input->ts);
+    jsonstring_cast_TargetInfo(&output->tInfo, input->ti);
+    output->tInfoSize = (uint8_t)input->tis;
 }
 
 /// @brief Deserialize a SensorData object using json representation array.
@@ -431,7 +431,7 @@ int jsonstring_deserialize_SensorData_MAP(char* input, SensorData* output)
 
     memset(&sd, '\0', sizeof(sd));
     status = json_read_object(input, sensordata_attrs, NULL);
-    jsonstring_cast_SensorData(output, sd);
+    jsonstring_cast_SensorData(output, &sd);
 
     if (status != 0)
         puts(json_error_string(status));
@@ -501,7 +501,7 @@ int jsonstring_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsonstring_serialize(void* ctx, SensorData input, void** output)
+int jsonstring_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	enum Option_t opt = *((int *)ctx);

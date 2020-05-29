@@ -10,7 +10,7 @@ typedef struct
 	int (*cleanup)		(void* ctx);
 	int (*print)		(void* ctx, void* data);
 	int (*freeobject)	(void* ctx, void* data);
-	int (*serialize)	(void* ctx, SensorData input, void** output);
+	int (*serialize)	(void* ctx, SensorData* input, void** output);
 	int (*deserialize)	(void* ctx, void* input, SensorData* output);
 
 } Serializer;

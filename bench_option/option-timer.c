@@ -60,7 +60,7 @@ void printResult(int err, uint64_t time)
 int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 {
     printf("option:\t\t TIMER\n");
-	printf("data tested :\t %i struct C\n", DATA_TESTED);
+	printf("data tested :\t %i struct C\n\n", DATA_TESTED);
 
 	/* Initiate values for our clock */
 	struct timespec start, stop;
@@ -134,7 +134,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	s.context = &option_parse;
 #endif //BENCH_FAST_JSON
 
-#ifdef BENNCH_CBOR
+#ifdef BENCH_CBOR
 	cborc_get_serializer(&s);
 	#ifdef BENCH_CBOR_ARRAY	
 		option_parse = ARRAY;
@@ -169,11 +169,12 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	}
  	for (int i = 0; i < DATA_TESTED; i++) {
 		#if defined(BENCH_XDR) || defined(BENCH_PROTOBUF)
-		s.serialize(s.context, sensorData, (void **)result);
+		s.serialize(s.context, &sensorData, (void **)result);
 		s.deserialize(s.context, result, &sensorDataTemp);
 		#else
 		void* result;
-		s.serialize(s.context, sensorData, &result);
+		s.serialize(s.context, &sensorData, &result);
+		//s.print(s.context, result);
 		s.deserialize(s.context, result, &sensorDataTemp);
 		s.freeobject(s.context, result);
 		#endif

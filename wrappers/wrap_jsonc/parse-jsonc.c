@@ -4,23 +4,23 @@
 /// @brief Serialize a SensorVersion object using json-c.
 /// @param[in] sv The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorVersion(SensorVersion sv, enum Option_t opt)
+struct json_object* jsonc_serialize_SensorVersion(SensorVersion* sv, enum Option_t opt)
 {
 	struct json_object* out;
 	if (opt == ARRAY) {
 		out = json_object_new_array();
-		json_object_array_add(out, json_object_new_int(sv.dataType));
-        json_object_array_add(out, json_object_new_boolean(sv.result));
-        json_object_array_add(out, json_object_new_int(sv.master));
-        json_object_array_add(out, json_object_new_int(sv.second));
-        json_object_array_add(out, json_object_new_int(sv.step));
+		json_object_array_add(out, json_object_new_int(sv->dataType));
+        json_object_array_add(out, json_object_new_boolean(sv->result));
+        json_object_array_add(out, json_object_new_int(sv->master));
+        json_object_array_add(out, json_object_new_int(sv->second));
+        json_object_array_add(out, json_object_new_int(sv->step));
 	} else {
 		out = json_object_new_object();
-		json_object_object_add(out, "dataType", json_object_new_int(sv.dataType));
-		json_object_object_add(out, "result", json_object_new_boolean(sv.result));
-		json_object_object_add(out, "master", json_object_new_int(sv.master));
-		json_object_object_add(out, "second", json_object_new_int(sv.second));
-		json_object_object_add(out, "step", json_object_new_int(sv.step));
+		json_object_object_add(out, "dataType", json_object_new_int(sv->dataType));
+		json_object_object_add(out, "result", json_object_new_boolean(sv->result));
+		json_object_object_add(out, "master", json_object_new_int(sv->master));
+		json_object_object_add(out, "second", json_object_new_int(sv->second));
+		json_object_object_add(out, "step", json_object_new_int(sv->step));
 	}
 	return out;
 }
@@ -67,20 +67,20 @@ int jsonc_deserialize_SensorVersion(struct json_object* input, SensorVersion* ou
 /// @brief Serialize a SensorStatus object using json-c.
 /// @param[in] ss The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorStatus(SensorStatus ss, enum Option_t opt)
+struct json_object* jsonc_serialize_SensorStatus(SensorStatus* ss, enum Option_t opt)
 {
 	struct json_object* out;
 
 	if (opt == ARRAY) {
 		out = json_object_new_array();
-		json_object_array_add(out, json_object_new_int(ss.actl_mode));
-		json_object_array_add(out, json_object_new_boolean(ss.rollcount));
-		json_object_array_add(out, json_object_new_int(ss.cfgStatus));
+		json_object_array_add(out, json_object_new_int(ss->actl_mode));
+		json_object_array_add(out, json_object_new_boolean(ss->rollcount));
+		json_object_array_add(out, json_object_new_int(ss->cfgStatus));
 	} else  {
 		out = json_object_new_object();
-		json_object_object_add(out, "actl_mode", json_object_new_int(ss.actl_mode));
-		json_object_object_add(out, "rollcount", json_object_new_boolean(ss.rollcount));
-		json_object_object_add(out, "cfgStatus", json_object_new_int(ss.cfgStatus));
+		json_object_object_add(out, "actl_mode", json_object_new_int(ss->actl_mode));
+		json_object_object_add(out, "rollcount", json_object_new_boolean(ss->rollcount));
+		json_object_object_add(out, "cfgStatus", json_object_new_int(ss->cfgStatus));
 	}
 
 	return out;
@@ -117,21 +117,21 @@ int jsonc_deserialize_SensorStatus(struct json_object* input, SensorStatus* outp
 /// @brief Serialize a TargetStatus object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_TargetStatus(TargetStatus ts, enum Option_t opt)
+struct json_object* jsonc_serialize_TargetStatus(TargetStatus* ts, enum Option_t opt)
 {
 	struct json_object* out;
 
 	if (opt == ARRAY) {
 
 		out = json_object_new_array();
-		json_object_array_add(out, json_object_new_int(ts.noOfTarget));
-		json_object_array_add(out, json_object_new_boolean(ts.rollcount));
+		json_object_array_add(out, json_object_new_int(ts->noOfTarget));
+		json_object_array_add(out, json_object_new_boolean(ts->rollcount));
 
 	} else {
 
 		out = json_object_new_object();
-		json_object_object_add(out, "noOfTarget", json_object_new_int(ts.noOfTarget));
-		json_object_object_add(out, "rollcount", json_object_new_boolean(ts.rollcount));
+		json_object_object_add(out, "noOfTarget", json_object_new_int(ts->noOfTarget));
+		json_object_object_add(out, "rollcount", json_object_new_boolean(ts->rollcount));
 
 	}
 
@@ -164,28 +164,28 @@ int jsonc_deserialize_TargetStatus(struct json_object* input, TargetStatus* outp
 /// @brief Serialize a TargetInfo object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_TargetInfo(TargetInfo ti, enum Option_t opt)
+struct json_object* jsonc_serialize_TargetInfo(TargetInfo *ti, enum Option_t opt)
 {
 	struct json_object* out;
 
 	if (opt == ARRAY) {
 		out = json_object_new_array();
-		json_object_array_add(out, json_object_new_int(ti.index));
-		json_object_array_add(out, json_object_new_double(ti.rcs));
-		json_object_array_add(out, json_object_new_double(ti.range));
-		json_object_array_add(out, json_object_new_int(ti.azimuth));
-		json_object_array_add(out, json_object_new_double(ti.vrel));
-		json_object_array_add(out, json_object_new_int(ti.rollCount));
-		json_object_array_add(out, json_object_new_int(ti.SNR));
+		json_object_array_add(out, json_object_new_int(ti->index));
+		json_object_array_add(out, json_object_new_double(ti->rcs));
+		json_object_array_add(out, json_object_new_double(ti->range));
+		json_object_array_add(out, json_object_new_int(ti->azimuth));
+		json_object_array_add(out, json_object_new_double(ti->vrel));
+		json_object_array_add(out, json_object_new_int(ti->rollCount));
+		json_object_array_add(out, json_object_new_int(ti->SNR));
 	} else {
 		out = json_object_new_object();
-		json_object_object_add(out, "index", json_object_new_int(ti.index));
-		json_object_object_add(out, "rcs", json_object_new_double(ti.rcs));
-		json_object_object_add(out, "range", json_object_new_double(ti.range));
-		json_object_object_add(out, "azimuth", json_object_new_int(ti.azimuth));
-		json_object_object_add(out, "vrel", json_object_new_double(ti.vrel));
-		json_object_object_add(out, "rollCount", json_object_new_int(ti.rollCount));
-		json_object_object_add(out, "SNR", json_object_new_int(ti.SNR));
+		json_object_object_add(out, "index", json_object_new_int(ti->index));
+		json_object_object_add(out, "rcs", json_object_new_double(ti->rcs));
+		json_object_object_add(out, "range", json_object_new_double(ti->range));
+		json_object_object_add(out, "azimuth", json_object_new_int(ti->azimuth));
+		json_object_object_add(out, "vrel", json_object_new_double(ti->vrel));
+		json_object_object_add(out, "rollCount", json_object_new_int(ti->rollCount));
+		json_object_object_add(out, "SNR", json_object_new_int(ti->SNR));
 	}
 	
 	return out;
@@ -241,23 +241,23 @@ int jsonc_deserialize_TargetInfo(struct json_object* input, TargetInfo* output, 
 /// @brief Serialize a SensorData object using json-c.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct json_object* jsonc_serialize_SensorData(SensorData input, enum Option_t opt)
+struct json_object* jsonc_serialize_SensorData(SensorData* input, enum Option_t opt)
 {
 	json_object* out;
 	if (opt == ARRAY) {
 		out = json_object_new_array();
-		json_object_array_add(out, jsonc_serialize_SensorVersion(input.version, opt));
-		json_object_array_add(out, jsonc_serialize_SensorStatus(input.sStatus, opt));
-		json_object_array_add(out, jsonc_serialize_TargetStatus(input.tStatus, opt));
-		json_object_array_add(out, jsonc_serialize_TargetInfo(input.tInfo, opt));
-		json_object_array_add(out, json_object_new_int(input.tInfoSize));		
+		json_object_array_add(out, jsonc_serialize_SensorVersion(&(input->version), opt));
+		json_object_array_add(out, jsonc_serialize_SensorStatus(&(input->sStatus), opt));
+		json_object_array_add(out, jsonc_serialize_TargetStatus(&(input->tStatus), opt));
+		json_object_array_add(out, jsonc_serialize_TargetInfo(&(input->tInfo), opt));
+		json_object_array_add(out, json_object_new_int(input->tInfoSize));		
 	} else {
 		out = json_object_new_object();
-		json_object_object_add(out, "version", jsonc_serialize_SensorVersion(input.version, opt));
-		json_object_object_add(out, "sStatus", jsonc_serialize_SensorStatus(input.sStatus, opt));
-		json_object_object_add(out, "tStatus", jsonc_serialize_TargetStatus(input.tStatus, opt));
-		json_object_object_add(out, "tInfo", jsonc_serialize_TargetInfo(input.tInfo, opt));
-		json_object_object_add(out, "tInfoSize", json_object_new_int(input.tInfoSize));
+		json_object_object_add(out, "version", jsonc_serialize_SensorVersion(&(input->version), opt));
+		json_object_object_add(out, "sStatus", jsonc_serialize_SensorStatus(&(input->sStatus), opt));
+		json_object_object_add(out, "tStatus", jsonc_serialize_TargetStatus(&(input->tStatus), opt));
+		json_object_object_add(out, "tInfo", jsonc_serialize_TargetInfo(&(input->tInfo), opt));
+		json_object_object_add(out, "tInfoSize", json_object_new_int(input->tInfoSize));
 	}
 	return out;
 }
@@ -342,7 +342,7 @@ int jsonc_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsonc_serialize(void* ctx, SensorData input, void** output)
+int jsonc_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	enum Option_t opt = *((int *)ctx);

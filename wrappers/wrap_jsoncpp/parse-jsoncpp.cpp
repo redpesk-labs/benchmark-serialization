@@ -89,11 +89,11 @@ namespace sensordata {
 /// @brief Serialize a SensorData object using jsoncpp.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-void jsoncpp_serialize_SensorData(SensorData input, json *out, enum Option_t opt)
+void jsoncpp_serialize_SensorData(SensorData* input, json *out, enum Option_t opt)
 {
 	if (opt == ARRAY) {
 	} else {            
-		sensordata::to_json(*out, input);
+		sensordata::to_json(*out, *input);
 	}
 }
 
@@ -158,7 +158,7 @@ int jsoncpp_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int jsoncpp_serialize(void* ctx, SensorData input, void** output)
+int jsoncpp_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	enum Option_t opt = *((Option_t *)ctx);

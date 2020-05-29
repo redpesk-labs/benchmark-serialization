@@ -4,13 +4,13 @@
 /// @param[in] input The object to serialize.
 /// @param[out] output The serialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
- int protobuf_serialize_sensorVersion(SensorVersion input, SensorVersionMessage* output)
+ int protobuf_serialize_sensorVersion(SensorVersion* input, SensorVersionMessage* output)
 {
-    output->datatype = input.dataType;
-    output->result = input.result;
-    output->master = input.master;
-    output->second = input.second;
-    output->step = input.step;
+    output->datatype = input->dataType;
+    output->result = input->result;
+    output->master = input->master;
+    output->second = input->second;
+    output->step = input->step;
     return EXIT_SUCCESS;
 }
 
@@ -18,7 +18,7 @@
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_deserialize_sensorVersion(SensorVersionMessage *input, SensorVersion *output)
+int protobuf_deserialize_sensorVersion(SensorVersionMessage* input, SensorVersion *output)
 {
     output->dataType = input->datatype;
     output->result = input->result;
@@ -32,11 +32,11 @@ int protobuf_deserialize_sensorVersion(SensorVersionMessage *input, SensorVersio
 /// @param[in] input The object to serialize.
 /// @param[out] output The serialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_serialize_sensorStatus(SensorStatus input, SensorStatusMessage* ouput)
+int protobuf_serialize_sensorStatus(SensorStatus* input, SensorStatusMessage* ouput)
 {
-    ouput->actl_mode = input.actl_mode;
-    ouput->rollcount = input.rollcount;
-    ouput->cfgstatus = input.cfgStatus;
+    ouput->actl_mode = input->actl_mode;
+    ouput->rollcount = input->rollcount;
+    ouput->cfgstatus = input->cfgStatus;
     return EXIT_SUCCESS;
 }
 
@@ -44,7 +44,7 @@ int protobuf_serialize_sensorStatus(SensorStatus input, SensorStatusMessage* oup
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_deserialize_sensorStatus(SensorStatusMessage *input, SensorStatus* output)
+int protobuf_deserialize_sensorStatus(SensorStatusMessage* input, SensorStatus* output)
 {
     output->actl_mode = input->actl_mode;
     output->rollcount = input->rollcount;
@@ -56,10 +56,10 @@ int protobuf_deserialize_sensorStatus(SensorStatusMessage *input, SensorStatus* 
 /// @param[in] input The object to serialize.
 /// @param[out] output The serialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_serialize_targetStatus(TargetStatus input, TargetStatusMessage* output)
+int protobuf_serialize_targetStatus(TargetStatus* input, TargetStatusMessage* output)
 {
-    output->nooftarget = input.noOfTarget;
-    output->rollcount = input.rollcount;
+    output->nooftarget = input->noOfTarget;
+    output->rollcount = input->rollcount;
     return EXIT_SUCCESS;
 }
 
@@ -67,7 +67,7 @@ int protobuf_serialize_targetStatus(TargetStatus input, TargetStatusMessage* out
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_deserialize_targetStatus(TargetStatusMessage *input, TargetStatus *output)
+int protobuf_deserialize_targetStatus(TargetStatusMessage* input, TargetStatus *output)
 {
     output->noOfTarget = input->nooftarget;
     output->rollcount = input->rollcount;
@@ -78,15 +78,15 @@ int protobuf_deserialize_targetStatus(TargetStatusMessage *input, TargetStatus *
 /// @param[in] input The object to serialize.
 /// @param[out] output The serialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_serialize_targetInfo(TargetInfo input, TargetInfoMessage* output)
+int protobuf_serialize_targetInfo(TargetInfo* input, TargetInfoMessage* output)
 {
-    output->index = input.index;
-    output->rcs = input.rcs;
-    output->range = input.range;
-    output->azimuth = input.azimuth;
-    output->vrel = input.vrel;
-    output->rollcount = input.rollCount;
-    output->snr = input.SNR;
+    output->index = input->index;
+    output->rcs = input->rcs;
+    output->range = input->range;
+    output->azimuth = input->azimuth;
+    output->vrel = input->vrel;
+    output->rollcount = input->rollCount;
+    output->snr = input->SNR;
     return EXIT_SUCCESS;
 }
 
@@ -94,7 +94,7 @@ int protobuf_serialize_targetInfo(TargetInfo input, TargetInfoMessage* output)
 /// @param[in] input The object to deserialize.
 /// @param[out] output The deserialized object.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_deserialize_targetInfo(TargetInfoMessage *input, TargetInfo *output)
+int protobuf_deserialize_targetInfo(TargetInfoMessage* input, TargetInfo *output)
 {
     output->index = input->index;
     output->rcs = input->rcs;
@@ -109,7 +109,7 @@ int protobuf_deserialize_targetInfo(TargetInfoMessage *input, TargetInfo *output
 /// @param[in] input The object to serialize.
 /// @param[out] output The serialized object.
 /// @return length The length of the serialized data
-size_t protobuf_serialize_sensorData(SensorData input, uint8_t *output)
+size_t protobuf_serialize_sensorData(SensorData* input, uint8_t *output)
 {
     size_t length;
 
@@ -119,16 +119,16 @@ size_t protobuf_serialize_sensorData(SensorData input, uint8_t *output)
     TargetStatusMessage msg_tstatus = TARGET_STATUS_MESSAGE__INIT;
     TargetInfoMessage msg_tinfo = TARGET_INFO_MESSAGE__INIT;
 
-    protobuf_serialize_sensorVersion(input.version, &msg_sversion);
-    protobuf_serialize_sensorStatus(input.sStatus, &msg_sstatus);
-    protobuf_serialize_targetStatus(input.tStatus, &msg_tstatus);
-    protobuf_serialize_targetInfo(input.tInfo, &msg_tinfo);
+    protobuf_serialize_sensorVersion(&input->version, &msg_sversion);
+    protobuf_serialize_sensorStatus(&input->sStatus, &msg_sstatus);
+    protobuf_serialize_targetStatus(&input->tStatus, &msg_tstatus);
+    protobuf_serialize_targetInfo(&input->tInfo, &msg_tinfo);
 
     msg.sensorversion = &msg_sversion;
     msg.sensorstatus = &msg_sstatus;
     msg.targetstatus = &msg_tstatus;
     msg.targetinfo = &msg_tinfo;
-    msg.tinfosize = (uint32_t)input.tInfoSize;
+    msg.tinfosize = (uint32_t)input->tInfoSize;
 
 
     length = sensor_data_message__get_packed_size(&msg);
@@ -201,7 +201,7 @@ int protobuf_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int protobuf_serialize(void* ctx, SensorData input, void** output)
+int protobuf_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
     int length;

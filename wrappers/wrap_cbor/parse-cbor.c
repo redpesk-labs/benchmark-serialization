@@ -127,27 +127,27 @@ inline void addArrayCbor_bool	(cbor_item_t* cborMap, bool value, int index)		{ t
 /// @brief Serialize a SensorVersion object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion input, enum Option_t opt)
+struct cbor_item_t* cbor_serialize_SensorVersion(SensorVersion* input, enum Option_t opt)
 {
 	struct cbor_item_t* out;
     switch (opt){
 		case ARRAY:
 			out = cbor_new_definite_array(5);
-			addArrayCbor_uint8(out, input.dataType, 0);
-			addArrayCbor_uint8(out, input.master, 1);
-			addArrayCbor_uint8(out, input.result, 2);
-			addArrayCbor_uint8(out, input.second, 3);
-			addArrayCbor_uint8(out, input.step, 4);
+			addArrayCbor_uint8(out, input->dataType, 0);
+			addArrayCbor_uint8(out, input->master, 1);
+			addArrayCbor_uint8(out, input->result, 2);
+			addArrayCbor_uint8(out, input->second, 3);
+			addArrayCbor_uint8(out, input->step, 4);
 			out =cbor_move(out);
 			break;
 		
 		case MAP:
 			out = cbor_new_definite_map(5); 
-			addMapCbor_uint8(out, input.dataType, "DataType");
-			addMapCbor_uint8(out, input.master, "Master");
-			addMapCbor_uint8(out, input.result, "Result");
-			addMapCbor_uint8(out, input.second, "Second");
-			addMapCbor_uint8(out, input.step, "Step");
+			addMapCbor_uint8(out, input->dataType, "DataType");
+			addMapCbor_uint8(out, input->master, "Master");
+			addMapCbor_uint8(out, input->result, "Result");
+			addMapCbor_uint8(out, input->second, "Second");
+			addMapCbor_uint8(out, input->step, "Step");
 			break;
 		
 		default :
@@ -189,23 +189,23 @@ int cbor_deserialize_SensorVersion(struct cbor_item_t* input, SensorVersion* out
 /// @brief Serialize a SensorStatus object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus input, enum Option_t opt)
+struct cbor_item_t* cbor_serialize_SensorStatus(SensorStatus* input, enum Option_t opt)
 {
 	cbor_item_t* out;
 
 	switch (opt) {
     case ARRAY:
         out = cbor_new_definite_array(3);
-		addArrayCbor_uint8(out, input.actl_mode, 0);
-		addArrayCbor_uint8(out, input.cfgStatus, 1);
-		addArrayCbor_uint8(out, input.rollcount, 2);
+		addArrayCbor_uint8(out, input->actl_mode, 0);
+		addArrayCbor_uint8(out, input->cfgStatus, 1);
+		addArrayCbor_uint8(out, input->rollcount, 2);
 		out = cbor_move(out);
         break;
     case MAP:
         out = cbor_new_definite_map(3);
-		addMapCbor_uint8(out, input.actl_mode, "ActlMode");
-		addMapCbor_uint8(out, input.cfgStatus, "CfgStatus");
-		addMapCbor_uint8(out, input.rollcount, "Rollcount");
+		addMapCbor_uint8(out, input->actl_mode, "ActlMode");
+		addMapCbor_uint8(out, input->cfgStatus, "CfgStatus");
+		addMapCbor_uint8(out, input->rollcount, "Rollcount");
         break;
 	default :
 		break;
@@ -243,21 +243,21 @@ int cbor_deserialize_SensorStatus(struct cbor_item_t* input, SensorStatus* outpu
 /// @brief Serialize a TargetInfo object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus input, enum Option_t opt)
+struct cbor_item_t* cbor_serialize_TargetStatus(TargetStatus* input, enum Option_t opt)
 {
 	cbor_item_t *out;
 
     switch (opt) {
         case ARRAY :
             out = cbor_new_definite_array(2);
-			addArrayCbor_uint8(out, input.noOfTarget, 0);
-			addArrayCbor_uint8(out, input.rollcount, 1);
+			addArrayCbor_uint8(out, input->noOfTarget, 0);
+			addArrayCbor_uint8(out, input->rollcount, 1);
 			out = cbor_move(out);
             break;
         case MAP :
             out = cbor_new_definite_map(2);
-			addMapCbor_uint8(out, input.noOfTarget, "NoOfTarget");
-			addMapCbor_uint8(out, input.rollcount, "Rollcount");
+			addMapCbor_uint8(out, input->noOfTarget, "NoOfTarget");
+			addMapCbor_uint8(out, input->rollcount, "Rollcount");
             break;
 		default :
 			break;      
@@ -294,31 +294,31 @@ int cbor_deserialize_TargetStatus(struct cbor_item_t* input, TargetStatus* outpu
 /// @brief Serialize a TargetInfo object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo input, enum Option_t opt)
+struct cbor_item_t* cbor_serialize_TargetInfo(TargetInfo* input, enum Option_t opt)
 {
     cbor_item_t *out;
 
     switch (opt) {
         case ARRAY :
             out = cbor_new_definite_array(7);
-            addArrayCbor_int16((out), input.azimuth, 0);
-            addArrayCbor_uint8((out), input.index, 1);
-            addArrayCbor_float((out), input.range, 2);
-            addArrayCbor_float((out), input.rcs, 3);
-            addArrayCbor_uint8((out), input.rollCount, 4);
-            addArrayCbor_uint8((out), input.SNR, 5);
-            addArrayCbor_float((out), input.vrel, 6);
+            addArrayCbor_int16((out), input->azimuth, 0);
+            addArrayCbor_uint8((out), input->index, 1);
+            addArrayCbor_float((out), input->range, 2);
+            addArrayCbor_float((out), input->rcs, 3);
+            addArrayCbor_uint8((out), input->rollCount, 4);
+            addArrayCbor_uint8((out), input->SNR, 5);
+            addArrayCbor_float((out), input->vrel, 6);
 			out = cbor_move(out);
             break;
         case MAP :
 			out = cbor_new_definite_map(7);
-			addMapCbor_int16(out, input.azimuth, "Azimuth");
-			addMapCbor_uint8(out, input.index, "Index");
-			addMapCbor_float(out, input.range, "Range");
-			addMapCbor_float(out, input.rcs, "RCS");
-			addMapCbor_uint8(out, input.rollCount, "Rollcount");
-			addMapCbor_uint8(out, input.SNR, "SNR");
-			addMapCbor_float(out, input.vrel, "Vrel");
+			addMapCbor_int16(out, input->azimuth, "Azimuth");
+			addMapCbor_uint8(out, input->index, "Index");
+			addMapCbor_float(out, input->range, "Range");
+			addMapCbor_float(out, input->rcs, "RCS");
+			addMapCbor_uint8(out, input->rollCount, "Rollcount");
+			addMapCbor_uint8(out, input->SNR, "SNR");
+			addMapCbor_float(out, input->vrel, "Vrel");
             break;
 		default :
 			break;
@@ -366,7 +366,7 @@ int cbor_deserialize_TargetInfo(struct cbor_item_t* input, TargetInfo* output, e
 /// @brief Serialize a SensorData object using cbor.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-struct cbor_item_t* cbor_serialize_SensorData(SensorData input, enum Option_t opt)
+struct cbor_item_t* cbor_serialize_SensorData(SensorData* input, enum Option_t opt)
 {
 
 	cbor_item_t* out;
@@ -374,32 +374,32 @@ struct cbor_item_t* cbor_serialize_SensorData(SensorData input, enum Option_t op
 	switch (opt) {
 	case ARRAY :
 		out = cbor_new_definite_array(5);
-		cbor_array_set(out, 0, cbor_serialize_SensorVersion(input.version, opt));
-		cbor_array_set(out, 1, cbor_serialize_SensorStatus(input.sStatus, opt));
-		cbor_array_set(out, 2, cbor_serialize_TargetStatus(input.tStatus, opt));
-		cbor_array_set(out, 3, cbor_serialize_TargetInfo(input.tInfo, opt));
-		addArrayCbor_uint8(out, input.tInfoSize, 4);
+		cbor_array_set(out, 0, cbor_serialize_SensorVersion(&input->version, opt));
+		cbor_array_set(out, 1, cbor_serialize_SensorStatus(&input->sStatus, opt));
+		cbor_array_set(out, 2, cbor_serialize_TargetStatus(&input->tStatus, opt));
+		cbor_array_set(out, 3, cbor_serialize_TargetInfo(&input->tInfo, opt));
+		addArrayCbor_uint8(out, input->tInfoSize, 4);
 		break;
 
 	case MAP :
 		out = cbor_new_definite_map(5);
 		cbor_map_add(out, (struct cbor_pair) {
 			.key = cbor_move(cbor_build_string("SensorVersion")),
-			.value = cbor_move(cbor_serialize_SensorVersion(input.version, opt))
+			.value = cbor_move(cbor_serialize_SensorVersion(&input->version, opt))
 		});
 		cbor_map_add(out, (struct cbor_pair) {
 			.key = cbor_move(cbor_build_string("SensorStatus")),
-			.value = cbor_move(cbor_serialize_SensorStatus(input.sStatus, opt))
+			.value = cbor_move(cbor_serialize_SensorStatus(&input->sStatus, opt))
 		});
 		cbor_map_add(out, (struct cbor_pair) {
 			.key = cbor_move(cbor_build_string("TargetStatus")),
-			.value = cbor_move(cbor_serialize_TargetStatus(input.tStatus, opt))
+			.value = cbor_move(cbor_serialize_TargetStatus(&input->tStatus, opt))
 		});
 		cbor_map_add(out, (struct cbor_pair) {
 			.key = cbor_move(cbor_build_string("TargetInfo")),
-			.value = cbor_move(cbor_serialize_TargetInfo(input.tInfo, opt))
+			.value = cbor_move(cbor_serialize_TargetInfo(&input->tInfo, opt))
 		});
-		addMapCbor_uint8(out, input.tInfoSize, "tInfoSize");
+		addMapCbor_uint8(out, input->tInfoSize, "tInfoSize");
 		break;
 
 	default :
@@ -487,7 +487,7 @@ int cborc_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int cborc_serialize(void* ctx, SensorData input, void** output)
+int cborc_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	enum Option_t opt = *((int *)ctx);

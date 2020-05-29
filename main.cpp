@@ -148,7 +148,6 @@ int main(int argc, char* argv[])
 			default :
 				break;
 		}
-		printf("opt\n");
 	}
 
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
@@ -180,7 +179,7 @@ int main(int argc, char* argv[])
 	result_json = new json();
 	//memset(&result_json, 0, sizeof(nlohmann::json));
 	for (int i = 0; i < DATA_TESTED; i++) {
-		jsoncpp.serialize(jsoncpp.context, sensorData, (void **)result_json);
+		jsoncpp.serialize(jsoncpp.context, &sensorData, (void **)result_json);
 		jsoncpp.deserialize(jsoncpp.context, (void*)result_json, &sensorDataTemp);
 		jsoncpp.freeobject(jsoncpp.context, &result_json);
 	}

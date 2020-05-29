@@ -164,12 +164,12 @@ int xdr_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int xdr_serialize(void* ctx, SensorData input, void** output)
+int xdr_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
 	((XDR *)output)->x_op = XDR_ENCODE;
 	xdr_setpos(((XDR *)output), 0);	
-	return xdr_sensorData(&input, ((XDR *)output));
+	return xdr_sensorData(input, ((XDR *)output));
 }
 
 

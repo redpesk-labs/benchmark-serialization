@@ -4,11 +4,11 @@
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-char* c_serialize_SensorData(SensorData input)
+char* c_serialize_SensorData(SensorData* input)
 {
 	char *temp;
 	temp = malloc(1024*sizeof(char));
-    memcpy(temp, &input, sizeof(SensorData));
+    memcpy(temp, input, sizeof(SensorData));
     return temp;
 }
 
@@ -69,7 +69,7 @@ int c_freeobject(void* ctx, void* data)
 /// @param[in] input Object to serialize.
 /// @param[out] output Serialization result if any.
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
-int c_serialize(void* ctx, SensorData input, void** output)
+int c_serialize(void* ctx, SensorData* input, void** output)
 {
 	if (!output) return EXIT_FAILURE;
     *output = c_serialize_SensorData(input);
