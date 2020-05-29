@@ -40,96 +40,85 @@ static struct sensordata_t sd;
 /// @brief Serialize a SensorVersion object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsonstring_serialize_SensorVersion(SensorVersion input, int opt)
+int jsonstring_serialize_SensorVersion(SensorVersion *input, int opt, char *output, int len)
 {
-    char *output;
-    int elements = 5;
-    output = malloc(sizeof(input) + elements*SIZE_KEY_MAX);
+    int r;
     switch (opt)
     {
     case ARRAY:
-        sprintf(output, "%u,%d,%u,%u,%u",
-                     input.dataType, input.result, input.master, input.second, input.step);
+        r = snprintf(output, (size_t)len, "%u,%d,%u,%u,%u",
+                     input->dataType, input->result, input->master, input->second, input->step);
         break;
     
     case MAP:
     default:
-        sprintf(output, "{\"dataType\":%u,\"result\":%d,\"master\":%u,\"second\":%u,\"step\":%u}",
-                     input.dataType, input.result, input.master, input.second, input.step);
+        r = snprintf(output, (size_t)len, "{\"dataType\":%u,\"result\":%d,\"master\":%u,\"second\":%u,\"step\":%u}",
+                     input->dataType, input->result, input->master, input->second, input->step);
         break;
     }
-    return output;
+    return r;
 } 
 
 /// @brief Serialize a SensorStatus object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsonstring_serialize_SensorStatus(SensorStatus input, int opt)
+int jsonstring_serialize_SensorStatus(SensorStatus *input, int opt, char *output, int len)
 {
-    char *output;
-    int elements = 3;
-    output = malloc(sizeof(input)+ elements*SIZE_KEY_MAX);
+    int r;
     switch (opt)
     {
     case ARRAY:
-        sprintf(output, "%u,%u,%u",
-                    input.actl_mode, input.rollcount, input.cfgStatus);
+        r = snprintf(output, (size_t)len, "%u,%u,%u",
+                    input->actl_mode, input->rollcount, input->cfgStatus);
         break;
-    case MAP:
-        sprintf(output, "{\"actlMode\":%u,\"rollcount\":%u,\"cfgStatus\":%u}",
-                    input.actl_mode, input.rollcount, input.cfgStatus);
     default:
-        break;
+    case MAP:
+        r = snprintf(output, (size_t)len, "{\"actlMode\":%u,\"rollcount\":%u,\"cfgStatus\":%u}",
+                    input->actl_mode, input->rollcount, input->cfgStatus);
     }
-    
-    return output;
+    return r;
 }
 
 /// @brief Serialize a TargetStatus object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsonstring_serialize_TargetStatus(TargetStatus input, int opt)
+int jsonstring_serialize_TargetStatus(TargetStatus *input, int opt, char *output, int len)
 {
-    char *output;
-    int elements = 2;
-    output = malloc(sizeof(input)+ elements*SIZE_KEY_MAX);
+    int r;
     switch (opt)
     {
     case ARRAY:
-        sprintf(output, "%u,%u",
-                     input.noOfTarget, input.rollcount);
+        r = snprintf(output, (size_t)len, "%u,%u",
+                     input->noOfTarget, input->rollcount);
         break;
     case MAP:
     default:
-        sprintf(output, "{\"noOfTarget\":%u,\"rollcount\":%u}",
-                     input.noOfTarget, input.rollcount);
+        r = snprintf(output, (size_t)len, "{\"noOfTarget\":%u,\"rollcount\":%u}",
+                     input->noOfTarget, input->rollcount);
         break;
     }
-    
-    return output;
+    return r;
 }
 
 /// @brief Serialize a TargetInfo object using json representation.
 /// @param[in] ts The object to serialize.
 /// @return The serialized result.
-char* jsonstring_serialize_TargetInfo(TargetInfo input, int opt)
+int jsonstring_serialize_TargetInfo(TargetInfo *input, int opt, char *output, int len)
 {
-    char *output;
-    int elements = 7;
-    output = malloc(sizeof(input)+ elements*SIZE_KEY_MAX);
+    int r;
     switch (opt)
     {
     case ARRAY:
-        sprintf(output, "%u,%f,%f,%i,%f,%u,%i",
-                     input.index, input.rcs, input.range, input.azimuth, input.vrel, input.rollCount, input.SNR);
+        r = snprintf(output, (size_t)len, "%u,%f,%f,%i,%f,%u,%i",
+                     input->index, input->rcs, input->range, input->azimuth, input->vrel, input->rollCount, input->SNR);
         break;
     case MAP:
     default:
-        sprintf(output, "{\"index\":%u,\"rcs\":%f,\"range\":%f,\"azimuth\":%i,\"vrel\":%f,\"rollcount\":%u,\"snr\":%i}",
-                     input.index, input.rcs, input.range, input.azimuth, input.vrel, input.rollCount, input.SNR);
+        r = snprintf(output, (size_t)len, "{\"index\":%u,\"rcs\":%f,\"range\":%f,\"azimuth\":%i,\"vrel\":%f,\"rollcount\":%u,\"snr\":%i}",
+                     input->index, input->rcs, input->range, input->azimuth, input->vrel, input->rollCount, input->SNR);
         break;
     }
-    return output;
+    return r;
 }
 
 /// @brief Serialize a SensorData object using json representation
@@ -138,39 +127,50 @@ char* jsonstring_serialize_TargetInfo(TargetInfo input, int opt)
 /// @return The serialized result.
 char* jsonstring_serialize_SensorData(SensorData input, int opt)
 {
-    int elements = 5;
-    char* sVersion_element = jsonstring_serialize_SensorVersion(input.version, opt);
-    char* sStatus_element = jsonstring_serialize_SensorStatus(input.sStatus, opt);
-    char* tStatus_element = jsonstring_serialize_TargetStatus(input.tStatus, opt);
-    char* tInfo_element = jsonstring_serialize_TargetInfo(input.tInfo, opt);
+    static const char *strings[2][6] = {
+        { "{[", "],[", "],[", "],[", "],[", "]}" },
+        { "{\"sensorversion\":[", "],\"sensorstatus\":[", "],\"targetstatus\":[", "],\"targetinfo\":[", "],\"targetinfosize\":", "}" }
+    };
+    int size = 4000, count = 0, r;
     char* output;
-    output = malloc(sizeof(&sVersion_element) + sizeof(&sStatus_element) + sizeof(&tStatus_element) + sizeof(&tInfo_element) + elements*SIZE_KEY_MAX);
-    switch (opt)
-    {
-    case ARRAY:
-        sprintf(output, "{[%s],[%s],[%s],[%s],[%u]}",
-                    sVersion_element,
-                    sStatus_element,
-                    tStatus_element,
-                    tInfo_element,
-                    input.tInfoSize);
-        break;
 
-    case MAP:
-    default:
-        sprintf(output, "{\"sensorversion\":[%s],\"sensorstatus\":[%s],\"targetstatus\":[%s],\"targetinfo\":[%s],\"targetinfosize\":%u}",
-                    sVersion_element,
-                    sStatus_element,
-                    tStatus_element,
-                    tInfo_element,
-                    input.tInfoSize);
-        break;
-    }
-    
-    free(sVersion_element);
-    free(sStatus_element);
-    free(tStatus_element);
-    free(tInfo_element);
+    output = malloc((size_t)size);
+
+    opt = opt == ARRAY ? 0 : 1;
+    r = snprintf(&output[count], (size_t)(size - count), strings[opt][0]);
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+
+    r = jsonstring_serialize_SensorVersion(&input.version, opt, &output[count], (size_t)(size - count));
+
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+    r = snprintf(&output[count], (size_t)(size - count), strings[opt][1]);
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+
+    r = jsonstring_serialize_SensorStatus(&input.sStatus, opt, &output[count], (size_t)(size - count));
+
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+    r = snprintf(&output[count], (size_t)(size - count), strings[opt][2]);
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+
+    r = jsonstring_serialize_TargetStatus(&input.tStatus, opt, &output[count], (size_t)(size - count));
+
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+    r = snprintf(&output[count], (size_t)(size - count), strings[opt][3]);
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+
+    r = jsonstring_serialize_TargetInfo(&input.tInfo, opt, &output[count], (size_t)(size - count));
+
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+    r = snprintf(&output[count], (size_t)(size - count), strings[opt][4]);
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+
+    r = snprintf(&output[count], (size_t)(size - count), "%u", input.tInfoSize);
+
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+    r = snprintf(&output[count], (size_t)(size - count), strings[opt][5]);
+    count = r < 0 ? count : count+r <= size ? count+r : size;
+
+    output = realloc(output, (size_t)(1 + count));
     return output;
 }
 
