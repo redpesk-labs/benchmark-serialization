@@ -131,43 +131,43 @@ char* jsonstring_serialize_SensorData(SensorData input, int opt)
         { "{[", "],[", "],[", "],[", "],[", "]}" },
         { "{\"sensorversion\":[", "],\"sensorstatus\":[", "],\"targetstatus\":[", "],\"targetinfo\":[", "],\"targetinfosize\":", "}" }
     };
-    int size = 4000, count = 0, r;
+    int size = 4000, count = 0, r, idx;
     char* output;
 
     output = malloc((size_t)size);
 
-    opt = opt == ARRAY ? 0 : 1;
-    r = snprintf(&output[count], (size_t)(size - count), strings[opt][0]);
+    idx = opt == ARRAY ? 0 : 1;
+    r = snprintf(&output[count], (size_t)(size - count), strings[idx][0]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
     r = jsonstring_serialize_SensorVersion(&input.version, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
-    r = snprintf(&output[count], (size_t)(size - count), strings[opt][1]);
+    r = snprintf(&output[count], (size_t)(size - count), strings[idx][1]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
     r = jsonstring_serialize_SensorStatus(&input.sStatus, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
-    r = snprintf(&output[count], (size_t)(size - count), strings[opt][2]);
+    r = snprintf(&output[count], (size_t)(size - count), strings[idx][2]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
     r = jsonstring_serialize_TargetStatus(&input.tStatus, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
-    r = snprintf(&output[count], (size_t)(size - count), strings[opt][3]);
+    r = snprintf(&output[count], (size_t)(size - count), strings[idx][3]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
     r = jsonstring_serialize_TargetInfo(&input.tInfo, opt, &output[count], (size_t)(size - count));
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
-    r = snprintf(&output[count], (size_t)(size - count), strings[opt][4]);
+    r = snprintf(&output[count], (size_t)(size - count), strings[idx][4]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
     r = snprintf(&output[count], (size_t)(size - count), "%u", input.tInfoSize);
 
     count = r < 0 ? count : count+r <= size ? count+r : size;
-    r = snprintf(&output[count], (size_t)(size - count), strings[opt][5]);
+    r = snprintf(&output[count], (size_t)(size - count), strings[idx][5]);
     count = r < 0 ? count : count+r <= size ? count+r : size;
 
     output = realloc(output, (size_t)(1 + count));
