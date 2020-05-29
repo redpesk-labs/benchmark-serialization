@@ -101,15 +101,13 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	printResult(err_ref, result_time_ref);
 	memset(&sensorDataTemp, 0, sizeof(SensorData));
 
-
-	
-
 	// Initiate result values
 	uint64_t result_time;
 	int err = 0;	
 	Serializer s;
 	memset(&s, 0, sizeof(s));
 	int option_parse = MAP;
+
 #ifdef BENCH_JSON
 	jsonc_get_serializer(&s);
 	#ifdef BENCH_JSON_ARRAY	
@@ -232,7 +230,6 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	printResult(err, result_time);
 
 #if BENCH_DEBUG
-
+	printf("Practice makes progress, not perfection.\n");
 #endif //BENCH_DEBUG
-
 }

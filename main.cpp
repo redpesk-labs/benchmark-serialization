@@ -1,9 +1,22 @@
 #include "config.h"
 #include "data.h"
+/* #include "bench-option.h"
+#include "bench.h" */
 
 #include <iostream>
-int DATA_TESTED = 1000000;
+#include <getopt.h>
+int DATA_TESTED = 10000;
 #define TIME_RESOLUTION 1000000000ULL
+
+
+using nlohmann::json;
+
+static struct option options[] = {
+	{"data",    required_argument,  0,  'd' },
+	{"timer",   optional_argument,  0,  't' },
+	{"cpu",     required_argument,  0,  'c' },
+	{0,         0,                  0,  0 }
+};
 
 /// @brief fill a SensorData object.
 /// @param[out] senorData_ptr The pointer to save data generated.
@@ -90,7 +103,7 @@ void printResult(int err, uint64_t time)
 	printf("\n\n");
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 	// Allocate memory 
 	SensorData sensorData;
@@ -108,8 +121,39 @@ int main()
 	//Generate data to parse
 	generateData(&sensorData);
 
+ 		/* Get main option */
+	int opt;
+	int index = 0;
+	int freq;
+	while(1)
+	{
+		opt = getopt_long(argc, argv, "vp:m:", options, &index);
+		/*  Detect the end of the option */
+		if (opt == -1) break;
+
+		switch(opt) {
+			case 'd' :
+				DATA_TESTED = atoi(optarg);
+				break;
+				
+			case 't' :
+				// timer option
+				break;
+
+			case 'c' :
+				// percentage cpu
+				freq = atoi(optarg);
+				break;
+			
+			default :
+				break;
+		}
+		printf("opt\n");
+	}
+
 	printf(" ====== BENCHMARKING DATA SERIALIZATION ====== \n\n");
 	printf("data tested : %i\n\n", (int)DATA_TESTED);
+
 #ifdef BENCH_JSONCPP
 	// Initiate result values
 	uint64_t result_time_jsoncpp;
@@ -131,12 +175,13 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	// TEST 
-	void* result_json;
-	//nlohmann:json result_json = new nlohman::json();
-	memset(&result_json, 0, sizeof(nlohmann::json));
+	//void* result_json;
+	json* result_json;
+	result_json = new json();
+	//memset(&result_json, 0, sizeof(nlohmann::json));
 	for (int i = 0; i < DATA_TESTED; i++) {
-		jsoncpp.serialize(jsoncpp.context, sensorData, &result_json);
-		jsoncpp.deserialize(jsoncpp.context, &result_json, &sensorDataTemp);
+		jsoncpp.serialize(jsoncpp.context, sensorData, (void **)result_json);
+		jsoncpp.deserialize(jsoncpp.context, (void*)result_json, &sensorDataTemp);
 		jsoncpp.freeobject(jsoncpp.context, &result_json);
 	}
 
@@ -146,6 +191,8 @@ int main()
 	}
 
 	jsoncpp.cleanup(jsoncpp.context);
+
+	delete result_json;
 
 	timer_start = start.tv_sec * TIME_RESOLUTION + start.tv_nsec;
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
