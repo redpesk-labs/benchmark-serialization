@@ -24,6 +24,8 @@ void printByHexa(SensorData* sd)
 		printf(" %02x", ((char *)&sd->tInfo)[index]);
 	}
 	printf("\n");
+	printf("target info size : %02x", sd->tInfoSize);
+	printf("\n");
 }
 
 /// @brief compare 2 SensorData objects with memcmp.

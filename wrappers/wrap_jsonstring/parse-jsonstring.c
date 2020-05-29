@@ -128,7 +128,7 @@ int jsonstring_serialize_TargetInfo(TargetInfo *input, int opt, char *output, in
 char* jsonstring_serialize_SensorData(SensorData input, int opt)
 {
     static const char *strings[2][6] = {
-        { "{[", "],[", "],[", "],[", "],[", "]}" },
+        { "[[", "],[", "],[", "],[", "],", "]" },
         { "{\"sensorversion\":[", "],\"sensorstatus\":[", "],\"targetstatus\":[", "],\"targetinfo\":[", "],\"targetinfosize\":", "}" }
     };
     int size = 4000, count = 0, r, idx;
@@ -246,6 +246,7 @@ int jsonstring_deserialize_SensorData_ARRAY(char* input, SensorData* output)
     char temp[10];
     memset(temp, 0, 10);
     int indexTemp = 0;
+    input++; // To pass the first"[" corresponding to the global array
 
     while (*input != '\0')
     {
@@ -275,6 +276,9 @@ int jsonstring_deserialize_SensorData_ARRAY(char* input, SensorData* output)
         case '}':
                 break;
         default: //It's a value
+            if(!inTab){ // tInfoSize (only value out of tab)
+                nTab++;
+            }
             temp[indexTemp] = *input;
             indexTemp++;
             break;
