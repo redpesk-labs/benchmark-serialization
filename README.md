@@ -67,7 +67,7 @@ Different possible option are able:
 
     1. --d=<NUMBER OF DATA>             : to run with a custom data number
     2. --t                              : to run a benchmark showing the time during the parsing
-    3. --c=<FREQUENCE in nanosecond>    : to run a benchmark showing the percentage of CPU taken during the parsing
+    3. --c=<FREQUENCE in microsecond>   : to run a benchmark showing the percentage of CPU taken during the parsing
 
 ## RESULT EXAMPLE
 

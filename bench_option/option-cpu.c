@@ -76,7 +76,7 @@ static void* serialize(void* input)
     // Set cancellation Disable
     int state;
     int semVal;
-    bool done;
+    bool done = false;
     state = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
     if (state != 0)
         perror("pthread_setcancellation");
@@ -86,18 +86,15 @@ static void* serialize(void* input)
     Serializer *s = ((thdata* )input)->s;
     SensorData* data = ((thdata*) input)->dataToSerialize;
     void* result;
-    pthread_mutex_lock(&condMutex);
-    done = ((thdata* )input)->done;
-    pthread_mutex_unlock(&condMutex);
 
     while (!done)
     {  
-        // Wait previous data parsed:
-        sem_wait(&mutexEndParse);
         // Set cancellation Enable:
         state = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
         if (state != 0)
             perror("pthread_setcancellation");
+        // Wait previous data parsed:
+        sem_wait(&mutexEndParse);
         // Wait data to serilized:
         sem_wait(&mutexData);
         // Set cancellation Enable:
@@ -113,12 +110,13 @@ static void* serialize(void* input)
         }
         ((thdata*) input)->countSerialize ++;
 
-        pthread_mutex_lock(&condMutex);
-        done = ((thdata* )input)->done;
-        pthread_mutex_unlock(&condMutex);
 
         sem_post(&mutexParse);
         usleep(1);  
+
+        pthread_mutex_lock(&condMutex);
+        done = ((thdata* )input)->done;
+        pthread_mutex_unlock(&condMutex);
     }
     pthread_exit(EXIT_SUCCESS);
 }
@@ -128,7 +126,7 @@ static void* serialize(void* input)
 void* parse(void* input)
 {	
     int state;
-    bool done;
+    bool done = false;
     // Set cancellation Disable:
     state = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
     if (state != 0)
@@ -136,10 +134,6 @@ void* parse(void* input)
     // Initialize data to parse:
     ((thdata*) input)->countParse = 0;
     Serializer* s = ((thdata* )input)->s;
-
-    pthread_mutex_lock(&condMutex);
-    done = ((thdata* )input)->done;
-    pthread_mutex_unlock(&condMutex);
 
     while (!done) {
         // Set cancellation Enable:
@@ -155,14 +149,13 @@ void* parse(void* input)
         // Parsing of he data:
         ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
         ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
+        ((thdata*) input)->countParse++;
+        sem_post(&mutexEndParse);
+        usleep(1);
 
         pthread_mutex_lock(&condMutex);
         done = ((thdata* )input)->done;
         pthread_mutex_unlock(&condMutex);
-
-        sem_post(&mutexEndParse);
-        usleep(1);
-        ((thdata*) input)->countParse++;
     }    
     
     pthread_exit(EXIT_SUCCESS);
