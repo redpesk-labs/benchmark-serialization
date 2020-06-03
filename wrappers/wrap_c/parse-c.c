@@ -8,7 +8,7 @@ char* c_serialize_SensorData(SensorData* input)
 {
 	char *temp;
 	temp = malloc(1024*sizeof(char));
-    memcpy(temp, input, sizeof(SensorData));
+    memcpy(temp, input, sizeof(SensorData)); 
     return temp;
 }
 
@@ -19,7 +19,8 @@ char* c_serialize_SensorData(SensorData* input)
 int c_deserialize_SensorData(char* input, SensorData* output)
 {
     memcpy(output, input, sizeof(SensorData));
-	//free(input);
+	free(input);
+	//output =  (SensorData *)input;
     return EXIT_SUCCESS;
 }
 
@@ -50,7 +51,8 @@ int c_cleanup(void* ctx)
 int c_print(void* ctx, void* data)
 {
 	if (!data) return EXIT_FAILURE;
-	printf("%s", (char* )data);
+	printf("%s\n", (char*)data);
+	//printf("%s", (char* )data);
 	return EXIT_SUCCESS;
 }
 
@@ -60,7 +62,7 @@ int c_print(void* ctx, void* data)
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int c_freeobject(void* ctx, void* data)
 {		
-	if (data) free(data);
+	//if (data) free(data);
 	return EXIT_SUCCESS;
 }
 
@@ -71,8 +73,9 @@ int c_freeobject(void* ctx, void* data)
 /// @return @c EXIT_SUCCESS or @c EXIT_FAILURE.
 int c_serialize(void* ctx, SensorData* input, void** output)
 {
-	if (!output) return EXIT_FAILURE;
-    *output = c_serialize_SensorData(input);
+/* 	if (!output) return EXIT_FAILURE;
+    *output = c_serialize_SensorData(input); */
+   	*output = (SensorData*)input;
     return EXIT_SUCCESS;
 }
 
@@ -85,7 +88,9 @@ int c_serialize(void* ctx, SensorData* input, void** output)
 int c_deserialize(void* ctx, void* input, SensorData* output)
 {
 	if (!input || !output) return EXIT_FAILURE;
-	return c_deserialize_SensorData((char* )input, output);
+	output = (SensorData *)input;
+	return EXIT_SUCCESS;
+	//return c_deserialize_SensorData((char* )input, output);
 }
 
 /// @brief Get the cbor serializer.

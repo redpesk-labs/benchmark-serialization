@@ -74,6 +74,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	int err_ref=0;
 	int ret;
 	char buffer_ref[1024];
+	SensorData *ptr;
 	memset(&buffer_ref, 0, sizeof(sensorData));
 	
  	if (clock_gettime(clk_id, &start) == -1) {
@@ -82,10 +83,8 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	}
 
 	for (int i = 0; i < DATA_TESTED; i++) {
-		// copy data to send
-		memcpy(&buffer_ref, &sensorData, sizeof(SensorData));
-		//copy data received
-		memcpy(&sensorDataTemp, &buffer_ref, sizeof(SensorData));
+		ptr = &sensorData;
+		sensorDataTemp = *ptr;
 	}
 
 	if (clock_gettime(clk_id, &stop) == -1) {

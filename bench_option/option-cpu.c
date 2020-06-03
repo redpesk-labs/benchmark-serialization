@@ -9,6 +9,7 @@ sem_t mutexEndParse;
 pthread_mutex_t condMutex = PTHREAD_MUTEX_INITIALIZER;
 bool isFinished;
 bool is_xdr;
+bool is_ref;
 bool is_protobuf;
 char buffer[2048];
 char bufferRef[2048];
@@ -105,6 +106,8 @@ static void* serialize(void* input)
         // Serialization of the data:
         if (is_xdr || is_protobuf) {
             ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, (((thdata*) input)->buffer));
+        }else if (is_ref) { // Passage du pointeur
+            ((thdata*) input)->buffer = ((thdata*) input)->dataToSerialize;
         }else {
             ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, &(((thdata*) input)->buffer));
         }
@@ -147,9 +150,14 @@ void* parse(void* input)
         if (state != 0)
             perror("pthread_setcancellation");
         // Parsing of he data:
-        ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
-        ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
-        ((thdata*) input)->countParse++;
+        if (is_ref) { // Passage du pointeur
+            ((thdata*) input)->dataSerialized = ((thdata*) input)->buffer;
+            ((thdata*) input)->countParse++;
+        } else {
+            ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
+            ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
+            ((thdata*) input)->countParse++;
+        }
         sem_post(&mutexEndParse);
         usleep(1);
 
@@ -203,13 +211,16 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 
     /***************************************************/
     /****************REFERENCE C************************/
+    is_ref = true;
+    SensorData data_temp;
+
     Serializer c;
 	memset(&c, 0, sizeof(c));
 	c_get_serializer(&c);
 
     // Initiate data to thread:
     dataThread.s = &c;
-    dataThread.buffer = bufferRef;
+    dataThread.buffer = &data_temp;
     dataThread.dataToSerialize = &sensorData;
     dataThread.dataSerialized = &sensorDataTemp;
 
@@ -255,6 +266,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     // Wait thread to finish:
     state = pthread_join(thread_reception, NULL);
 
+    sensorDataTemp = *dataThread.dataSerialized;
     // Verification of parsing data:
     if (memcmp(&sensorData, &sensorDataTemp, sizeof(SensorData))) printf("Error copy\n");
 	memset(&sensorDataTemp, 0, sizeof(SensorData));
@@ -265,6 +277,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     printf("# REFERENCE C :\n");
     percentageResult(resultSerialize, resultParse, percentage);
 
+    is_ref=false;
     /***************************************************/
     /********************TECHNO TO TEST*****************/
 

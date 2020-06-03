@@ -12,6 +12,10 @@
 
 #define TIME_RESOLUTION 1000000000ULL
 
+void printByHexa(SensorData* sd);
+
+int verification(SensorData* sd1, SensorData* sd2);
+
 int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp);
 
 int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq);
