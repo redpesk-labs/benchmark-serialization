@@ -11,7 +11,6 @@ bool is_xdr;
 bool is_ref;
 bool is_protobuf;
 char buffer[2048];
-char bufferRef[2048];
 
 typedef struct str_thdata
 {
@@ -37,8 +36,7 @@ static void* serialize(void* input)
     // Initialize data to serialize:
     ((thdata*) input)->countSerialize = 0;
     Serializer *s = ((thdata* )input)->s;
-    SensorData* data = ((thdata*) input)->dataToSerialize;
-    void* result;
+    SensorData* data;
 
     while (1)
     {  
@@ -49,16 +47,19 @@ static void* serialize(void* input)
         //printf("Waiting Data\n");
         sem_wait(&mutexData);
 
+        pthread_mutex_lock(&condMutex);
+        data = ((thdata*) input)->dataToSerialize;
+        pthread_mutex_unlock(&condMutex);
+
         // Serialization of the data:
         if (is_xdr || is_protobuf) {
-            ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, (((thdata*) input)->buffer));
+            s->serialize(s->context, data, (((thdata*) input)->buffer));
         }else if (is_ref) { // Passage du pointeur
-            ((thdata*) input)->buffer = ((thdata*) input)->dataToSerialize;
+            (((thdata*) input)->buffer) = data;
         }else {
-            ((thdata* )input)->s->serialize(((thdata* )input)->s->context, data, &(((thdata*) input)->buffer));
+            s->serialize(s->context, data, &(((thdata*) input)->buffer));
         }
         ((thdata*) input)->countSerialize ++;
-
 
         //printf("End Serialization\n");
         sem_post(&mutexParse);
@@ -82,6 +83,7 @@ void* parse(void* input)
 {	
     int state;
     bool endBench = false;
+    SensorData* result;
     // Initialize data to parse:
     ((thdata*) input)->countParse = 0;
     Serializer* s = ((thdata* )input)->s;
@@ -91,13 +93,17 @@ void* parse(void* input)
         //printf("Wait data to parse\n");
         sem_wait(&mutexParse);
 
+/*         pthread_mutex_lock(&condMutex);
+        result = (((thdata*) input)->buffer);
+        pthread_mutex_unlock(&condMutex); */
+
         // Parsing of he data:
         if (is_ref) { // Passage du pointeur
             ((thdata*) input)->dataSerialized = ((thdata*) input)->buffer;
             ((thdata*) input)->countParse++;
         } else {
-            ((thdata* )input)->s->deserialize(((thdata* )input)->s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
-            ((thdata* )input)->s->freeobject(((thdata* )input)->s->context, ((thdata*) input)->buffer);
+            s->deserialize(s->context, ((thdata*) input)->buffer, ((thdata*) input)->dataSerialized);
+            s->freeobject(s->context, ((thdata*) input)->buffer);
             ((thdata*) input)->countParse++;
         }
         //printf("end of parsing\n");
@@ -125,7 +131,6 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     printf("option:\t\t CPU\n");
 	printf("data tested :\t %i struct C\n", DATA_TESTED);
 	printf("freq chosen :\t %i µs\n\n", freq);
-    memset(&bufferRef, 0, sizeof(bufferRef));
 
     int ret;
     int index;
