@@ -197,8 +197,12 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     // catch cpu percentage during 2 process:
     sg_init(1);	
     cpu_stats = sg_get_cpu_stats(&entries);
-        sem_post(&mutexData);
+    sem_post(&mutexData);
     for (index=1; index<DATA_TESTED; index++) {
+        pthread_mutex_lock(&condMutex);
+		generateData(&sensorData);
+        pthread_mutex_unlock(&condMutex);
+        
         usleep(freq);
         sem_post(&mutexData);
     }
@@ -377,6 +381,11 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     sg_init(1);	
     cpu_stats = sg_get_cpu_stats(&entries);
     for (index=0; index<DATA_TESTED; index++) {
+
+        pthread_mutex_lock(&condMutex);
+		generateData(&sensorData);
+        pthread_mutex_unlock(&condMutex);
+
         sem_post(&mutexData);
         usleep(freq);
     }

@@ -27,6 +27,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	}
 
 	for (int i = 0; i < DATA_TESTED; i++) {
+		generateData(&sensorData);
 		ptr = &sensorData;
 		sensorDataTemp = *ptr;
 	}
@@ -111,6 +112,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 		exit(EXIT_FAILURE);
 	}
  	for (int i = 0; i < DATA_TESTED; i++) {
+		generateData(&sensorData);
 		#if defined(BENCH_XDR) || defined(BENCH_PROTOBUF)
 		s.serialize(s.context, &sensorData, (void **)result);
 		s.deserialize(s.context, result, &sensorDataTemp);

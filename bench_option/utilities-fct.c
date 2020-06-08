@@ -1,5 +1,71 @@
 #include "bench-option.h"
 
+/// @brief fill a SensorData object, to be fast in the generation, it will generate jut one rand value.
+/// @param[out] senorData_ptr The pointer to save data generated.
+void generateData(SensorData* sensorData_ptr)
+{
+    
+    srand(time(NULL)); // initialisation de rand
+    int randInt = rand()/(RAND_MAX/10);
+    bool randBool = (int) ((float)rand()/RAND_MAX);
+    float randFloat = (float)rand()/(float)(RAND_MAX/10);
+
+	sensorData_ptr->version.dataType = (uint8_t) randInt + 1;
+	sensorData_ptr->version.result = randBool;
+	sensorData_ptr->version.master = (uint8_t) randInt + 3;
+	sensorData_ptr->version.second = (uint8_t) randInt + 4;
+	sensorData_ptr->version.step = (uint8_t) randInt + 5;
+
+	sensorData_ptr->sStatus.actl_mode = (uint8_t) randInt + 6;
+	sensorData_ptr->sStatus.rollcount = (uint8_t) randInt + 7;
+	sensorData_ptr->sStatus.cfgStatus = (uint8_t) randInt + 8;
+
+	sensorData_ptr->tStatus.noOfTarget= (uint8_t) randInt + 9;
+	sensorData_ptr->tStatus.rollcount= (uint8_t) randInt + 10;
+
+	sensorData_ptr->tInfo.index= (uint8_t) randInt + 11;
+	sensorData_ptr->tInfo.rcs= randFloat;
+	sensorData_ptr->tInfo.range= randFloat + 1.0;
+	sensorData_ptr->tInfo.azimuth= (int16_t) randInt + 12;
+	sensorData_ptr->tInfo.vrel= randFloat + 2.0;
+	sensorData_ptr->tInfo.rollCount= (uint8_t) randInt + 13;
+	sensorData_ptr->tInfo.SNR= -1 * (int8_t) randInt;
+
+	sensorData_ptr->tInfoSize = 1;
+}
+
+/// @brief print th sensorStructure to debug
+/// @param [in] the sensorData pointer to print
+void printStructure(SensorData* data)
+{
+    printf("SensorVersion:\n");
+    printf("\t dataType: %u\n", data->version.dataType);
+    printf("\t result: %u\n", data->version.result);
+    printf("\t master: %u\n", data->version.master);
+    printf("\t second: %u\n", data->version.second);
+    printf("\t step: %u\n", data->version.step);
+
+    printf("SensorStatus:\n");
+    printf("\t actl_mode: %u\n", data->sStatus.actl_mode);
+    printf("\t rollcount: %u\n", data->sStatus.rollcount);
+    printf("\t cfgStatus: %u\n", data->sStatus.cfgStatus);
+
+    printf("TargetStatus:\n");
+    printf("\t noOfTarget: %u\n", data->tStatus.noOfTarget);
+    printf("\t rollcount: %u\n", data->tStatus.rollcount);
+
+    printf("Targetinfo:\n");
+    printf("\t index: %u\n", data->tInfo.index);
+    printf("\t rcs: %f\n", data->tInfo.rcs);
+    printf("\t range: %f\n", data->tInfo.range);
+    printf("\t azimuth: %i\n", data->tInfo.azimuth);
+    printf("\t vrel: %f\n", data->tInfo.vrel);
+    printf("\t rollcount: %u\n", data->tInfo.rollCount);
+    printf("\t SNR: %i\n", data->tInfo.SNR);
+
+    printf("tInfoSize: %u\n", data->tInfoSize);
+}
+
 /// @brief Print byte to byte data into SensorData object.
 /// @param[in] sd SensorData object to print.
 void printByHexa(SensorData* sd)

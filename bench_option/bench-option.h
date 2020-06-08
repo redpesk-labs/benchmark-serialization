@@ -16,7 +16,11 @@
 
 void printByHexa(SensorData* sd);
 
+void printStructure(SensorData* data);
+
 int verification(SensorData* sd1, SensorData* sd2);
+
+void generateData(SensorData* sensorData_ptr);
 
 void printResultTimer(int err, uint64_t time);
 
