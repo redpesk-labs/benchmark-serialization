@@ -1,61 +1,5 @@
 #include "bench-option.h"
 extern int DATA_TESTED;
-/// @brief Print byte to byte data into SensorData object.
-/// @param[in] sd SensorData object to print.
-void printByHexa(SensorData* sd)
-{
-	printf("Sensor Version by hexa :");
-	for (int index =0; index<sizeof(SensorVersion); index++) {
-		printf(" %02x", ((char *)&sd->version)[index]);
-	}
-	printf("\n");
-	printf("Sensor Status by hexa :");
-	for (int index =0; index<sizeof(SensorStatus); index++) {
-		printf(" %02x", ((char *)&sd->sStatus)[index]);
-	}
-	printf("\n");
-	printf("Target Status by hexa :");
-	for (int index =0; index<sizeof(TargetStatus); index++) {
-		printf(" %02x", ((char *)&sd->tStatus)[index]);
-	}
-	printf("\n");
-	printf("Target Info by hexa :");
-	for (int index =0; index<sizeof(TargetInfo); index++) {
-		printf(" %02x", ((char *)&sd->tInfo)[index]);
-	}
-	printf("\n");
-	printf("target info size : %02x", sd->tInfoSize);
-	printf("\n");
-}
-
-/// @brief compare 2 SensorData objects with memcmp.
-/// @param[in] sd1 First SensorData object to compare.
-/// @param[in] sd2 Second SensorData object to compare.
-/// @retval err The number of err catch by memcmp.
-int verification(SensorData* sd1, SensorData* sd2)
-{
-	int err=0;
-	//printByHexa(sd1);
-	//printByHexa(sd2); 
-	err+= memcmp(sd1, sd2, sizeof(SensorData));
-	return err;
-}
-
-/// @brief Print result of a specific bench.
-/// @param[in] err The number of erreur happend during a bench.
-/// @param[in] time Thee time during a bench.
-void printResult(int err, uint64_t time)
-{
-	if (err == 0) {
-		printf("\tData : OK\n");
-		printf("\tTime during the serialization: %f ms\n", (double)time / 1000000);
-	}
-	else {
-		printf("\tData: NOK\n");
-		printf("\tNumber of error : %i", err);
-	}
-	printf("\n\n");
-}
 
 int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 {
@@ -99,7 +43,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	timer_stop = stop.tv_sec * TIME_RESOLUTION + stop.tv_nsec;
 	result_time_ref = timer_stop - timer_start;
 	printf("# Reference C: \n");
-	printResult(err_ref, result_time_ref);
+	printResultTimer(err_ref, result_time_ref);
 	memset(&sensorDataTemp, 0, sizeof(SensorData));
 
 	// Initiate result values
@@ -229,7 +173,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 #endif
 
 	printf(":\n");
-	printResult(err, result_time);
+	printResultTimer(err, result_time);
 
 #if BENCH_DEBUG
 	printf("Practice makes progress, not perfection.\n");

@@ -10,11 +10,19 @@
 #include <unistd.h> 
 #include "serializer.h"
 
+#include "statgrab.h"
+
 #define TIME_RESOLUTION 1000000000ULL
 
 void printByHexa(SensorData* sd);
 
 int verification(SensorData* sd1, SensorData* sd2);
+
+void printResultTimer(int err, uint64_t time);
+
+void printResultCPU(int dataSerialized, int dataParsed, float cpu);
+
+int show_proc_stats(sg_process_stats* proc_stats);
 
 int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp);
 

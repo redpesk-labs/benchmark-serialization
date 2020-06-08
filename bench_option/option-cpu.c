@@ -1,5 +1,4 @@
 #include "bench-option.h"
-#include "statgrab.h"
 
 extern int DATA_TESTED;
 
@@ -25,50 +24,7 @@ typedef struct str_thdata
     bool done;
 } thdata;
 
-/// @brief Print process stats, usefull for debug.
-/// @param[in] proc_stats The project stat of the library statgrab.
-int show_proc_stats(sg_process_stats* proc_stats)
-{
-    printf("process name: %s\n",     proc_stats->process_name);
-    printf("process title: %s\n",    proc_stats->proctitle);
-    printf("pid: %i\n",              proc_stats->pid);
-    printf("parent: %i\n",           proc_stats->parent);
-    printf("pgid: %i\n",             proc_stats->pgid);
-    printf("sessid: %i\n",           proc_stats->sessid);
 
-    printf("uid: %d\n",              proc_stats->uid);
-    printf("euid: %d\n",             proc_stats->euid);
-    printf("gid: %d\n",              proc_stats->gid);
-    printf("egid: %d\n",             proc_stats->egid);
-
-    printf("start time: %ld\n",       proc_stats->start_time);
-    printf("time spent: %ld\n",       proc_stats->time_spent);
-    printf("cpu percent: %f\n",      proc_stats->cpu_percent);
-
-    printf("nice: %i\n",             proc_stats->nice);
-    printf("state: %i\n",            (int) proc_stats->state);
-
-    return EXIT_SUCCESS;
-}
-
-/// @brief Print result of a specific bench.
-/// @param[in] The percentage of data serialized.
-/// @param[in] The percentage of data parsed.
-/// @param[in] The percentage of CPU using by the user during all transaction.
-void percentageResult(int dataSerialized, int dataParsed, float cpu)
-{
-	if (dataSerialized != 100 || dataParsed != 100) {
-		printf("\t/!\\ Data : NOK\n");
-		printf("\tpercentage of data serialized: %i %%\n", dataSerialized);
-		printf("\tpercentage of data parsed: %i %%\n", dataParsed);
-		printf("\tPercentage of CPU using : %f %%\n", cpu);
-	}
-	else {
-		printf("\tData: OK\n");
-		printf("\tPercentage of CPU using : %f %%\n", cpu);
-	}
-	printf("\n");
-}
 
 /// @brief thread function to serialize data
 /// @param[in] input, pthread_data
@@ -275,7 +231,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     resultSerialize = (int) (dataThread.countSerialize*100)/DATA_TESTED;
     resultParse = (int) (dataThread.countParse*100)/DATA_TESTED;
     printf("# REFERENCE C :\n");
-    percentageResult(resultSerialize, resultParse, percentage);
+    printResultCPU(resultSerialize, resultParse, percentage);
 
     is_ref=false;
     /***************************************************/
@@ -496,7 +452,7 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 	printf("# PROTOBUF ");
 	printf(":\n");
     #endif // BENCH_PROTOBUF
-    percentageResult(resultSerialize, resultParse, percentage);
+    printResultCPU(resultSerialize, resultParse, percentage);
 
     return EXIT_SUCCESS;
 }

@@ -51,6 +51,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_jsonc PRIVATE 
@@ -104,6 +105,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_fastjson PRIVATE 
@@ -191,6 +193,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_jsonstring PRIVATE 
@@ -220,6 +223,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_cbor PRIVATE 
@@ -271,6 +275,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_xdr PRIVATE 
@@ -295,6 +300,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_protobuf PRIVATE 
@@ -343,6 +349,7 @@ endif()
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
 		)
 
 		target_include_directories(benchmark_debug PRIVATE 
