@@ -27,13 +27,13 @@ pkg_check_modules(LIBSTATGRAB REQUIRED libstatgrab)
 if (NOT DEFINED LIBSTATGRAB_INCLUDE_DIRS OR "${LIBSTATGRAB_INCLUDE_DIRS}" STREQUAL "LIBSTATGRAB_INCLUDE_DIRS-NOTFOUND")
 	message(FATAL_ERROR "statgrab's header file (statgrab.h) was not found!")
 else()
-	message(STATUS "statgrab's header file found: ${LIBSTATGRAB_INCLUDE_DIRS}")
+	message(STATUS "statgrab's header file found: ${JSONC_INCLUDE_DIRS}")
 endif()
 
 if (NOT DEFINED LIBSTATGRAB_LIBRARIES OR "${LIBSTATGRAB_LIBRARIES}" STREQUAL "LIBSTATGRAB_LIBRARIES-NOTFOUND")
 	message(FATAL_ERROR "statgrab's library was not found!")
 else()
-	message(STATUS "statgrab's library found: ${LIBSTATGRAB_LIBRARIES}")
+	message(STATUS "statgrab's library found: ${STATGRAB_LIBRARIES}")
 endif()
 
 	# ---------- json-c enabled -----------------------------------------------
@@ -213,27 +213,27 @@ endif()
 		target_compile_features(benchmark_cbor PRIVATE c_std_11)
 
 		
-		pkg_check_modules(CBOR REQUIRED libcbor)
+		#pkg_check_modules(CBOR REQUIRED libcbor) ---> doesn't exist
 		
-		# find_path(CBOR_INCLUDE_DIRS cbor.h
-		# 	HINTS $ENV{CROSS_ROOT} ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
-		# 	PATH_SUFFIXES "include" "cbor" "include/cbor"
-		# )
+		find_path(CBOR_INCLUDE_DIRS cbor.h
+			HINTS ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
+			PATH_SUFFIXES "include" "cbor" "include/cbor"
+		)
 		if (NOT DEFINED CBOR_INCLUDE_DIRS OR "${CBOR_INCLUDE_DIRS}" STREQUAL "CBOR_INCLUDE_DIRS-NOTFOUND")
 			message(FATAL_ERROR "cbor's header file (cbor.h) was not found!")
 		else()
 			message(STATUS "cbor's header file found: ${CBOR_INCLUDE_DIRS}")
 		endif()
 
-		# find_library(CBOR_LIBRARIES
-		# 	NAMES cbor libcbor
-		# 	HINTS $ENV{CROSS_ROOT} ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
-		# 	PATH_SUFFIXES "lib"
-		# )
+		find_library(CBOR_LIBRARIES
+			NAMES cbor libcbor
+			HINTS $ENV{CROSS_ROOT} ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
+			PATH_SUFFIXES "lib"
+		)
 		if (NOT DEFINED CBOR_LIBRARIES OR "${CBOR_LIBRARIES}" STREQUAL "CBOR_LIBRARIES-NOTFOUND")
 			message(FATAL_ERROR "cbor's library was not found!")
 		else()
-			message(STATUS "cbor's library found: -l${CBOR_LIBRARIES}")
+			message(STATUS "cbor's library found: ${CBOR_LIBRARIES}")
 		endif()
 
 
