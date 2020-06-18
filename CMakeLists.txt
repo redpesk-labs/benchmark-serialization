@@ -214,22 +214,13 @@ endif()
 
 		
 		pkg_check_modules(CBOR REQUIRED libcbor)
-		
-		# find_path(CBOR_INCLUDE_DIRS cbor.h
-		# 	HINTS $ENV{CROSS_ROOT} ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
-		# 	PATH_SUFFIXES "include" "cbor" "include/cbor"
-		# )
+
 		if (NOT DEFINED CBOR_INCLUDE_DIRS OR "${CBOR_INCLUDE_DIRS}" STREQUAL "CBOR_INCLUDE_DIRS-NOTFOUND")
 			message(FATAL_ERROR "cbor's header file (cbor.h) was not found!")
 		else()
 			message(STATUS "cbor's header file found: ${CBOR_INCLUDE_DIRS}")
 		endif()
 
-		# find_library(CBOR_LIBRARIES
-		# 	NAMES cbor libcbor
-		# 	HINTS $ENV{CROSS_ROOT} ${CBOR_INSTALL_DIR} $ENV{CBOR_INSTALL_DIR}
-		# 	PATH_SUFFIXES "lib"
-		# )
 		if (NOT DEFINED CBOR_LIBRARIES OR "${CBOR_LIBRARIES}" STREQUAL "CBOR_LIBRARIES-NOTFOUND")
 			message(FATAL_ERROR "cbor's library was not found!")
 		else()
