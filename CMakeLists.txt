@@ -82,7 +82,11 @@ endif()
 			target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON_ARRAY)
 		endif()
 
+		install(TARGETS benchmark_jsonc DESTINATION /usr/bin)
+
 	endif()
+
+	
 
 	# ---------- FastJson enabled -----------------------------------------------
 	if (BENCH_FASTJSON)
@@ -126,7 +130,9 @@ endif()
 			target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON_ARRAY)
 		endif()
 
+		install(TARGETS benchmark_fastjson DESTINATION /usr/bin)
 	endif()
+
 
 	# ---------- json-cpp nlohmann enabled -----------------------------------------------
 	if (BENCH_JSONCPP)
@@ -161,6 +167,7 @@ endif()
 		target_link_libraries(benchmark_jsoncpp PRIVATE nlohmann_json "${LIBSTATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_jsoncpp PRIVATE "wrappers/wrap_jsoncpp/parse-jsoncpp.cpp")
 
+		install(TARGETS benchmark_jsoncpp DESTINATION /usr/bin)
 	endif()
 
 	# ---------- json string enabled --------------------------------------------------
@@ -191,6 +198,7 @@ endif()
 			target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING_ARRAY)
 		endif()
 
+		install(TARGETS benchmark_jsonstring DESTINATION /usr/bin)
 	endif()
 
 	# ---------- jsonmn enabled --------------------------------------------------
@@ -222,6 +230,7 @@ endif()
 			target_compile_definitions(benchmark_jsmn PRIVATE BENCH_JSMN_ARRAY)
 		endif()
 
+		install(TARGETS benchmark_jsmn DESTINATION /usr/bin)
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------
@@ -272,6 +281,8 @@ endif()
 		if (BENCH_CBOR_ARRAY)
 			target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR_ARRAY)
 		endif()
+
+		install(TARGETS benchmark_cbor DESTINATION /usr/bin)
 	endif()
 
 	# ---------- xdr enabled --------------------------------------------------
@@ -320,6 +331,8 @@ endif()
 		target_include_directories(benchmark_xdr PRIVATE "${RPC_INCLUDE_DIRS}")
 		target_link_libraries(benchmark_xdr PRIVATE "${RPC_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_xdr PRIVATE "wrappers/wrap_xdr/parse-xdr.c")
+
+		install(TARGETS benchmark_xdr DESTINATION /usr/bin)
 	endif()
 
 	# ---------- protobuf enabled --------------------------------------------------
@@ -362,7 +375,10 @@ endif()
 		target_link_libraries(benchmark_protobuf PRIVATE "${PROTOBUFC_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_protobuf PRIVATE "sensordata.pb-c.c")
 		target_sources(benchmark_protobuf PRIVATE "wrappers/wrap_protobuf/parse-protobuf.c")
+
+		install(TARGETS benchmark_protobuf DESTINATION /usr/bin)
 	endif()
+
 
 	# ---------- debug enabled ------------------------------------------------
 	if (BENCH_DEBUG)
@@ -385,4 +401,5 @@ endif()
 		target_compile_features(benchmark_debug PRIVATE c_std_11)
 		target_link_libraries(benchmark_debug PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
 		target_compile_definitions(benchmark_debug PRIVATE BENCH_DEBUG)
+
 	endif()
