@@ -14,7 +14,7 @@
 # limitations under the License.
 ###########################################################################
 Name:    benchmark-serialisation
-#Hexsha: 52dcb4e4cb293d6c2f134d92eb2163b43d9695cf
+#Hexsha: 0f3f2de715a06f7454584a2cee776259b2a96268
 Version: 1.0.0
 Release: 0%{?dist}
 License: APL2.0
@@ -49,8 +49,21 @@ make -C %{_target_platform}
 %clean
 
 %files
+/usr/bin/benchmark_cbor
+/usr/bin/benchmark_fastjson
+/usr/bin/benchmark_jsonc
+/usr/bin/benchmark_jsoncpp
+/usr/bin/benchmark_jsonstring
+/usr/bin/benchmark_protobuf
+/usr/bin/benchmark_xdr
 
 %changelog
+
+* Fri Jun 19 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 0f3f2de715a06f7454584a2cee776259b2a96268
+- Commit message:
+- 	add cmake installation
+
 
 * Fri Jun 19 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
 - Upgrade version from source commit sha: 52dcb4e4cb293d6c2f134d92eb2163b43d9695cf
