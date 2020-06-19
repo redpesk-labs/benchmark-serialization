@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 
 include(FindPkgConfig)
 
@@ -12,7 +12,9 @@ option(BENCH_FASTJSON			"Enable fastJson benchmark" 				ON)
 option(BENCH_FASTJSON_ARRAY 	"Enable fastjson option array benchmark"	ON)
 option(BENCH_JSONCPP			"Enable jsoncpp lib of nlohmann" 			ON)
 option(BENCH_JSONSTRING			"Enable json string representation"			ON)
-option(BENCH_JSONSTRING_ARRAY 	"Enable jsonstring option array benchmark"	ON)
+option(BENCH_JSONSTRING_ARRAY	"Enable jsonstring option array benchmark"	ON)
+option(BENCH_JSMN				"Enable jsmn option"						OFF)
+option(BENCH_JSMN_ARRAY			"Enable option array for jsmn"				OFF)
 option(BENCH_CBOR				"Enable cbor benchmark" 					ON)
 option(BENCH_CBOR_ARRAY			"Enable cbor option array benchmark" 		ON)
 option(BENCH_XDR				"Enable xdr benchmark" 						ON)
@@ -191,6 +193,37 @@ endif()
 
 	endif()
 
+	# ---------- jsonmn enabled --------------------------------------------------
+	if (BENCH_JSMN)
+
+		add_executable(benchmark_jsmn
+			main.c
+			wrappers/wrap_jsmn/wrap-jsmn.c
+			bench_conf/bench-conf.c
+			bench_option/option-timer.c
+			bench_option/option-cpu.c
+			bench_option/utilities-fct.c
+		)
+
+		target_include_directories(benchmark_jsmn PRIVATE 
+									"${PROJECT_SOURCE_DIR}/include" 
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+									"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsmn"
+									"${PROJECT_SOURCE_DIR}/bench_conf"
+									"${PROJECT_SOURCE_DIR}/bench_option"
+									"${LIBSTATGRAB_INCLUDE_DIRS}")
+		
+		target_compile_features(benchmark_jsmn PRIVATE c_std_11)
+		target_link_libraries(benchmark_jsmn PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
+		target_compile_definitions(benchmark_jsmn PRIVATE BENCH_JSMN)
+		target_sources(benchmark_jsmn PRIVATE "wrappers/wrap_jsmn/wrap-jsmn.c")
+
+		if (BENCH_JSMN_ARRAY)
+			target_compile_definitions(benchmark_jsmn PRIVATE BENCH_JSMN_ARRAY)
+		endif()
+
+	endif()
+
 	# ---------- cbor enabled -------------------------------------------------
 	if (BENCH_CBOR)
 
@@ -212,9 +245,12 @@ endif()
 									"${LIBSTATGRAB_INCLUDE_DIRS}")
 		target_compile_features(benchmark_cbor PRIVATE c_std_11)
 
+		# if ("$ENV{TARGET_NM}" STREQUAL "aarch64-linux-gnu-nm")
+		# 	target_include_directories(benchmark_cbor PRIVATE "/usr/local/include")
+		# endif()
+
 		
 		pkg_check_modules(CBOR REQUIRED libcbor)
-
 		if (NOT DEFINED CBOR_INCLUDE_DIRS OR "${CBOR_INCLUDE_DIRS}" STREQUAL "CBOR_INCLUDE_DIRS-NOTFOUND")
 			message(FATAL_ERROR "cbor's header file (cbor.h) was not found!")
 		else()
@@ -251,15 +287,38 @@ endif()
 		)
 
 		target_include_directories(benchmark_xdr PRIVATE 
-									"${PROJECT_SOURCE_DIR}/include" 
-									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
-									"${PROJECT_SOURCE_DIR}/wrappers/wrap_xdr" 
-									"${PROJECT_SOURCE_DIR}/bench_conf"
-									"${PROJECT_SOURCE_DIR}/bench_option"
-									"${LIBSTATGRAB_INCLUDE_DIRS}")
+			"${PROJECT_SOURCE_DIR}/include" 
+			"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
+			"${PROJECT_SOURCE_DIR}/wrappers/wrap_xdr" 
+			"${PROJECT_SOURCE_DIR}/bench_conf"
+			"${PROJECT_SOURCE_DIR}/bench_option"
+			"${LIBSTATGRAB_INCLUDE_DIRS}")
+
 		target_compile_features(benchmark_xdr PRIVATE c_std_11)
-		target_link_libraries(benchmark_xdr PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
+		
+		pkg_check_modules(RPC REQUIRED libtirpc)
+		if (NOT DEFINED RPC_INCLUDE_DIRS OR "${RPC_INCLUDE_DIRS}" STREQUAL "RPC_INCLUDE_DIRS-NOTFOUND")
+			message(FATAL_ERROR "rpc's header file (rpc.h) was not found!")
+		else()
+			message(STATUS "rpc's header file found: ${RPC_INCLUDE_DIRS}")
+		endif()
+
+		if (NOT DEFINED RPC_LIBRARIES OR "${RPC_LIBRARIES}" STREQUAL "RPC_LIBRARIES-NOTFOUND")
+			message(FATAL_ERROR "rpc's library was not found!")
+		else()
+			message(STATUS "rpc's library found: -l${RPC_LIBRARIES}")
+		endif()
+
+		if ("$ENV{TARGET_NM}" STREQUAL "aarch64-linux-gnu-nm")
+			message(STATUS "xdr in cross build mode : $ENV{TARGET_NM}")
+			#target_include_directories(benchmark_xdr PRIVATE "/usr/include/tirpc")
+		else()
+			message(STATUS "xdr in native mode")
+		endif()
+
 		target_compile_definitions(benchmark_xdr PRIVATE BENCH_XDR)
+		target_include_directories(benchmark_xdr PRIVATE "${RPC_INCLUDE_DIRS}")
+		target_link_libraries(benchmark_xdr PRIVATE "${RPC_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
 		target_sources(benchmark_xdr PRIVATE "wrappers/wrap_xdr/parse-xdr.c")
 	endif()
 

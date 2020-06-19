@@ -3,6 +3,7 @@
 #include "data.h"
 #include "serializer.h"
 #include <nlohmann/json.hpp> 
+#include <iostream>
 
 class ParseJsonCpp
 {
