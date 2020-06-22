@@ -5,7 +5,8 @@ The aim's project has to compare different data serialization between :
     1.JSON with JSON-c (in Array and Map)
     2.JSON with FASTJSON (in Array and Map)
     3.Json with nlohmann/json libcpp (in MAP)
-    4.Json in this string representation
+    4.Json in string representation and parsing with lib microjson
+    5.Json in string representation and parsing with lib jsmn
     5.CBOR (in Array and Map)
     6.XDR
     7.protobuf
@@ -56,10 +57,11 @@ Here is the list of different options to configure the bench :
     4. -DBENCH_FASTJSON=ON -DBENCH_FASTJSON_ARRAY=ON
     5. -DBENCH_JSONCPP=ON
     6. -DBENCH_JSONSTRING=ON
-    7. -DBENCH_CBOR=ON
-    8. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
-    9. -DBENCH_XDR=ON
-    10. -DBENCH_PROTOBUF=ON
+    7. -DBENCH_JSMN=ON
+    8. -DBENCH_CBOR=ON
+    9. -DBENCH_CBOR=ON -DBENCH_CBOR_ARRAY=ON
+    10. -DBENCH_XDR=ON
+    11. -DBENCH_PROTOBUF=ON
 
 ### OPTION MAIN
 
@@ -71,45 +73,7 @@ Different possible option are able:
 
 ## RESULT EXAMPLE
 
-    ====== BENCHMARKING DATA SERIALIZATION ====== 
-
-    data tested : 1000000
-
-    # JSON-C :
-        Data : OK
-        Time during the serialization: 4830.279633 ms
-
-    # FASTJSON :
-        Data : OK
-        Time during the serialization: 4325.356560 ms
-
-    # CBOR:
-        Data : OK
-        Time during the serialization: 3329.877594 ms
-
-    # JSON-C Array :
-        Data : OK
-        Time during the serialization: 1738.954999 ms
-
-    # FASTJSON Array :
-        Data : OK
-        Time during the serialization: 2517.455459 ms
-
-    # JSON-CPP :
-        Data : OK
-        Time during the serialization: 34840.732209 ms
-
-    # CBOR ARRAY:
-        Data : OK
-        Time during the serialization: 2044.524197 ms
-
-    # PROTOBUF :
-        Data : OK
-        Time during the serialization: 1531.751197 ms
-
-    # XDR :
-        Data : OK
-        Time during the serialization: 346.656860 ms
+Examples are available in doc folder.
 
 ## Note
 
