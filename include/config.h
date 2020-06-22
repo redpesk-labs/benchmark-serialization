@@ -13,23 +13,27 @@
 #include "parse-fastjson.h"
 #endif
 
-#if BENCH_JSONCPP
+#ifdef BENCH_JSONCPP
 #include "parse-jsoncpp.hpp"
 #endif
 
-#if BENCH_JSONSTRING
+#ifdef BENCH_JSONSTRING
 #include "parse-jsonstring.h"
+#endif
+
+#ifdef BENCH_JSMN
+#include "wrap-jsmn.h"
 #endif
 
 #ifdef BENCH_CBOR
 #include "parse-cbor.h"
 #endif
 
-#if BENCH_XDR
+#ifdef BENCH_XDR
 #include "parse-xdr.h"
 #endif
 
-#if BENCH_PROTOBUF
+#ifdef BENCH_PROTOBUF
 #include "parse-protobuf.h"
 #endif
 

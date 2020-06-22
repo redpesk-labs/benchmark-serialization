@@ -294,7 +294,25 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
     dataThread.buffer = buffer;
     dataThread.dataToSerialize = &sensorData;
     dataThread.dataSerialized = &sensorDataTemp;
-    #endif // BENCH_JSONSTRING    
+    #endif // BENCH_JSONSTRING 
+
+    #ifdef BENCH_JSMN
+	int option_parse = MAP;	
+
+	Serializer jsmn;
+	memset(&jsmn, 0, sizeof(jsmn));
+	jsmn_get_serializer(&jsmn);
+    #ifdef BENCH_JSMN_ARRAY	
+		option_parse = ARRAY;	
+    #endif
+	jsmn.context = &option_parse;
+
+    // Initiate data to thread:
+    dataThread.s = &jsmn;
+    dataThread.buffer = buffer;
+    dataThread.dataToSerialize = &sensorData;
+    dataThread.dataSerialized = &sensorDataTemp;
+    #endif // BENCH_JSONSTRING     
 
     #ifdef BENCH_CBOR
 	int option_parse = MAP;	
@@ -432,6 +450,14 @@ int benchOptionCpu(SensorData sensorData, SensorData sensorDataTemp, int freq)
 	#endif
 	printf(":\n");
     #endif // BENCH_JSONSTRING
+
+    #ifdef BENCH_JSMN
+	printf("# JSMN ");
+    #ifdef BENCH_JSMN_ARRAY	
+		printf("Array ");
+	#endif
+	printf(":\n");
+    #endif // BENCH_JSMN
 
     #ifdef BENCH_CBOR
 	printf("# CBOR ");

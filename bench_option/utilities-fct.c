@@ -1,5 +1,4 @@
 #include "bench-option.h"
-
 /// @brief fill a SensorData object, to be fast in the generation, it will generate jut one rand value.
 /// @param[out] senorData_ptr The pointer to save data generated.
 void generateData(SensorData* sensorData_ptr)
@@ -8,7 +7,7 @@ void generateData(SensorData* sensorData_ptr)
     srand(time(NULL)); // initialisation de rand
     int randInt = rand()/(RAND_MAX/10);
     bool randBool = (int) ((float)rand()/RAND_MAX);
-    float randFloat = (float)rand()/(float)(RAND_MAX/10);
+    float randFloat = randInt + 0.55;
 
 	sensorData_ptr->version.dataType = (uint8_t) randInt + 1;
 	sensorData_ptr->version.result = randBool;
@@ -25,9 +24,9 @@ void generateData(SensorData* sensorData_ptr)
 
 	sensorData_ptr->tInfo.index= (uint8_t) randInt + 11;
 	sensorData_ptr->tInfo.rcs= randFloat;
-	sensorData_ptr->tInfo.range= randFloat + 1.0;
+	sensorData_ptr->tInfo.range= randFloat + 1.1;
 	sensorData_ptr->tInfo.azimuth= (int16_t) randInt + 12;
-	sensorData_ptr->tInfo.vrel= randFloat + 2.0;
+	sensorData_ptr->tInfo.vrel= randFloat + 2.6;
 	sensorData_ptr->tInfo.rollCount= (uint8_t) randInt + 13;
 	sensorData_ptr->tInfo.SNR= -1 * (int8_t) randInt;
 
@@ -100,11 +99,25 @@ void printByHexa(SensorData* sd)
 /// @retval err The number of err catch by memcmp.
 int verification(SensorData* sd1, SensorData* sd2)
 {
-	int err=0;
-	//printByHexa(sd1);
-	//printByHexa(sd2); 
-	err+= memcmp(sd1, sd2, sizeof(SensorData));
-	return err;
+	int err;
+	float diff;
+	if (memcmp(sd1, sd2, sizeof(SensorData)) != 0) {
+		// printByHexa(sd1);
+		// printByHexa(sd2); 
+		// printf("\n\n");
+		// diff = sd1->tInfo.range - sd2->tInfo.range;
+		// printf("difference of range: %.10f\n", diff);
+		// diff = sd1->tInfo.rcs - sd2->tInfo.rcs;
+		// printf("difference of rcs: %.10f\n", diff);
+		// diff = sd1->tInfo.vrel - sd2->tInfo.vrel;
+		// printf("difference of vrel: %.10f\n", diff);
+		if ( (sd1->tInfo.range - sd2->tInfo.range) > 0.00001 ||
+				(sd1->tInfo.rcs - sd2->tInfo.rcs) > 0.00001 ||
+				(sd1->tInfo.vrel - sd2->tInfo.vrel) > 0.00001) {
+					return 1;
+				}
+	}
+	return 0;
 }
 
 /// @brief Print result of a specific bench with timer option.

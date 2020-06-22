@@ -8,6 +8,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <unistd.h> 
+#include <math.h>
 #include "serializer.h"
 
 #include "statgrab.h"

@@ -68,7 +68,7 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 		option_parse = ARRAY;
 	#endif
 	s.context = &option_parse;
-#endif //BENCH_FAST_JSON
+#endif //BENCH_FASTJSON
 
 #ifdef BENCH_JSONSTRING
 	jsonstring_get_serializer(&s);
@@ -76,7 +76,15 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 		option_parse = ARRAY;
 	#endif
 	s.context = &option_parse;
-#endif //BENCH_FAST_JSON
+#endif //BENCH_JSONSTRING
+
+#ifdef BENCH_JSMN
+	jsmn_get_serializer(&s);
+	#ifdef BENCH_JSMN_ARRAY	
+		option_parse = ARRAY;
+	#endif
+	s.context = &option_parse;
+#endif //BENCH_JSMN
 
 #ifdef BENCH_CBOR
 	cborc_get_serializer(&s);
@@ -155,6 +163,13 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 #ifdef BENCH_JSONSTRING
 	printf("## JSONSTRING ");	
 	#ifdef BENCH_JSONSTRING_ARRAY	
+		printf("array ");
+	#endif
+#endif
+
+#ifdef BENCH_JSMN
+	printf("## JSMN ");	
+	#ifdef BENCH_JSMN_ARRAY	
 		printf("array ");
 	#endif
 #endif

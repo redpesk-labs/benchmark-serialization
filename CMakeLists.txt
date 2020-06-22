@@ -12,8 +12,8 @@ option(BENCH_FASTJSON			"Enable fastJson benchmark" 				ON)
 option(BENCH_FASTJSON_ARRAY 	"Enable fastjson option array benchmark"	ON)
 option(BENCH_JSONCPP			"Enable jsoncpp lib of nlohmann" 			ON)
 option(BENCH_JSONSTRING			"Enable json string representation"			ON)
-option(BENCH_JSONSTRING_ARRAY	"Enable jsonstring option array benchmark"	ON)
-option(BENCH_JSMN				"Enable jsmn option"						OFF)
+option(BENCH_JSONSTRING_ARRAY	"Enable jsonstring option array benchmark"	OFF)
+option(BENCH_JSMN				"Enable jsmn option"						ON)
 option(BENCH_JSMN_ARRAY			"Enable option array for jsmn"				OFF)
 option(BENCH_CBOR				"Enable cbor benchmark" 					ON)
 option(BENCH_CBOR_ARRAY			"Enable cbor option array benchmark" 		ON)
@@ -201,12 +201,12 @@ endif()
 		install(TARGETS benchmark_jsonstring DESTINATION /usr/bin)
 	endif()
 
-	# ---------- jsonmn enabled --------------------------------------------------
+	# ---------- jsmn enabled --------------------------------------------------
 	if (BENCH_JSMN)
 
 		add_executable(benchmark_jsmn
 			main.c
-			wrappers/wrap_jsmn/wrap-jsmn.c
+			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
 			bench_option/option-timer.c
 			bench_option/option-cpu.c

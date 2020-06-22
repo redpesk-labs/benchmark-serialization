@@ -339,16 +339,16 @@ int jsonstring_deserialize_SensorData_ARRAY(char* input, SensorData* output)
                     output->tInfo.index = (uint8_t) atoi(temp);
                     break;
                 case 2: //rcs
-                    output->tInfo.rcs = (float) atof(temp);
+                    output->tInfo.rcs = strtof(temp, NULL);
                     break;
                 case 3: //range
-                    output->tInfo.range = (float) atof(temp);
+                    output->tInfo.range = strtof(temp, NULL);
                     break;
                 case 4: //azimuth
                     output->tInfo.azimuth = (int16_t) atoi(temp);
                     break;
                 case 5: //vrel
-                    output->tInfo.vrel = (float) atof(temp);
+                    output->tInfo.vrel = strtof(temp, NULL);
                     break;
                 case 6: //rollcount
                     output->tInfo.rollCount = (uint8_t) atoi(temp);
@@ -492,6 +492,7 @@ int jsonstring_freeobject(void* ctx, void* data)
 {		
 	if (data) {
         free(data);
+        return EXIT_SUCCESS;
     }
 	return EXIT_SUCCESS;
 }
