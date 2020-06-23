@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # list option
 option(BENCH_JSON				"Enable json-c benchmark" 					ON)
-option(BENCH_JSON_ARRAY			"Enable json-c option array benchmark" 		ON)
+option(BENCH_JSON_ARRAY			"Enable json-c option array benchmark" 		OFF)
 option(BENCH_FASTJSON			"Enable fastJson benchmark" 				ON)
 option(BENCH_FASTJSON_ARRAY 	"Enable fastjson option array benchmark"	ON)
 option(BENCH_JSONCPP			"Enable jsoncpp lib of nlohmann" 			ON)

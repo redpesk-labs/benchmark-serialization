@@ -25,6 +25,8 @@ It will generate data possibly sent by a SP70C sensor into a structure of SP70C 
 
 And it will test `DATA_TESTED` times the same value . It will be our input test vector for the benchmark.
 
+An example of JSON data is available in the doc folder/ .
+
 ### serialization
 
 After that it will test all different serializations and de-serializations. We use the **MONOTONIC CLOCK** to calculate the time passed in each case. Before to print the result, it will **verify** if all data is well serialized.

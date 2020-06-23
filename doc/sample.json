@@ -1,0 +1,47 @@
+{
+    "sensorVersion": {
+        "dataType": 1,
+        "result": 1,
+        "master": 2,
+        "second": 3,
+        "step": 10
+    },
+    "sensorStatus":{
+        "actl_mode": 3,
+        "rollcount": 1,
+        "cfgStatus": 1
+    },
+    "targetStatus": {
+        "noOfTarget": 2,
+        "rollcount": 1
+    },
+    "targetInfo": [
+        {
+            "index": 1,
+            "rcs": 4.50,
+            "range": 6.3524,
+            "azimuth": 45.369,
+            "vrel": 0.235,
+            "rollcount": 1,
+            "SNR": -3
+        },
+        {
+            "index": 2,
+            "rcs": 9.64,
+            "range": 2.324,
+            "azimuth": 25.23,
+            "vrel": 0.351,
+            "rollcount": 1,
+            "SNR": -5
+        },
+        {
+            "index": 3,
+            "rcs": 3.20,
+            "range": 15.987,
+            "azimuth": 65.391,
+            "vrel": 0.357,
+            "rollcount": 1,
+            "SNR": -1
+        }
+    ]
+}
