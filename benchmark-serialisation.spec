@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###########################################################################
-Name:    benchmark-serialisation
-#Hexsha: 0f3f2de715a06f7454584a2cee776259b2a96268
+Name:    benchmark-serialization
+#Hexsha: 6c6a90b1cdb2d81a394ae7632cbaad91eaf5820d
 Version: 1.0.0
 Release: 0%{?dist}
 License: APL2.0
-Summary: benchmark serialisation
-URL:     http://git.ovh.iot/vlefebvre/benchmark-serialization.git
+Summary: benchmark serialization
+URL:     http://git.ovh.iot/redpesk-labs/benchmark-serialization.git
 Source0: %{name}-%{version}.tar.gz
 
 BuildRequires: cmake
@@ -30,7 +30,7 @@ BuildRequires: pkgconfig(libcbor)
 BuildRequires: pkgconfig(libprotobuf-c)
 
 %description
-Ma description
+A benchmark fo differents techno/library for serialize/parse data
 
 %prep
 %autosetup -p 1
@@ -54,10 +54,23 @@ make -C %{_target_platform}
 /usr/bin/benchmark_jsonc
 /usr/bin/benchmark_jsoncpp
 /usr/bin/benchmark_jsonstring
+/usr/bin/benchmark_jsmn
 /usr/bin/benchmark_protobuf
 /usr/bin/benchmark_xdr
 
 %changelog
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 6c6a90b1cdb2d81a394ae7632cbaad91eaf5820d
+- Commit message:
+- 	add screen profiling
+
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 6c6a90b1cdb2d81a394ae7632cbaad91eaf5820d
+- Commit message:
+- 	add screen profiling
+
 
 * Fri Jun 19 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
 - Upgrade version from source commit sha: 0f3f2de715a06f7454584a2cee776259b2a96268
