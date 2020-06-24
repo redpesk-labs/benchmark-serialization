@@ -14,7 +14,7 @@
 # limitations under the License.
 ###########################################################################
 Name:    benchmark-serialization-dynamic
-#Hexsha: 7077ab884fe44410ad9c629a46d72a831c40d009
+#Hexsha: 8bb476b2409a7a5371031c53def8f5fdffe9c638
 Version: 1.0.0
 Release: 0%{?dist}
 License: APL2.0
@@ -37,7 +37,7 @@ A benchmark fo differents techno/library for serialize/parse data in dynamic mod
 
 %build
 mkdir %{_target_platform}
-cmake -B %{_target_platform}
+cmake -DBENCH_XDR=OFF -DBENCH_PROTOBUF=OFF -B %{_target_platform}
 make -C %{_target_platform}
 
 
@@ -55,9 +55,20 @@ make -C %{_target_platform}
 /usr/bin/benchmark_jsoncpp
 /usr/bin/benchmark_jsonstring
 /usr/bin/benchmark_jsmn
-/usr/bin/benchmark_xdr
-/usr/bin/benchmark_protobuf
+
 %changelog
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 8bb476b2409a7a5371031c53def8f5fdffe9c638
+- Commit message:
+- 	makefile
+
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 8bb476b2409a7a5371031c53def8f5fdffe9c638
+- Commit message:
+- 	makefile
+
 
 * Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
 - Upgrade version from source commit sha: 7077ab884fe44410ad9c629a46d72a831c40d009
