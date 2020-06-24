@@ -127,7 +127,7 @@ void printResultTimer(int err, uint64_t time)
 {
 	if (err == 0) {
 		printf("\tData : OK\n");
-		printf("\tTime during the serialization: %f ms\n", (double)time / 1000000);
+		printf("\tTime during the serialization: %ld ms\n", time / 1000000);
 	}
 	else {
 		printf("\tData: NOK\n");
