@@ -9,12 +9,12 @@ int benchOptionTimer(SensorData sensorData, SensorData sensorDataTemp)
 	/* Initiate values for our clock */
 	struct timespec start, stop;
 	clockid_t clk_id;
-	uint64_t timer_start;
-	uint64_t timer_stop;
+	uint64_t timer_start = 0;
+	uint64_t timer_stop = 0;
 	clk_id = CLOCK_MONOTONIC;
 
 	/* Reference in C */
-	int result_time_ref=0;
+	uint64_t result_time_ref;
 	int err_ref=0;
 	int ret;
 	char buffer_ref[1024];
