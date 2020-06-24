@@ -14,7 +14,7 @@
 # limitations under the License.
 ###########################################################################
 Name:    benchmark-serialization
-#Hexsha: 44b26fba2a2e7d2dcbb2ff9361b903d22303ef54
+#Hexsha: df30111ddb207e6a78aa6a8319b5b7715ed01f15
 Version: 1.0.0
 Release: 0%{?dist}
 License: APL2.0
@@ -59,6 +59,12 @@ make -C %{_target_platform}
 /usr/bin/benchmark_xdr
 
 %changelog
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: df30111ddb207e6a78aa6a8319b5b7715ed01f15
+- Commit message:
+- 	fix side effect with timer ref C
+
 
 * Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
 - Upgrade version from source commit sha: 44b26fba2a2e7d2dcbb2ff9361b903d22303ef54

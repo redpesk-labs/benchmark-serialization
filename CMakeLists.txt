@@ -7,16 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # list option
 option(BENCH_JSON				"Enable json-c benchmark" 					ON)
-option(BENCH_JSON_ARRAY			"Enable json-c option array benchmark" 		OFF)
+option(BENCH_JSON_ARRAY			"Enable json-c option array benchmark" 		ON)
 option(BENCH_FASTJSON			"Enable fastJson benchmark" 				ON)
-option(BENCH_FASTJSON_ARRAY 	"Enable fastjson option array benchmark"	OFF)
+option(BENCH_FASTJSON_ARRAY 	"Enable fastjson option array benchmark"	ON)
 option(BENCH_JSONCPP			"Enable jsoncpp lib of nlohmann" 			ON)
 option(BENCH_JSONSTRING			"Enable json string representation"			ON)
-option(BENCH_JSONSTRING_ARRAY	"Enable jsonstring option array benchmark"	OFF)
+option(BENCH_JSONSTRING_ARRAY	"Enable jsonstring option array benchmark"	ON)
 option(BENCH_JSMN				"Enable jsmn option"						ON)
 option(BENCH_JSMN_ARRAY			"Enable option array for jsmn"				OFF)
 option(BENCH_CBOR				"Enable cbor benchmark" 					ON)
-option(BENCH_CBOR_ARRAY			"Enable cbor option array benchmark" 		OFF)
+option(BENCH_CBOR_ARRAY			"Enable cbor option array benchmark" 		ON)
 option(BENCH_XDR				"Enable xdr benchmark" 						ON)
 option(BENCH_PROTOBUF			"Enable protobuf benchmark" 				ON)
 option(BENCH_DEBUG				"Enable debug infos" 						OFF)
@@ -26,22 +26,17 @@ project(benchmark)
 
 # find libstatgrab pakage
 pkg_check_modules(LIBSTATGRAB REQUIRED libstatgrab)
-if (NOT DEFINED LIBSTATGRAB_INCLUDE_DIRS OR "${LIBSTATGRAB_INCLUDE_DIRS}" STREQUAL "LIBSTATGRAB_INCLUDE_DIRS-NOTFOUND")
-	message(FATAL_ERROR "statgrab's header file (statgrab.h) was not found!")
-else()
-	message(STATUS "statgrab's header file found: ${LIBSTATGRAB_INCLUDE_DIRS}")
-endif()
-
-if (NOT DEFINED LIBSTATGRAB_LIBRARIES OR "${LIBSTATGRAB_LIBRARIES}" STREQUAL "LIBSTATGRAB_LIBRARIES-NOTFOUND")
-	message(FATAL_ERROR "statgrab's library was not found!")
-else()
-	message(STATUS "statgrab's library found: ${LIBSTATGRAB_LIBRARIES}")
-endif()
 
 	# ---------- json-c enabled -----------------------------------------------
 	if (BENCH_JSON)
 
-		add_executable(benchmark_jsonc
+		if(BENCH_JSON_ARRAY)
+			set(TARGET_NAME "benchmark_jsonc_array")
+		else()
+			set(TARGET_NAME "benchmark_jsonc")
+		endif()
+
+		add_executable(${TARGET_NAME}
 			main.c
 			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
@@ -50,7 +45,7 @@ endif()
 			bench_option/utilities-fct.c
 		)
 
-		target_include_directories(benchmark_jsonc PRIVATE 
+		target_include_directories(${TARGET_NAME} PRIVATE 
 			"${PROJECT_SOURCE_DIR}/include" 
 			"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
 			"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsonc"
@@ -58,31 +53,20 @@ endif()
 			"${PROJECT_SOURCE_DIR}/bench_option"
 			"${LIBSTATGRAB_INCLUDE_DIRS}"
 		)
-		target_compile_features(benchmark_jsonc PRIVATE c_std_11)
+		target_compile_features(${TARGET_NAME} PRIVATE c_std_11)
 
 		pkg_check_modules(JSONC REQUIRED json-c)
-		if (NOT DEFINED JSONC_INCLUDE_DIRS OR "${JSONC_INCLUDE_DIRS}" STREQUAL "JSONC_INCLUDE_DIRS-NOTFOUND")
-			message(FATAL_ERROR "json-c's header file (json.h) was not found!")
-		else()
-			message(STATUS "json-c's header file found with package: ${JSONC_INCLUDE_DIRS}")
-		endif()
 
-		if (NOT DEFINED JSONC_LIBRARIES OR "${JSONC_LIBRARIES}" STREQUAL "JSONC_LIBRARIES-NOTFOUND")
-			message(FATAL_ERROR "json-c's library was not found!")
-		else()
-			message(STATUS "json-c's library found with package: ${JSONC_LIBRARIES}")
-		endif()
-
-		target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON)
-		target_include_directories(benchmark_jsonc PRIVATE "${JSONC_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_jsonc PRIVATE "${JSONC_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_jsonc PRIVATE "wrappers/wrap_jsonc/parse-jsonc.c")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_JSON)
+		target_include_directories(${TARGET_NAME} PRIVATE "${JSONC_INCLUDE_DIRS}")
+		target_link_libraries(${TARGET_NAME} PRIVATE "${JSONC_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
+		target_sources(${TARGET_NAME} PRIVATE "wrappers/wrap_jsonc/parse-jsonc.c")
 
 		if (BENCH_JSON_ARRAY)
-			target_compile_definitions(benchmark_jsonc PRIVATE BENCH_JSON_ARRAY)
+			target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_JSON_ARRAY)
 		endif()
 
-		install(TARGETS benchmark_jsonc DESTINATION /usr/bin)
+		install(TARGETS ${TARGET_NAME} DESTINATION /usr/bin)
 
 	endif()
 
@@ -91,7 +75,13 @@ endif()
 	# ---------- FastJson enabled -----------------------------------------------
 	if (BENCH_FASTJSON)
 
-		add_executable(benchmark_fastjson
+		if(BENCH_FASTJSON_ARRAY)
+			set(TARGET_NAME "benchmark_fastjson_array")
+		else()
+			set(TARGET_NAME "benchmark_fastjson")
+		endif()
+
+		add_executable(${TARGET_NAME}
 			main.c
 			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
@@ -100,37 +90,27 @@ endif()
 			bench_option/utilities-fct.c
 		)
 
-		target_include_directories(benchmark_fastjson PRIVATE 
+		target_include_directories(${TARGET_NAME} PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_fastjson" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${LIBSTATGRAB_INCLUDE_DIRS}")
-		target_compile_features(benchmark_fastjson PRIVATE c_std_11)
+		target_compile_features(${TARGET_NAME} PRIVATE c_std_11)
 
 		pkg_check_modules(FASTJSON REQUIRED libfastjson)
-		if (NOT DEFINED FASTJSON_INCLUDE_DIRS OR "${FASTJSON_INCLUDE_DIRS}" STREQUAL "FASTJSON_INCLUDE_DIRS-NOTFOUND")
-			message(FATAL_ERROR "fastjson's header file (json.h) was not found!")
-		else()
-			message(STATUS "fastjson-c's header file found: ${FASTJSON_INCLUDE_DIRS}")
-		endif()
-		if (NOT DEFINED FASTJSON_LIBRARIES OR "${FASTJSON_LIBRARIES}" STREQUAL "FASTJSON_LIBRARIES-NOTFOUND")
-			message(FATAL_ERROR "fastjson's library was not found!")
-		else()
-			message(STATUS "fastjson's library found: ${FASTJSON_LIBRARIES}")
-		endif()
 
-		target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON)
-		target_include_directories(benchmark_fastjson PRIVATE "${FASTJSON_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_fastjson PRIVATE "${FASTJSON_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_fastjson PRIVATE "wrappers/wrap_fastjson/parse-fastjson.c")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_FASTJSON)
+		target_include_directories(${TARGET_NAME} PRIVATE "${FASTJSON_INCLUDE_DIRS}")
+		target_link_libraries(${TARGET_NAME} PRIVATE "${FASTJSON_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
+		target_sources(${TARGET_NAME} PRIVATE "wrappers/wrap_fastjson/parse-fastjson.c")
 
 		if (BENCH_FASTJSON_ARRAY)
-			target_compile_definitions(benchmark_fastjson PRIVATE BENCH_FASTJSON_ARRAY)
+			target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_FASTJSON_ARRAY)
 		endif()
 
-		install(TARGETS benchmark_fastjson DESTINATION /usr/bin)
+		install(TARGETS ${TARGET_NAME} DESTINATION /usr/bin)
 	endif()
 
 
@@ -173,7 +153,13 @@ endif()
 	# ---------- json string enabled --------------------------------------------------
 	if (BENCH_JSONSTRING)
 
-		add_executable(benchmark_jsonstring
+		if(BENCH_FASTJSON_ARRAY)
+			set(TARGET_NAME "benchmark_jsonstring_array")
+		else()
+			set(TARGET_NAME "benchmark_jsonstring")
+		endif()
+
+		add_executable(${TARGET_NAME}
 			main.c
 			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
@@ -182,29 +168,35 @@ endif()
 			bench_option/utilities-fct.c
 		)
 
-		target_include_directories(benchmark_jsonstring PRIVATE 
+		target_include_directories(${TARGET_NAME} PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsonstring" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${LIBSTATGRAB_INCLUDE_DIRS}")
-		target_compile_features(benchmark_jsonstring PRIVATE c_std_11)
-		target_link_libraries(benchmark_jsonstring PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
-		target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING)
-		target_sources(benchmark_jsonstring PRIVATE "wrappers/wrap_jsonstring/parse-jsonstring.c" "wrappers/wrap_jsonstring/mjson.c")
+		target_compile_features(${TARGET_NAME} PRIVATE c_std_11)
+		target_link_libraries(${TARGET_NAME} PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
+		target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_JSONSTRING)
+		target_sources(${TARGET_NAME} PRIVATE "wrappers/wrap_jsonstring/parse-jsonstring.c" "wrappers/wrap_jsonstring/mjson.c")
 
 		if (BENCH_JSONSTRING_ARRAY)
-			target_compile_definitions(benchmark_jsonstring PRIVATE BENCH_JSONSTRING_ARRAY)
+			target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_JSONSTRING_ARRAY)
 		endif()
 
-		install(TARGETS benchmark_jsonstring DESTINATION /usr/bin)
+		install(TARGETS ${TARGET_NAME} DESTINATION /usr/bin)
 	endif()
 
 	# ---------- jsmn enabled --------------------------------------------------
 	if (BENCH_JSMN)
 
-		add_executable(benchmark_jsmn
+		if(BENCH_JSMN_ARRAY)
+			set(TARGET_NAME "benchmark_jsmn_array")
+		else()
+			set(TARGET_NAME "benchmark_jsmn")
+		endif()	
+
+		add_executable(${TARGET_NAME}
 			main.c
 			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
@@ -213,7 +205,7 @@ endif()
 			bench_option/utilities-fct.c
 		)
 
-		target_include_directories(benchmark_jsmn PRIVATE 
+		target_include_directories(${TARGET_NAME} PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include" 
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c"
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_jsmn"
@@ -221,22 +213,28 @@ endif()
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${LIBSTATGRAB_INCLUDE_DIRS}")
 		
-		target_compile_features(benchmark_jsmn PRIVATE c_std_11)
-		target_link_libraries(benchmark_jsmn PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
-		target_compile_definitions(benchmark_jsmn PRIVATE BENCH_JSMN)
-		target_sources(benchmark_jsmn PRIVATE "wrappers/wrap_jsmn/wrap-jsmn.c")
+		target_compile_features(${TARGET_NAME} PRIVATE c_std_11)
+		target_link_libraries(${TARGET_NAME} PRIVATE "${LIBSTATGRAB_LIBRARIES}" pthread)
+		target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_JSMN)
+		target_sources(${TARGET_NAME} PRIVATE "wrappers/wrap_jsmn/wrap-jsmn.c")
 
 		if (BENCH_JSMN_ARRAY)
-			target_compile_definitions(benchmark_jsmn PRIVATE BENCH_JSMN_ARRAY)
+			target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_JSMN_ARRAY)
 		endif()
 
-		install(TARGETS benchmark_jsmn DESTINATION /usr/bin)
+		install(TARGETS ${TARGET_NAME} DESTINATION /usr/bin)
 	endif()
 
 	# ---------- cbor enabled -------------------------------------------------
 	if (BENCH_CBOR)
 
-		add_executable(benchmark_cbor
+		if(BENCH_CBOR_ARRAY)
+			set(TARGET_NAME "benchmark_cbor_array")
+		else()
+			set(TARGET_NAME "benchmark_cbor")
+		endif()	
+
+		add_executable(${TARGET_NAME}
 			main.c
 			wrappers/wrap_c/parse-c.c
 			bench_conf/bench-conf.c
@@ -245,44 +243,27 @@ endif()
 			bench_option/utilities-fct.c
 		)
 
-		target_include_directories(benchmark_cbor PRIVATE 
+		target_include_directories(${TARGET_NAME} PRIVATE 
 									"${PROJECT_SOURCE_DIR}/include"
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_c" 
 									"${PROJECT_SOURCE_DIR}/wrappers/wrap_cbor" 
 									"${PROJECT_SOURCE_DIR}/bench_conf"
 									"${PROJECT_SOURCE_DIR}/bench_option"
 									"${LIBSTATGRAB_INCLUDE_DIRS}")
-		target_compile_features(benchmark_cbor PRIVATE c_std_11)
-
-		# if ("$ENV{TARGET_NM}" STREQUAL "aarch64-linux-gnu-nm")
-		# 	target_include_directories(benchmark_cbor PRIVATE "/usr/local/include")
-		# endif()
-
+		target_compile_features(${TARGET_NAME} PRIVATE c_std_11)
 		
 		pkg_check_modules(CBOR REQUIRED libcbor)
-		if (NOT DEFINED CBOR_INCLUDE_DIRS OR "${CBOR_INCLUDE_DIRS}" STREQUAL "CBOR_INCLUDE_DIRS-NOTFOUND")
-			message(FATAL_ERROR "cbor's header file (cbor.h) was not found!")
-		else()
-			message(STATUS "cbor's header file found: ${CBOR_INCLUDE_DIRS}")
-		endif()
 
-		if (NOT DEFINED CBOR_LIBRARIES OR "${CBOR_LIBRARIES}" STREQUAL "CBOR_LIBRARIES-NOTFOUND")
-			message(FATAL_ERROR "cbor's library was not found!")
-		else()
-			message(STATUS "cbor's library found: -l${CBOR_LIBRARIES}")
-		endif()
-
-
-		target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR)
-		target_include_directories(benchmark_cbor PRIVATE "${CBOR_INCLUDE_DIRS}")
-		target_link_libraries(benchmark_cbor PRIVATE "${CBOR_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
-		target_sources(benchmark_cbor PRIVATE "wrappers/wrap_cbor/parse-cbor.c")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_CBOR)
+		target_include_directories(${TARGET_NAME} PRIVATE "${CBOR_INCLUDE_DIRS}")
+		target_link_libraries(${TARGET_NAME} PRIVATE "${CBOR_LIBRARIES}" "${LIBSTATGRAB_LIBRARIES}" pthread)
+		target_sources(${TARGET_NAME} PRIVATE "wrappers/wrap_cbor/parse-cbor.c")
 
 		if (BENCH_CBOR_ARRAY)
-			target_compile_definitions(benchmark_cbor PRIVATE BENCH_CBOR_ARRAY)
+			target_compile_definitions(${TARGET_NAME} PRIVATE BENCH_CBOR_ARRAY)
 		endif()
 
-		install(TARGETS benchmark_cbor DESTINATION /usr/bin)
+		install(TARGETS ${TARGET_NAME} DESTINATION /usr/bin)
 	endif()
 
 	# ---------- xdr enabled --------------------------------------------------
@@ -308,17 +289,6 @@ endif()
 		target_compile_features(benchmark_xdr PRIVATE c_std_11)
 		
 		pkg_check_modules(RPC REQUIRED libtirpc)
-		if (NOT DEFINED RPC_INCLUDE_DIRS OR "${RPC_INCLUDE_DIRS}" STREQUAL "RPC_INCLUDE_DIRS-NOTFOUND")
-			message(FATAL_ERROR "rpc's header file (rpc.h) was not found!")
-		else()
-			message(STATUS "rpc's header file found: ${RPC_INCLUDE_DIRS}")
-		endif()
-
-		if (NOT DEFINED RPC_LIBRARIES OR "${RPC_LIBRARIES}" STREQUAL "RPC_LIBRARIES-NOTFOUND")
-			message(FATAL_ERROR "rpc's library was not found!")
-		else()
-			message(STATUS "rpc's library found: -l${RPC_LIBRARIES}")
-		endif()
 
 		if ("$ENV{TARGET_NM}" STREQUAL "aarch64-linux-gnu-nm")
 			message(STATUS "xdr in cross build mode : $ENV{TARGET_NM}")
@@ -357,18 +327,6 @@ endif()
 		target_compile_features(benchmark_protobuf PRIVATE c_std_11)
 
 		pkg_check_modules(PROTOBUFC REQUIRED libprotobuf-c)
-
-		if (NOT DEFINED PROTOBUFC_INCLUDE_DIRS OR "${PROTOBUFC_INCLUDE_DIRS}" STREQUAL "PROTOBUFC_INCLUDE_DIRS-NOTFOUND")
-			message(FATAL_ERROR "protobuf-c's header file (protobuf-c.h) was not found!")
-		else()
-			message(STATUS "protobuf-c's header file found: ${PROTOBUFC_INCLUDE_DIRS}")
-		endif()
-
-		if (NOT DEFINED PROTOBUFC_LIBRARIES OR "${PROTOBUFC_LIBRARIES}" STREQUAL "PROTOBUFC_LIBRARIES-NOTFOUND")
-			message(FATAL_ERROR "protobuf-c's library was not found!")
-		else()
-			message(STATUS "protobuf-c's library found: ${PROTOBUFC_LIBRARIES}")
-		endif()
 
 		target_compile_definitions(benchmark_protobuf PRIVATE BENCH_PROTOBUF)
 		target_include_directories(benchmark_protobuf PRIVATE "${PROTOBUFC_INCLUDE_DIRS}")
