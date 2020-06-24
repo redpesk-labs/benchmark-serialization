@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###########################################################################
-Name:    benchmark-serialization
-#Hexsha: df30111ddb207e6a78aa6a8319b5b7715ed01f15
+Name:    benchmark-serialization-dynamic
+#Hexsha: 7077ab884fe44410ad9c629a46d72a831c40d009
 Version: 1.0.0
 Release: 0%{?dist}
 License: APL2.0
-Summary: benchmark serialization
+Summary: benchmark serialization dynamic mode
 URL:     http://git.ovh.iot/redpesk-labs/benchmark-serialization.git
 Source0: %{name}-%{version}.tar.gz
 
@@ -30,7 +30,7 @@ BuildRequires: pkgconfig(libcbor)
 BuildRequires: pkgconfig(libprotobuf-c)
 
 %description
-A benchmark fo differents techno/library for serialize/parse data
+A benchmark fo differents techno/library for serialize/parse data in dynamic mode
 
 %prep
 %autosetup -p 1
@@ -55,10 +55,21 @@ make -C %{_target_platform}
 /usr/bin/benchmark_jsoncpp
 /usr/bin/benchmark_jsonstring
 /usr/bin/benchmark_jsmn
-/usr/bin/benchmark_protobuf
 /usr/bin/benchmark_xdr
-
+/usr/bin/benchmark_protobuf
 %changelog
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 7077ab884fe44410ad9c629a46d72a831c40d009
+- Commit message:
+- 	gitignore .tar
+
+
+* Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
+- Upgrade version from source commit sha: 7077ab884fe44410ad9c629a46d72a831c40d009
+- Commit message:
+- 	gitignore .tar
+
 
 * Wed Jun 24 2020 IoT.bzh(iotpkg) <redpesk.list@iot.bzh> 1.0.0
 - Upgrade version from source commit sha: df30111ddb207e6a78aa6a8319b5b7715ed01f15
