@@ -2,3 +2,6 @@
 .vscode/
 build/
 CMakeSettings.json
+*.tar.gz
+*.gz
+*.tar
